@@ -1,5 +1,6 @@
-*.png
-BlindChase/Assets/2DArt*
+!*.png
+*/Assets/2DArt*
+*/Temp/*
 *.png.meta
 *.psd
 *.psd.meta
@@ -10,6 +11,6 @@ BlindChase/Assets/2DArt*
 *.csproj
 *.cache
 *.log
-BlindChase/Assets/TextMesh Pro*
-BlindChase/Library/*
-BlindChase/Packages/*
+*/Assets/TextMesh Pro/Examples*
+BlindChase/Library/
+BlindChase/Packages/

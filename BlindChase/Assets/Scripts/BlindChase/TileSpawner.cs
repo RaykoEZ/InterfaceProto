@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Tilemaps;
+using BlindChase.Events;
 
 namespace BlindChase
 {
@@ -7,11 +8,17 @@ namespace BlindChase
     public class TileSpawner : MonoBehaviour
     {
 
-        public virtual GameObject SpawnTile(GameObject objectRef, Vector3 position, Transform parent, bool isActive = true) 
+        public virtual GameObject SpawnTile(GameObject objectRef, Vector3 position, Transform parent, BCEventHandler e = null, bool isActive = true) 
         {
             GameObject o = Instantiate(objectRef, position, Quaternion.identity, parent);
+            TileBehaviour behaviour = o.GetComponent<TileBehaviour>();
+            
+            if (behaviour != null) 
+            {
+                behaviour?.Init(e);
+            }
+
             o.SetActive(isActive);
-            //Debug.Log($"{Context.WorldMap.size}");
             return o;
         }
     }

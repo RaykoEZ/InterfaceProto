@@ -17,29 +17,25 @@ namespace BlindChase
 
     public class OptionManager : MonoBehaviour
     {
-        WorldContextFactory m_world = default;
-        PlayerContextFactory m_player = default;
-
         WorldContext m_worldContext = default;
         PlayerContext m_playerContext = default;
 
         [SerializeField] RangeDisplay rangeDisplay = default;
 
-        public void Init(WorldContextFactory c, PlayerContextFactory p) 
+        public void Init(
+            WorldContext c, PlayerContext p, 
+            OnPlayerUpdate onPlayerUpdate, OnWorldUpdate onWorldUpdate) 
         {
-            m_world = c;
-            m_player = p;
 
-            OnUpdateWorld(c.Context);
-            OnUpdatePlayer(p.Context);
-            m_world.SubscribeToContextUpdate(OnUpdateWorld);
-            m_player.SubscribeToContextUpdate(OnUpdatePlayer);
+            OnUpdateWorld(c);
+            OnUpdatePlayer(p);
+
+            onPlayerUpdate += OnUpdatePlayer;
+            onWorldUpdate += OnUpdateWorld;
         }
 
         public void Shutdown() 
         {
-            m_world.UnsubscribeToContextUpdate(OnUpdateWorld);
-            m_player.UnsubscribeToContextUpdate(OnUpdatePlayer);
         }
 
         public void PreviewOption(int command)

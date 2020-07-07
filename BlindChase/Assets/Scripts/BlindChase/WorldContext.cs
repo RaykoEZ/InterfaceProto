@@ -1,20 +1,26 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.Tilemaps;
+using BlindChase.Events;
 
 namespace BlindChase
 {
     public class WorldContext 
     {
         public Tilemap WorldMap { get; private set; }
-        public WorldContext(Tilemap map)
+
+        public BCEventHandler EventHandler { get; private set; }
+
+        public WorldContext(Tilemap map, BCEventHandler e)
         {
             WorldMap = map;
+            EventHandler = e;
         }
 
         public WorldContext(WorldContext w) 
         {
             WorldMap = w.WorldMap;
+            EventHandler = w.EventHandler;
         }
     }
 
@@ -25,15 +31,15 @@ namespace BlindChase
         public WorldContext Context { get; private set; }
         public OnWorldUpdate OnContextChanged { get; private set; }
 
-        public WorldContext Init(Tilemap map) 
+        public WorldContext Init(Tilemap map, BCEventHandler e) 
         {
-            UpdateContext(map);
+            UpdateContext(map, e);
             return Context;
         }
 
-        public void UpdateContext(Tilemap map) 
+        public void UpdateContext(Tilemap map, BCEventHandler e) 
         {
-            Context = new WorldContext(map);
+            Context = new WorldContext(map, e);
 
             OnContextUpdated();
         }

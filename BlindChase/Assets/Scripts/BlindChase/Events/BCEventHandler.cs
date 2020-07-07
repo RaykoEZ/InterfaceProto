@@ -6,32 +6,23 @@ using System.ComponentModel;
 namespace BlindChase.Events 
 {
     public class BCEventArgs : EventArgs 
-    { }
+    { 
+        public CommandTypes CommandType { get; private set; }
 
-    public class PlayerPositionEventArgs : BCEventArgs
-    {
-        Vector3Int Coord;
+        public object Data { get; private set; }
+
+        public BCEventArgs(CommandTypes command, object data) 
+        {
+            CommandType = command;
+            Data = data;
+        }
     }
 
-    public class PlayerObjectEventArgs : BCEventArgs
-    {
-        GameObject Player;
-    }
-
-    public class WorldEventArgs : BCEventArgs
-    {
-
-    }
 
 
     public class BCEventHandler
     {
-        public event EventHandler<PlayerPositionEventArgs> PlayerMoved = default;
-
-        public event EventHandler<PlayerObjectEventArgs> PlayerRefChanged = default;
-
-        public event EventHandler<WorldEventArgs> WorldChanged = default;
-
+        public event EventHandler<BCEventArgs> GameEventTriggered = default;
     }
 }
 

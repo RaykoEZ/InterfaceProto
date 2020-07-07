@@ -1,4 +1,5 @@
-﻿using BlindChase.Events;
+﻿using UnityEngine;
+using BlindChase.Events;
 
 namespace BlindChase
 {
@@ -11,12 +12,13 @@ namespace BlindChase
         WorldContext m_worldContext = default;
         PlayerContext m_playerContext = default;
 
+
         public void Init(BCEventHandler e, WorldContextFactory w, PlayerContextFactory p) 
         {
             m_world = w;
             m_player = p;
             m_eventHandle = e;
-
+            m_eventHandle.GameEventTriggered += ExecuteCommand;
             OnUpdateWorld(w.Context);
             OnUpdatePlayer(p.Context);
             m_world.SubscribeToContextUpdate(OnUpdateWorld);
@@ -25,16 +27,18 @@ namespace BlindChase
 
         public void Shutdown()
         {
+            m_eventHandle.GameEventTriggered -= ExecuteCommand;
             m_world.UnsubscribeToContextUpdate(OnUpdateWorld);
             m_player.UnsubscribeToContextUpdate(OnUpdatePlayer);
         }
 
-        void ExecuteCommand(CommandTypes command) 
+        void ExecuteCommand(object sender, BCEventArgs eventArgs) 
         {
-            switch (command)
+            switch (eventArgs.CommandType)
             {
                 case CommandTypes.MOVE:
                     {
+                        Debug.Log("Move");
                         break;
                     }
                 case CommandTypes.ATTACK:
