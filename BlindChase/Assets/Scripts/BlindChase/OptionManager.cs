@@ -19,14 +19,17 @@ namespace BlindChase
     {
         WorldContext m_worldContext = default;
         PlayerContext m_playerContext = default;
+        PlayableTileManager m_playerManagerRef;
 
-        [SerializeField] RangeDisplay rangeDisplay = default;
+        public CommandTypes CurrentCommand { get; private set; } = CommandTypes.NONE;
 
         public void Init(
-            WorldContext c, PlayerContext p, 
-            OnPlayerUpdate onPlayerUpdate, OnWorldUpdate onWorldUpdate) 
+            WorldContext c, PlayerContext p,
+            PlayableTileManager tileManager,
+            OnPlayerUpdate onPlayerUpdate, 
+            OnWorldUpdate onWorldUpdate) 
         {
-
+            m_playerManagerRef = tileManager;
             OnUpdateWorld(c);
             OnUpdatePlayer(p);
 
@@ -41,12 +44,14 @@ namespace BlindChase
         public void PreviewOption(int command)
         {
             CommandTypes type = (CommandTypes)command;
+            CurrentCommand = type;
+
             switch (type)
             {
                 case CommandTypes.MOVE:
                     {
-
-                        rangeDisplay.ToggleRangeDisplay(m_playerContext.RangeMaps[1], m_playerContext.PlayerCoord, m_worldContext);
+                        TileBehaviour playerBehaviour = m_playerManagerRef.Player(TileDisplayKeywords.PLAYER);
+                        playerBehaviour.OnPlayerSelect(m_worldContext, m_playerContext);
                         break;
                     }
                 case CommandTypes.ATTACK:
@@ -60,6 +65,7 @@ namespace BlindChase
                 case CommandTypes.NONE:
                     break;
                 default:
+                    CurrentCommand = CommandTypes.NONE;
                     break;
             }
         }

@@ -1,21 +1,21 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Tilemaps;
-using BlindChase.Events;
 
 namespace BlindChase
 {
     // For spawning basic tiles on a map.
-    public class TileSpawner : MonoBehaviour
+    public class TileSpawner
     {
 
-        public virtual GameObject SpawnTile(GameObject objectRef, Vector3 position, Transform parent, BCEventHandler e = null, bool isActive = true) 
+        public virtual GameObject SpawnTile(GameObject objectRef, Vector3 position, Transform parent, bool isActive = true) 
         {
-            GameObject o = Instantiate(objectRef, position, Quaternion.identity, parent);
+            GameObject o = Object.Instantiate(objectRef, position, Quaternion.identity, parent);
             TileBehaviour behaviour = o.GetComponent<TileBehaviour>();
             
             if (behaviour != null) 
             {
-                behaviour?.Init(e);
+                behaviour?.Init();
             }
 
             o.SetActive(isActive);

@@ -1,7 +1,8 @@
-﻿using BlindChase.Utility;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using BlindChase.Events;
+using BlindChase.Utility;
 
 namespace BlindChase
 {
@@ -9,45 +10,33 @@ namespace BlindChase
     public class BlindChaseCore : MonoBehaviour
     {
         [SerializeField] GameObject m_playerAsset = default;
-        [SerializeField] TileSpawner m_spawner = default;
         [SerializeField] Tilemap m_map = default;
+        [SerializeField] OptionManager m_optionManager = default;
 
         WorldContextFactory m_worldContextFactory = new WorldContextFactory();
         PlayerContextFactory m_playerContextFactory = new PlayerContextFactory();
 
-        WorldContext m_worldContext = default;
-        PlayerContext m_playerContext = default;
+        PlayerController m_playerContoller = new PlayerController();
+        PlayableTileManager m_playerTileManager = new PlayableTileManager(); 
 
-        CommandManager m_commandManager = new CommandManager();
-
-        BCEventHandler m_eventHandler = default;
+        GameEventHandler m_eventHandler = default;
 
         OnPlayerUpdate OnPlayerUpdate { get; set; }
         OnWorldUpdate OnWorldUpdate { get; set; }
 
         void Start()
         {
+            m_playerTileManager.Init();
+
             SetupEventHandler();
 
-            m_worldContext = m_worldContextFactory.Init(m_map, m_eventHandler);
             m_worldContextFactory.SubscribeToContextUpdate(OnNewWorldContext);
+            m_worldContextFactory.Update(new WorldContext(m_map));
 
-            // Spawn
-            Vector3 p = m_map.GetCellCenterLocal(Vector3Int.zero);
+            InitPlayer();
 
-            GameObject o = m_spawner.SpawnTile(
-                m_playerAsset, p, 
-                GetComponent<CanvasManager>().GameBoardCanvas.transform,
-                m_eventHandler
-                );
-            
-            Vector3Int coord = m_map.LocalToCell(o.transform.position);
-            m_playerContext = m_playerContextFactory.Init(coord, o.transform);
-            m_playerContextFactory.SubscribeToContextUpdate(OnNewPlayerContext);
-
-
-            GetComponent<OptionManager>().Init(m_worldContext, m_playerContext, OnPlayerUpdate, OnWorldUpdate);
-            m_commandManager.Init(m_eventHandler, m_worldContextFactory, m_playerContextFactory);
+            GetComponent<OptionManager>().Init(m_worldContextFactory.Context, m_playerContextFactory.Context, m_playerTileManager, OnPlayerUpdate, OnWorldUpdate);
+            m_playerContoller.Init(m_playerTileManager, m_optionManager, m_eventHandler, m_worldContextFactory, m_playerContextFactory);
         }
 
         private void OnDestroy()
@@ -55,10 +44,33 @@ namespace BlindChase
             Shutdown();
         }
 
+        void InitPlayer() 
+        {
+            // Spawn
+            Vector3 p = m_map.GetCellCenterLocal(Vector3Int.zero);
+
+            Transform t = GetComponent<CanvasManager>().GameBoardCanvas.transform;
+
+            GameObject o = m_playerTileManager.SpawnTile(
+                TileDisplayKeywords.PLAYER,
+                m_playerAsset, 
+                p,
+                t
+                );
+
+            m_playerTileManager.ShowTile(TileDisplayKeywords.PLAYER);
+            GameObject player = o;
+
+            Vector3Int coord = m_map.LocalToCell(player.transform.position);
+            m_playerContextFactory.SubscribeToContextUpdate(OnNewPlayerContext);
+            m_playerContextFactory.Update(new PlayerContext(coord, o.transform));
+
+        }
+
         void Shutdown() 
         {
-            ShutdownEventHandler();
-            m_commandManager.Shutdown();
+            m_playerContoller.Shutdown();
+            m_playerTileManager.Shutdown();
             OnPlayerUpdate = null;
             OnWorldUpdate = null;
         }
@@ -73,20 +85,11 @@ namespace BlindChase
             OnWorldUpdate?.Invoke(w);
         }
 
-        void SetupEventHandler() 
+        void SetupEventHandler()
         {
-            m_eventHandler = new BCEventHandler();
-            m_eventHandler.GameEventTriggered += PlayerPositionUpdated;
+            m_eventHandler = new GameEventHandler();
+            m_eventHandler.Init(m_playerTileManager);
         }
 
-        void ShutdownEventHandler() 
-        {
-            m_eventHandler.GameEventTriggered -= PlayerPositionUpdated;
-        }
-
-        static void PlayerPositionUpdated(object sender, BCEventArgs args)
-        {
-
-        }
     }
 }

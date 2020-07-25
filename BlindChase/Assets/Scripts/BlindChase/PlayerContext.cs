@@ -4,7 +4,7 @@ using BlindChase.Utility;
 
 namespace BlindChase
 {
-    public class PlayerContext
+    public class PlayerContext : IBCContext
     {
         public Vector3Int PlayerCoord { get; private set; }
         public Transform PlayerTransform { get; private set; }
@@ -30,27 +30,19 @@ namespace BlindChase
 
     public delegate void OnPlayerUpdate(PlayerContext context);
 
-    public class PlayerContextFactory : IBCContextFactory
+    public class PlayerContextFactory : IBCContextFactory<PlayerContext>
     {
         public PlayerContext Context { get; private set; }
         public OnPlayerUpdate OnContextChanged { get; private set; }
 
 
-        public PlayerContext Init(Vector3Int playerCoord, Transform playerTransform)
+        public void Update(PlayerContext newContext)
         {
-            UpdateContext(playerCoord, playerTransform);
-            return Context;
-
-        }
-
-        void UpdateContext(Vector3Int playerCoord, Transform playerTransform)
-        {
-            Context = new PlayerContext(playerCoord, playerTransform);
-
+            Context = new PlayerContext(newContext);
             OnContextUpdated();
         }
 
-        public void OnContextUpdated()
+        void OnContextUpdated()
         {
             OnContextChanged?.Invoke(new PlayerContext(Context));
         }

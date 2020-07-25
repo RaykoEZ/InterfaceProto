@@ -1,39 +1,82 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEngine;
+using BlindChase.Events;
 
 namespace BlindChase 
 {
+
+    public delegate void OnTileTrigger<T>(T info)
+        where T : TileEventInfo;
+
+
+    public struct TileItem 
+    {
+        public GameObject TileObject;
+        public TileBehaviour Behaviour;
+    }
+
     // Stores tile gameobjects generated in a session.
     public class TileContainer
     {
-        public List<GameObject> Tiles { get; private set; } = new List<GameObject>();
-        public bool isActive { get; private set; } = false; 
+        List<TileItem> m_tiles = new List<TileItem>();
+        public bool isActive { get; protected set; } = false;
 
-        public void HideTiles() 
+        public event OnTileTrigger<TileEventInfo> OnTileTrigger = default;
+
+
+        public TileContainer(TileItem item) 
         {
-            foreach (GameObject o in Tiles) 
+            m_tiles?.Add(item);
+        }
+
+        protected void OnTileEventTrigger(TileEventInfo info) 
+        {
+            OnTileTrigger?.Invoke(info);
+        }
+
+        public virtual void AddTileItem(TileItem item) 
+        {
+            m_tiles.Add(item);
+        }
+
+        public virtual void HideTiles() 
+        {
+            foreach (TileItem o in m_tiles) 
             {
-                o?.SetActive(false);
+                o.TileObject?.SetActive(false);
+                o.Behaviour?.UnlistenToEvents(OnTileEventTrigger);
+
             }
             isActive = false;
         }
 
-        public void ShowTiles() 
+        public virtual void ShowTiles() 
         {
-            foreach (GameObject o in Tiles)
+            foreach (TileItem o in m_tiles)
             {
-                o?.SetActive(true);
+                o.TileObject?.SetActive(true);
+                o.Behaviour?.ListenToEvents(OnTileEventTrigger);
             }
             isActive = true;
         }
 
-        public void MoveTiles(Vector3 diff) 
+        public virtual void MoveTiles(Vector3 diff) 
         {
-            foreach (GameObject o in Tiles)
+            foreach (TileItem o in m_tiles)
             {
-                o.transform.position += diff;
+                o.TileObject.transform.position += diff;
             }
             isActive = true;
+        }
+
+        public virtual void DestroyTiles() 
+        {
+            isActive = false;
+            foreach (TileItem o in m_tiles) 
+            {
+                o.Behaviour?.UnlistenToEvents(OnTileEventTrigger);
+                Object.Destroy(o.TileObject);
+            }
         }
     }
 }

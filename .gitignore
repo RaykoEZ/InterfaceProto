@@ -1,4 +1,5 @@
 !*.png
+!*.asset
 */Assets/2DArt*
 */Temp/*
 *.png.meta
@@ -11,6 +12,7 @@
 *.csproj
 *.cache
 *.log
-*/Assets/TextMesh Pro/Examples*
+*/Assets/TextMesh Pro*
+*/Assets/2D Dungeon PixelArt Tileset*
 BlindChase/Library/
 BlindChase/Packages/

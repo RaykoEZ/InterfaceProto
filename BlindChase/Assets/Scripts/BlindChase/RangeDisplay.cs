@@ -1,73 +1,80 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using BlindChase.Utility;
+using BlindChase.Events;
 
 namespace BlindChase 
 {
+
     // Stores and toggles range display maps
     public class RangeDisplay : MonoBehaviour
     {
         [SerializeField] GameObject m_rangeTile = default;
-        [SerializeField] TileSpawner m_spawner = default;
+        [SerializeField] Transform m_rangeTileParent = default;
 
-        // Change this later
-        Dictionary<NeighbourhoodRangeMap, TileContainer> m_displayTiles = new Dictionary<NeighbourhoodRangeMap, TileContainer>();
+        TileManager m_tileManager = new TileManager();
 
-        Vector3Int m_previousOrigin = default;
+        public event OnTileTrigger<TileEventInfo> OnRangeTileEvent = default;
 
-        void Hide(TileContainer tiles) 
+        void Start()
         {
-            if (tiles != null)
-            {
-                tiles.HideTiles();
-            }
+            Init();
         }
 
-        void Show(NeighbourhoodRangeMap tileOffsets, Vector3Int origin, WorldContext world, TileContainer tiles)
+
+        public virtual void Init() 
+        {
+            m_tileManager.OnTileEvent += OnRangeTileTrigger;
+        }
+
+        void Hide(string id) 
+        {
+            m_tileManager.HideTile(id);
+        }
+
+        void Show(string id, NeighbourhoodRangeMap tileOffsets, Vector3Int origin, WorldContext world, bool tilesExist)
         {
             // If tiles never existed, make new tiles
-            if (tiles == null)
+            if (!tilesExist)
             {
-                TileContainer newTiles = new TileContainer();
-
                 // This is for showing/creating range tiles.
                 foreach (Vector3Int p in tileOffsets.OffsetsFromOrigin)
                 {
                     Vector3 offsetPos = world.WorldMap.GetCellCenterLocal(origin + p);
-
-                    GameObject o = m_spawner.SpawnTile(m_rangeTile, offsetPos, transform, world.EventHandler, false);
-                    newTiles.Tiles.Add(o);
+                    m_tileManager.SpawnTile(id, m_rangeTile, offsetPos, m_rangeTileParent, true);
                 }
 
-                m_displayTiles.Add(tileOffsets, newTiles);
-                newTiles.ShowTiles();
-                m_previousOrigin = origin;
+
             }
-            else if (origin != m_previousOrigin)
-            {
-                // Move previous tiles if origin moved
-                tiles.MoveTiles(world.WorldMap.GetCellCenterLocal(origin - m_previousOrigin));
-                m_previousOrigin = origin;
-                tiles.ShowTiles();
-            }
-            else 
-            {
-                tiles.ShowTiles();
-            }
+
+            m_tileManager.ShowTile(id);          
 
         }
 
-        public void ToggleRangeDisplay(NeighbourhoodRangeMap tileOffsets, Vector3Int origin, WorldContext context)
+        public void ToggleRangeDisplay(string id, NeighbourhoodRangeMap tileOffsets, Vector3Int origin, WorldContext context)
         {
-            if (m_displayTiles.TryGetValue(tileOffsets, out TileContainer tiles) && tiles.isActive) 
+            if (string.IsNullOrWhiteSpace(id)) 
             {
-                Hide(tiles);
+                return;
+            }
+
+            bool tilesExist = m_tileManager.DoTilesExist(id);
+            bool isActive = m_tileManager.AreTilesActive(id);
+            if (tilesExist && isActive) 
+            {
+                Hide(id);
             }
             else 
             {
-                Show(tileOffsets, origin, context, tiles);
+                Show(id, tileOffsets, origin, context, tilesExist);
             }
         }
+
+        void OnRangeTileTrigger(TileEventInfo tileEventInfo) 
+        {
+            OnRangeTileEvent?.Invoke(tileEventInfo);
+        }
+
     }
 
 }

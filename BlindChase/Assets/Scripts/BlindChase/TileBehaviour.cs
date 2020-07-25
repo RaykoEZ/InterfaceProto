@@ -5,16 +5,31 @@ using BlindChase.Events;
 
 namespace BlindChase 
 {
-    public class TileBehaviour : MonoBehaviour
+    public abstract class TileBehaviour : MonoBehaviour
     {
-        protected BCEventHandler eventHandler; 
+        protected OnTileTrigger<TileEventInfo> m_onTileTrigger = default;
 
-        public virtual void Init(BCEventHandler e) 
+        public virtual void Init() 
         {
-            eventHandler = e;
-
         }
+
+
+        public void ListenToEvents(OnTileTrigger<TileEventInfo> callme)
+        {
+            m_onTileTrigger += callme;
+        }
+
+        public void UnlistenToEvents(OnTileTrigger<TileEventInfo> callme)
+        {
+            m_onTileTrigger -= callme;
+        }
+
+        public abstract void OnPlayerSelect(WorldContext world = null, PlayerContext player = null);
+
     }
+
+    // Basic Event description for a tile interaction. 
+
 }
 
 

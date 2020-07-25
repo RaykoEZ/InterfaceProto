@@ -3,9 +3,16 @@ using System.Collections;
 
 namespace BlindChase 
 {
-    public interface IBCContextFactory
+    public interface IBCContext 
+    { 
+    
+    }
+
+
+    public interface IBCContextFactory<T> where T : IBCContext
     {
-        void OnContextUpdated();
+        void Update(T newContext);
+
         void Shutdown();
 
     }

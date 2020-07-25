@@ -42,3 +42,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: PlayerIcon
+    uniqueID: 3657763299
+    locked: 0
+  - name: InteractTiles
+    uniqueID: 3535902873
+    locked: 0
