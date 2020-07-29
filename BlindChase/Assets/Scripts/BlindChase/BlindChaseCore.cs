@@ -29,7 +29,6 @@ namespace BlindChase
             m_playerTileManager.Init();
 
             SetupEventHandler();
-
             m_worldContextFactory.SubscribeToContextUpdate(OnNewWorldContext);
             m_worldContextFactory.Update(new WorldContext(m_map));
 

@@ -67,8 +67,6 @@ namespace BlindChase
 
             Vector3 offset = destCoord - m_playerContext.PlayerCoord;
 
-            Debug.Log($"{offset}");
-
             m_tileManager.MoveTile(TileDisplayKeywords.PLAYER, offset);
 
             PlayerContext newContext = new PlayerContext(destCoord, m_tileManager.Player(TileDisplayKeywords.PLAYER).transform);

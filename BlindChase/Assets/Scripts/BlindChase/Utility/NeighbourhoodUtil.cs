@@ -3,10 +3,11 @@ using UnityEngine;
 
 namespace BlindChase.Utility
 {
-    public struct NeighbourhoodRangeMap
+    [System.Serializable]
+    public class NeighbourhoodRangeMap
     {
-        public HashSet<Vector3Int> OffsetsFromOrigin { get; set; }
-        public int Range { get; set; }
+        public List<Vector3Int> OffsetsFromOrigin;
+        public int Range;
     }
 
     public static class NeighbourhoodUtil 
@@ -22,7 +23,7 @@ namespace BlindChase.Utility
             {
                 return new NeighbourhoodRangeMap 
                 { 
-                    OffsetsFromOrigin = new HashSet<Vector3Int>{Vector3Int.zero}, 
+                    OffsetsFromOrigin = new List<Vector3Int>{Vector3Int.zero}, 
                     Range = 0 
                 };
             }
@@ -39,7 +40,7 @@ namespace BlindChase.Utility
             /// 2
             /// 1 1
             /// 0 0 0
-            HashSet<Vector3Int> neighbours = new HashSet<Vector3Int>();
+            List<Vector3Int> neighbours = new List<Vector3Int>();
 
             for (int i = 0; i <= range; ++i ) 
             {
@@ -64,13 +65,17 @@ namespace BlindChase.Utility
 
         static NeighbourhoodRangeMap GetImmediateNeighbourhood() 
         {
-            HashSet<Vector3Int> neighbours = new HashSet<Vector3Int>();
+            List<Vector3Int> neighbours = new List<Vector3Int>();
             neighbours.Add(new Vector3Int(0,1, 0));
             neighbours.Add(new Vector3Int(0, -1, 0));
             neighbours.Add(new Vector3Int(1, 0, 0));
             neighbours.Add(new Vector3Int(-1, 0, 0));
 
-            NeighbourhoodRangeMap map = new NeighbourhoodRangeMap { OffsetsFromOrigin = neighbours };
+            NeighbourhoodRangeMap map = new NeighbourhoodRangeMap 
+            { 
+                OffsetsFromOrigin = neighbours, 
+                Range = 1 
+            };
 
             return map;
         }
