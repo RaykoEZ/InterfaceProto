@@ -1002,7 +1002,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 808719390}
-        m_MethodName: PreviewOption
+        m_MethodName: TogglePreviewOption
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1431,7 +1431,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33c1f7cb755d1b948b118332968b2698, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rangeDisplay: {fileID: 2020056522}
 --- !u!1 &931386871
 GameObject:
   m_ObjectHideFlags: 0
@@ -2334,6 +2333,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_rangeTile: {fileID: 8655212242860225477, guid: 905a9179f698a5a49af264186e618608,
     type: 3}
+  m_rangeTileParent: {fileID: 0}
+  m_rangeDsplayMasks: {fileID: 0}
 --- !u!1 &2072234146
 GameObject:
   m_ObjectHideFlags: 0

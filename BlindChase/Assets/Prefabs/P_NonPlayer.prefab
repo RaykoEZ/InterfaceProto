@@ -44,6 +44,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_rangeTile: {fileID: 8655212242860225477}
+  m_rangeTileParent: {fileID: 6232529981744345782}
+  m_rangeDsplayMasks: {fileID: 11400000, guid: 72bea47aa47580b4ea86e8180e9becb4, type: 2}
 --- !u!1 &4361190774329782871
 GameObject:
   m_ObjectHideFlags: 0

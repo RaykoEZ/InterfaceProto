@@ -17,7 +17,7 @@ namespace BlindChase
 
         public override void OnPlayerSelect(WorldContext world = null, PlayerContext player = null)
         {
-            m_rangeDisplay.ToggleRangeDisplay(TileDisplayKeywords.PLAYER_RANGE, player.RangeMaps[1], player.PlayerCoord, world);
+            m_rangeDisplay.ToggleRangeDisplay(TileDisplayKeywords.PLAYER_RANGE, 1, player.PlayerCoord, world);
         }
 
         public virtual void OnPlayerTileAction(TileEventInfo eventArg)

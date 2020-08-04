@@ -11,7 +11,7 @@ namespace BlindChase
     {
         [SerializeField] GameObject m_rangeTile = default;
         [SerializeField] Transform m_rangeTileParent = default;
-
+        [SerializeField] RangeDisplayMasks m_rangeDsplayMasks = default;
         TileManager m_tileManager = new TileManager();
 
         public event OnTileTrigger<TileEventInfo> OnRangeTileEvent = default;
@@ -51,7 +51,7 @@ namespace BlindChase
 
         }
 
-        public void ToggleRangeDisplay(string id, NeighbourhoodRangeMap tileOffsets, Vector3Int origin, WorldContext context)
+        public void ToggleRangeDisplay(string id, int range, Vector3Int origin, WorldContext context)
         {
             if (string.IsNullOrWhiteSpace(id)) 
             {
@@ -66,7 +66,8 @@ namespace BlindChase
             }
             else 
             {
-                Show(id, tileOffsets, origin, context, tilesExist);
+                NeighbourhoodRangeMap rangeMap = m_rangeDsplayMasks.GetSquareRadiusMap(range);
+                Show(id, rangeMap, origin, context, tilesExist);
             }
         }
 

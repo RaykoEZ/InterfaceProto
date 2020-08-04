@@ -41,7 +41,7 @@ namespace BlindChase
         {
         }
 
-        public void PreviewOption(int command)
+        public void TogglePreviewOption(int command)
         {
             CommandTypes type = (CommandTypes)command;
             CurrentCommand = type;

@@ -161,6 +161,7 @@ MonoBehaviour:
   m_rangeTile: {fileID: 8655212242860225477, guid: 905a9179f698a5a49af264186e618608,
     type: 3}
   m_rangeTileParent: {fileID: 2520790057296335888}
+  m_rangeDsplayMasks: {fileID: 11400000, guid: 72bea47aa47580b4ea86e8180e9becb4, type: 2}
 --- !u!114 &3919900454061022851
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -44,6 +44,8 @@ namespace BlindChase
                     {
                         Debug.Log("Move");
                         MovePlayer(eventArgs.Location);
+                        // Toggle movement range preview off. 
+                        m_optionManagerRef.TogglePreviewOption((int)CommandTypes.MOVE);
                         break;
                     }
                 case CommandTypes.ATTACK:

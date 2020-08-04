@@ -7,14 +7,26 @@ namespace BlindChase.Utility
     [CreateAssetMenu(fileName = "RangeTileMasks", menuName = "BlindChase/Create cache for range tile masks", order = 1)]
     public class RangeDisplayMasks : ScriptableObject
     {
-        [SerializeField] List<NeighbourhoodRangeMap> SquareRadiusRangeMasks = new List<NeighbourhoodRangeMap>();
+        [SerializeField] List<NeighbourhoodRangeMap> m_squareRadiusRangeMasks = new List<NeighbourhoodRangeMap>();
+
+        public NeighbourhoodRangeMap GetSquareRadiusMap(int range) 
+        {
+            if (range < 0 || range > m_squareRadiusRangeMasks.Count) 
+            {
+                return null;
+            }
+
+            return m_squareRadiusRangeMasks[range];
+
+        }
+
         public void GenerateSquareRadiusMaps(int maxRange) 
         {
-            SquareRadiusRangeMasks.Clear();
+            m_squareRadiusRangeMasks.Clear();
             for (int i = 0; i< maxRange + 1; ++i) 
             {
                 NeighbourhoodRangeMap mask = NeighbourhoodUtil.GetNeighbourRangeMap(i);
-                SquareRadiusRangeMasks.Add(mask);
+                m_squareRadiusRangeMasks.Add(mask);
             }
         }
     }
