@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using BlindChase.Events;
 using BlindChase.Utility;
+using BlindChase.State;
 
 namespace BlindChase
 {
@@ -14,28 +15,17 @@ namespace BlindChase
         [SerializeField] OptionManager m_optionManager = default;
 
         WorldContextFactory m_worldContextFactory = new WorldContextFactory();
-        PlayerContextFactory m_playerContextFactory = new PlayerContextFactory();
+        FactionContextFactory m_playerContextFactory = new FactionContextFactory();
 
-        PlayerController m_playerContoller = new PlayerController();
-        PlayableTileManager m_playerTileManager = new PlayableTileManager(); 
+        PlayerManager m_playerManager = new PlayerManager();
+        ControllableTileManager m_playerPieceManager = new ControllableTileManager(); 
 
-        GameEventHandler m_eventHandler = default;
+        FactionMemberController m_controller = new FactionMemberController();
 
-        OnPlayerUpdate OnPlayerUpdate { get; set; }
-        OnWorldUpdate OnWorldUpdate { get; set; }
-
+        GameStateManager m_gameState = new GameStateManager();
         void Start()
         {
-            m_playerTileManager.Init();
-
-            SetupEventHandler();
-            m_worldContextFactory.SubscribeToContextUpdate(OnNewWorldContext);
-            m_worldContextFactory.Update(new WorldContext(m_map));
-
-            InitPlayer();
-
-            GetComponent<OptionManager>().Init(m_worldContextFactory.Context, m_playerContextFactory.Context, m_playerTileManager, OnPlayerUpdate, OnWorldUpdate);
-            m_playerContoller.Init(m_playerTileManager, m_optionManager, m_eventHandler, m_worldContextFactory, m_playerContextFactory);
+            InitGame();
         }
 
         private void OnDestroy()
@@ -43,51 +33,65 @@ namespace BlindChase
             Shutdown();
         }
 
+        void InitGame() 
+        {
+            m_worldContextFactory.Reset(new WorldContext(m_map));
+
+            Stack<GameEffect> startGameEffects = new Stack<GameEffect>();
+            List<Faction> teams = new List<Faction>();
+            m_gameState.Init(startGameEffects);
+
+            m_playerPieceManager.Init();
+            m_worldContextFactory.Reset(new WorldContext(m_map));
+
+            GetComponent<OptionManager>().Init(m_playerPieceManager, m_worldContextFactory, m_playerContextFactory);
+
+            // No players are selected right now
+            m_controller.Init(m_playerPieceManager, m_playerContextFactory);
+
+            m_playerManager.Init(
+                m_playerPieceManager, 
+                m_optionManager,
+                m_gameState,
+                m_controller,
+                m_worldContextFactory, m_playerContextFactory);
+
+            InitPlayer();
+
+        } 
+
         void InitPlayer() 
         {
-            // Spawn
+
+            // Spawn a player tile
             Vector3 p = m_map.GetCellCenterLocal(Vector3Int.zero);
 
             Transform t = GetComponent<CanvasManager>().GameBoardCanvas.transform;
 
-            GameObject o = m_playerTileManager.SpawnTile(
-                TileDisplayKeywords.PLAYER,
+            TileId playerTileId = new TileId(TileDisplayKeywords.PLAYER, "0", "0");
+
+            GameObject playerObject = m_playerPieceManager.SpawnTile(
+                playerTileId,
                 m_playerAsset, 
                 p,
                 t
                 );
 
-            m_playerTileManager.ShowTile(TileDisplayKeywords.PLAYER);
-            GameObject player = o;
+            Vector3Int coord = m_map.LocalToCell(playerObject.transform.position);
 
-            Vector3Int coord = m_map.LocalToCell(player.transform.position);
-            m_playerContextFactory.SubscribeToContextUpdate(OnNewPlayerContext);
-            m_playerContextFactory.Update(new PlayerContext(coord, o.transform));
+            ControllableTileContextData playerData = new ControllableTileContextData(coord, playerObject.transform);
 
+            m_playerContextFactory.UpdateContext(playerTileId, playerData);
+
+            m_playerPieceManager.ShowTile(playerTileId);
         }
 
         void Shutdown() 
         {
-            m_playerContoller.Shutdown();
-            m_playerTileManager.Shutdown();
-            OnPlayerUpdate = null;
-            OnWorldUpdate = null;
-        }
-
-        void OnNewPlayerContext(PlayerContext p) 
-        {
-            OnPlayerUpdate?.Invoke(p);
-        }
-
-        void OnNewWorldContext(WorldContext w)
-        {
-            OnWorldUpdate?.Invoke(w);
-        }
-
-        void SetupEventHandler()
-        {
-            m_eventHandler = new GameEventHandler();
-            m_eventHandler.Init(m_playerTileManager);
+            m_worldContextFactory.Shutdown();
+            m_playerContextFactory.Shutdown();
+            m_playerManager.Shutdown();
+            m_playerPieceManager.Shutdown();
         }
 
     }

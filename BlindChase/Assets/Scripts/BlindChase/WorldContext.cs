@@ -27,7 +27,7 @@ namespace BlindChase
         public WorldContext Context { get; private set; }
         public OnWorldUpdate OnContextChanged { get; private set; }
 
-        public void Update(WorldContext newContext) 
+        public void Reset(WorldContext newContext) 
         {
             Context = new WorldContext(newContext);
             OnContextUpdated();

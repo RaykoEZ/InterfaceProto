@@ -4,13 +4,10 @@ using UnityEngine;
 
 namespace BlindChase 
 {
-    // NOTE: THIS CAN NEED A CLASS LATER
     public enum CommandTypes 
     { 
         MOVE,
-        ATTACK,
         SKILL,
-        EXPLORE,
         END,
         NONE
     }
@@ -18,23 +15,21 @@ namespace BlindChase
     public class OptionManager : MonoBehaviour
     {
         WorldContext m_worldContext = default;
-        PlayerContext m_playerContext = default;
-        PlayableTileManager m_playerManagerRef;
+        ControllableTileContext m_playerContext = default;
+        ControllableTileManager m_playerPieceManagerRef;
 
         public CommandTypes CurrentCommand { get; private set; } = CommandTypes.NONE;
 
         public void Init(
-            WorldContext c, PlayerContext p,
-            PlayableTileManager tileManager,
-            OnPlayerUpdate onPlayerUpdate, 
-            OnWorldUpdate onWorldUpdate) 
+            ControllableTileManager tileManager, 
+            WorldContextFactory w,
+            FactionContextFactory p
+            ) 
         {
-            m_playerManagerRef = tileManager;
-            OnUpdateWorld(c);
-            OnUpdatePlayer(p);
+            m_playerPieceManagerRef = tileManager;
 
-            onPlayerUpdate += OnUpdatePlayer;
-            onWorldUpdate += OnUpdateWorld;
+            w.SubscribeToContextUpdate(OnUpdateWorld);
+            p.SubscribeToContextUpdate(OnUpdatePlayer);
         }
 
         public void Shutdown() 
@@ -49,16 +44,12 @@ namespace BlindChase
             switch (type)
             {
                 case CommandTypes.MOVE:
-                    {
-                        TileBehaviour playerBehaviour = m_playerManagerRef.Player(TileDisplayKeywords.PLAYER);
-                        playerBehaviour.OnPlayerSelect(m_worldContext, m_playerContext);
+                    {                      
+                        TileBehaviour playerBehaviour = m_playerPieceManagerRef.Player(m_playerContext.LatestSelectedPieceId);
+                        playerBehaviour.OnPlayerSelect();
                         break;
                     }
-                case CommandTypes.ATTACK:
-                    break;
                 case CommandTypes.SKILL:
-                    break;
-                case CommandTypes.EXPLORE:
                     break;
                 case CommandTypes.END:
                     break;
@@ -75,7 +66,7 @@ namespace BlindChase
             m_worldContext = world;
         }
 
-        void OnUpdatePlayer(PlayerContext player) 
+        void OnUpdatePlayer(ControllableTileContext player) 
         {
             m_playerContext = player;
         }

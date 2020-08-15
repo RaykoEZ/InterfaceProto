@@ -1,70 +1,147 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace BlindChase.State
 {
 
-    public interface IGameState
+    public abstract class GameState
     {
-        // Type returned = the next game state.
-        void StateOps(IGameState incomingState);
-        Type TransitionTo();
-    }
+        protected Stack<GameEffect> m_stateEffects;
 
-    public class RoundStart : IGameState 
-    {
-        public void StateOps(IGameState incomingState) 
-        { 
-            
-        }
-        public Type TransitionTo() { return typeof(PlayerTurn); }
-    }
-
-    // If player won on turn end, => Game End
-    public class RoundEnd : IGameState
-    {
-        public void StateOps(IGameState incomingState)
+        public virtual void Init(Stack<GameEffect> startEffects) 
         {
+            m_stateEffects = startEffects;
         }
-        public Type TransitionTo() { return typeof(RoundStart); }
+
+        // Type returned = the next game state.
+        public virtual void OnEnter(GameState incomingState) 
+        {
+            // Empty all incoming effects at the start of current game state
+            if (m_stateEffects != null && m_stateEffects.Count > 0) 
+            {
+                m_stateEffects = ProcessEffectStack();
+            }
+        }
+
+        public virtual Type TransitionTo() 
+        {
+            return GetType();
+        }
+
+        protected Stack<GameEffect> ProcessEffectStack()
+        {
+            Stack<GameEffect> delayedEffects = new Stack<GameEffect>();
+
+            if (m_stateEffects == null || m_stateEffects.Count == 0)
+            {
+                return delayedEffects;
+            }
+
+            Type gameStateType = GetType();
+            // Call all effects in this effect stack.
+            for (int i = 0; i < m_stateEffects.Count; ++i)
+            {
+                GameEffect effect = m_stateEffects.Peek();
+
+                effect.Delay--;
+
+                if (effect.Delay < 0)
+                {
+                    // This may need to be a coroutine
+                    m_stateEffects.Pop().EffectCall.Invoke();
+                }
+                else
+                {
+                    delayedEffects.Push(m_stateEffects.Pop());
+                }
+            }
+
+            return delayedEffects;
+        }
+
+    }
+
+    public class TurnStart : GameState
+    {
+        public override void Init(Stack<GameEffect> startEffects)
+        {
+            base.Init(startEffects);
+
+        }
+
+        public override void OnEnter(GameState incomingState)
+        {
+            base.OnEnter(incomingState);
+
+        }
+        public override Type TransitionTo()
+        {
+            base.TransitionTo();
+            return typeof(PlayerTurn);
+        }
     }
 
     // Need to listen to win detector, if won/loss, => GaemEnd
-    public class PlayerTurn : IGameState
+    public class PlayerTurn : GameState
     {
-        public void StateOps(IGameState incomingState)
+        public override void Init(Stack<GameEffect> startEffects)
         {
+            base.Init(startEffects);
+
         }
-        public Type TransitionTo() { return typeof(RoundEnd); }
+
+        public override void OnEnter(GameState incomingState)
+        {
+            base.OnEnter(incomingState);
+
+        }
+        public override Type TransitionTo() 
+        {
+            base.TransitionTo();
+            return typeof(TurnEnd); 
+        }
     }
 
-    public class GameStart : IGameState
+
+    public class TurnEnd : GameState
     {
-        public void StateOps(IGameState incomingState)
+        public override void Init(Stack<GameEffect> startEffects)
         {
+            base.Init(startEffects);
+
         }
-        public Type TransitionTo() { return typeof(RoundStart); }
+
+        public override void OnEnter(GameState incomingState)
+        {
+            base.OnEnter(incomingState);
+
+        }
+        public override Type TransitionTo() 
+        {
+            base.TransitionTo();
+            return typeof(TurnStart); 
+        }
     }
 
-
-    public class GameEnd : IGameState
+    public class GameEnd : GameState
     {
-        public void StateOps(IGameState incomingState)
+        public override void Init(Stack<GameEffect> startEffects)
         {
+            base.Init(startEffects);
+
         }
-        public Type TransitionTo() { return null; }
-    }
 
-    // T : Previous game state
-    public class Interrupted : IGameState
-    {
-
-        IGameState m_previous;
-        public void StateOps(IGameState incomingState)
+        public override void OnEnter(GameState incomingState)
         {
-            m_previous = incomingState;
+            base.OnEnter(incomingState);
+
         }
-        public Type TransitionTo() { return m_previous.GetType(); }
+        public override Type TransitionTo()
+        {
+            base.TransitionTo();
+            return null;
+        }
     }
 
 }

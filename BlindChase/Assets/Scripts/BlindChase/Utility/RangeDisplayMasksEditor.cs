@@ -28,6 +28,7 @@ namespace BlindChase.Utility
             {
                 script.GenerateSquareRadiusMaps(maxRange);
                 m_editorObject.ApplyModifiedProperties();
+                EditorUtility.SetDirty(script);
             }
         }
     }
