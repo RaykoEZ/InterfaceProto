@@ -1,7 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor.MemoryProfiler;
-using System.ComponentModel;
 
 namespace BlindChase.Events 
 {
@@ -17,7 +16,7 @@ namespace BlindChase.Events
 
     public abstract class EventInfo 
     {
-        public object Payload { get; protected set; }
+        public Dictionary<string, object> Payload { get; protected set; }
     }
 
     public class TileEventInfo : EventInfo
@@ -28,7 +27,7 @@ namespace BlindChase.Events
 
         public CommandTypes CommandType { get; private set;}
 
-        public TileEventInfo(TileId tileId, Vector3 location, CommandTypes commandTypes = CommandTypes.NONE, object payload = null)
+        public TileEventInfo(TileId tileId, Vector3 location, CommandTypes commandTypes = CommandTypes.NONE, Dictionary<string, object> payload = null)
         {
             TileId = tileId;
             Location = location;

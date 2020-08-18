@@ -81,6 +81,8 @@ namespace BlindChase
 
         void OnRangeTileTrigger(TileEventInfo tileEventInfo) 
         {
+            ToggleRangeDisplay(tileEventInfo.TileId, 1, transform.position);
+
             OnRangeTileEvent?.Invoke(tileEventInfo);
         }
 

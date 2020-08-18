@@ -44,8 +44,8 @@ namespace BlindChase
                 return;
             }
 
-            Vector3Int dest = (Vector3Int)arg["destination"];
-            Vector3Int origin = (Vector3Int) arg["origin"];
+            Vector3 dest = (Vector3)arg["destination"];
+            Vector3 origin = (Vector3) arg["origin"];
 
             if (dest == null || origin == null) 
             {

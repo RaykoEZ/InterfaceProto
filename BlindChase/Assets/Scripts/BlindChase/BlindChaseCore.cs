@@ -12,19 +12,20 @@ namespace BlindChase
     {
         [SerializeField] GameObject m_playerAsset = default;
         [SerializeField] Tilemap m_map = default;
-        [SerializeField] OptionManager m_optionManager = default;
 
         WorldContextFactory m_worldContextFactory = new WorldContextFactory();
-        FactionContextFactory m_playerContextFactory = new FactionContextFactory();
+        List<FactionContextFactory> m_factionContextFactories = new List<FactionContextFactory>();
 
-        PlayerManager m_playerManager = new PlayerManager();
-        ControllableTileManager m_playerPieceManager = new ControllableTileManager(); 
+        CommandManager m_playerManager = new CommandManager();
+        ControllableTileManager m_playerTileManager = new ControllableTileManager(); 
 
         FactionMemberController m_controller = new FactionMemberController();
+        FactionManager m_factionManager = default;
 
         GameStateManager m_gameState = new GameStateManager();
+
         void Start()
-        {
+        { 
             InitGame();
         }
 
@@ -35,63 +36,77 @@ namespace BlindChase
 
         void InitGame() 
         {
-            m_worldContextFactory.Reset(new WorldContext(m_map));
-
             Stack<GameEffect> startGameEffects = new Stack<GameEffect>();
-            List<Faction> teams = new List<Faction>();
             m_gameState.Init(startGameEffects);
+            m_playerTileManager.Init();
 
-            m_playerPieceManager.Init();
-            m_worldContextFactory.Reset(new WorldContext(m_map));
+            List<string> factionIds = new List<string> 
+            {
+                {"test1"},
+                {"test2"}
+            };
 
-            GetComponent<OptionManager>().Init(m_playerPieceManager, m_worldContextFactory, m_playerContextFactory);
+            for (int i = 0; i < factionIds.Count; ++i) 
+            {
+                m_factionContextFactories.Add(new FactionContextFactory(factionIds[i]));
+            }
 
-            // No players are selected right now
-            m_controller.Init(m_playerPieceManager, m_playerContextFactory);
+            GetComponent<OptionManager>().Init(m_playerTileManager, m_factionContextFactories[0]);
+
+            m_factionManager = new FactionManager(m_factionContextFactories);
+            m_controller.Init(m_factionManager, m_playerTileManager, m_worldContextFactory);
 
             m_playerManager.Init(
-                m_playerPieceManager, 
-                m_optionManager,
+                m_playerTileManager, 
                 m_gameState,
-                m_controller,
-                m_worldContextFactory, m_playerContextFactory);
+                m_controller);
 
-            InitPlayer();
+            InitPlayer(factionIds);
 
-        } 
+            m_worldContextFactory.Reset(new WorldContext(m_map));
 
-        void InitPlayer() 
+        }
+
+        void InitPlayer(List<string> factionIds)
         {
-
-            // Spawn a player tile
-            Vector3 p = m_map.GetCellCenterLocal(Vector3Int.zero);
-
             Transform t = GetComponent<CanvasManager>().GameBoardCanvas.transform;
 
-            TileId playerTileId = new TileId(TileDisplayKeywords.PLAYER, "0", "0");
+            for (int i = 0; i < factionIds.Count; ++i) 
+            {
+                TileId playerId = new TileId(TileDisplayKeywords.PLAYER, factionIds[i], i.ToString());
+                Vector3 p = m_map.GetCellCenterLocal(new Vector3Int(0, i, 0));
 
-            GameObject playerObject = m_playerPieceManager.SpawnTile(
-                playerTileId,
-                m_playerAsset, 
-                p,
-                t
+                GameObject playerObject = m_playerTileManager.SpawnTile(
+                    playerId,
+                    m_playerAsset,
+                    p,
+                    t
                 );
 
-            Vector3Int coord = m_map.LocalToCell(playerObject.transform.position);
+                Vector3Int coord = m_map.LocalToCell(playerObject.transform.position);
 
-            ControllableTileContextData playerData = new ControllableTileContextData(coord, playerObject.transform);
+                ControllableDataContainer playerData = new ControllableDataContainer(coord, playerObject.transform);
 
-            m_playerContextFactory.UpdateContext(playerTileId, playerData);
+                foreach (FactionContextFactory factory in m_factionContextFactories)
+                {
+                    factory.UpdateContext(playerId, playerData);
+                }
 
-            m_playerPieceManager.ShowTile(playerTileId);
+                m_playerTileManager.ShowTile(playerId);
+            }
         }
 
         void Shutdown() 
         {
             m_worldContextFactory.Shutdown();
-            m_playerContextFactory.Shutdown();
+
+            foreach(FactionContextFactory faction in m_factionContextFactories) 
+            {
+                faction.Shutdown();
+            }
+
             m_playerManager.Shutdown();
-            m_playerPieceManager.Shutdown();
+            m_playerTileManager.Shutdown();
         }
 
     }

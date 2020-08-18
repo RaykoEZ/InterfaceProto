@@ -6,25 +6,18 @@ using BlindChase.State;
 namespace BlindChase
 {
 
-    public class PlayerManager
+    public class CommandManager
     {
-        OptionManager m_optionManagerRef;
         GameStateManager m_gameState = default;
-
-        WorldContext m_worldContext = default;
-        ControllableTileContext m_playerContext = default;
 
         Dictionary<CommandTypes, PlayerCommand> m_playerCommandCollection;
 
         public void Init(
             ControllableTileManager tilemanager, 
-            OptionManager options,
             GameStateManager state,
-            FactionMemberController c, WorldContextFactory w, 
-            FactionContextFactory p) 
+            FactionMemberController c) 
         {
             m_gameState = state;
-            m_optionManagerRef = options;
 
             // Initialize all available player commands
             m_playerCommandCollection = new Dictionary<CommandTypes, PlayerCommand>
@@ -32,13 +25,7 @@ namespace BlindChase
                 {CommandTypes.MOVE, new MovePlayer(c)}
             };
 
-
             tilemanager.OnTileEvent += ExecutePlayerCommand;
-
-            OnUpdateWorld(w.Context);
-            OnUpdatePlayer(p.Context);
-            w.SubscribeToContextUpdate(OnUpdateWorld);
-            p.SubscribeToContextUpdate(OnUpdatePlayer);
         }
 
         public void Shutdown()
@@ -59,8 +46,8 @@ namespace BlindChase
             {
                 case CommandTypes.MOVE:
                     {
-                        input.Add("destination", m_worldContext.WorldMap.WorldToCell(eventArgs.Location));
-                        Vector3Int origin = m_playerContext.FactionMembers[eventArgs.TileId].PlayerCoord;
+                        input.Add("destination", eventArgs.Location);
+                        Vector3 origin = (Vector3)eventArgs.Payload["origin"];
                         input.Add("origin", origin);
                         break;
                     }
@@ -78,18 +65,6 @@ namespace BlindChase
             CommandArgs args = new CommandArgs(input);
             PlayerCommand command = m_playerCommandCollection[currentCommand];
             command.ExecuteCommand(args);
-            // Toggle command preview display off. 
-            m_optionManagerRef.TogglePreviewOption((int)currentCommand);
-        }
-
-        void OnUpdateWorld(WorldContext world)
-        {
-            m_worldContext = world;
-        }
-
-        void OnUpdatePlayer(ControllableTileContext player)
-        {
-            m_playerContext = player;
         }
     }
 

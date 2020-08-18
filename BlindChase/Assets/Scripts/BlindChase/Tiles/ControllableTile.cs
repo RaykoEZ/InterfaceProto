@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using BlindChase;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using BlindChase.Events;
 
 
@@ -24,13 +24,20 @@ namespace BlindChase
                 m_tileId.UnitId);
 
             m_rangeDisplay.ToggleRangeDisplay(tileId, 1, transform.position);
-
             m_onTileSelected?.Invoke(m_tileId);
         }
 
         public virtual void OnRangeTileTrigger(TileEventInfo eventArg)
         {
-            TileEventInfo overrideArg = new TileEventInfo(m_tileId, eventArg.Location, eventArg.CommandType, eventArg.Payload);
+            Dictionary<string, object> payload = eventArg.Payload;
+            if (payload == null) 
+            {
+                payload = new Dictionary<string, object>();
+            }
+
+            payload.Add("origin", transform.position);
+
+            TileEventInfo overrideArg = new TileEventInfo(m_tileId, eventArg.Location, eventArg.CommandType, payload);
             m_onTileTrigger?.Invoke(overrideArg);
         }
     }
