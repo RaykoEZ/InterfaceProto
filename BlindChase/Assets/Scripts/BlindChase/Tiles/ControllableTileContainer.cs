@@ -15,7 +15,7 @@ namespace BlindChase
         public override void HideTiles()
         {
             Player.TileObject?.SetActive(false);
-            Player.Behaviour?.UnlistenToEvents(OnTileEventTrigger);
+            Player.Behaviour?.UnlistenToCommands(OnTileEventTrigger);
             Player.Behaviour?.UnlistenToTileSelection(OnTileEventSelected);
 
 
@@ -26,7 +26,7 @@ namespace BlindChase
         {
 
             Player.TileObject?.SetActive(true);
-            Player.Behaviour?.ListenToEvents(OnTileEventTrigger);
+            Player.Behaviour?.ListenToCommands(OnTileEventTrigger);
             Player.Behaviour?.ListenToTileSelection(OnTileEventSelected);
 
             isActive = true;
@@ -43,7 +43,7 @@ namespace BlindChase
         {
             isActive = false;
 
-            Player.Behaviour?.UnlistenToEvents(OnTileEventTrigger);
+            Player.Behaviour?.UnlistenToCommands(OnTileEventTrigger);
             Player.Behaviour?.UnlistenToTileSelection(OnTileEventSelected);
             Object.Destroy(Player.TileObject);
 

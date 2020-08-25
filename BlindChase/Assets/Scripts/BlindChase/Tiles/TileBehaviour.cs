@@ -7,7 +7,7 @@ namespace BlindChase
 {
     public abstract class TileBehaviour : MonoBehaviour
     {
-        protected OnTileTrigger<TileEventInfo> m_onTileTrigger = default;
+        protected OnTileCommand<TileEventInfo> m_onTileCommand = default;
         protected OnTileSelected<TileId> m_onTileSelected = default;
 
         protected TileId m_tileId;
@@ -17,14 +17,14 @@ namespace BlindChase
             m_tileId = tileId;
         }
 
-        public void ListenToEvents(OnTileTrigger<TileEventInfo> callme)
+        public void ListenToCommands(OnTileCommand<TileEventInfo> callme)
         {
-            m_onTileTrigger += callme;
+            m_onTileCommand += callme;
         }
 
-        public void UnlistenToEvents(OnTileTrigger<TileEventInfo> callme)
+        public void UnlistenToCommands(OnTileCommand<TileEventInfo> callme)
         {
-            m_onTileTrigger -= callme;
+            m_onTileCommand -= callme;
         }
 
         public void ListenToTileSelection(OnTileSelected<TileId> callme) 

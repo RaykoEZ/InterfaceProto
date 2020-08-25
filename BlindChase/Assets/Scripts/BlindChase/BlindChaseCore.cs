@@ -13,20 +13,22 @@ namespace BlindChase
         [SerializeField] GameObject m_playerAsset = default;
         [SerializeField] Tilemap m_map = default;
 
-        WorldContextFactory m_worldContextFactory = new WorldContextFactory();
-        List<FactionContextFactory> m_factionContextFactories = new List<FactionContextFactory>();
+        GameStateContextFactory m_gameStateContextFactory = new GameStateContextFactory();
+        ControllableTileContextFactory m_characterContextFactory = new ControllableTileContextFactory();
 
-        CommandManager m_playerManager = new CommandManager();
-        ControllableTileManager m_playerTileManager = new ControllableTileManager(); 
+        CommandManager m_commandManager = new CommandManager();
+        ControllableTileManager m_unitTileManager = new ControllableTileManager();
 
-        FactionMemberController m_controller = new FactionMemberController();
-        FactionManager m_factionManager = default;
+        DeploymentManager m_deploymentManager = new DeploymentManager();
 
+        TileController m_controller = new TileController();
+        
         GameStateManager m_gameState = new GameStateManager();
+        TurnOrderManager m_turnOrderManager = default;
 
         void Start()
-        { 
-            InitGame();
+        {
+            Init();
         }
 
         private void OnDestroy()
@@ -34,79 +36,60 @@ namespace BlindChase
             Shutdown();
         }
 
-        void InitGame() 
+        void Init() 
         {
-            Stack<GameEffect> startGameEffects = new Stack<GameEffect>();
+            m_deploymentManager.Init("test");
+            UnitDeploymentList deployment = m_deploymentManager.GetNPCDeployment();
+
+            List<GameEffect> startGameEffects = new List<GameEffect>();
             m_gameState.Init(startGameEffects);
-            m_playerTileManager.Init();
 
-            List<string> factionIds = new List<string> 
-            {
-                {"test1"},
-                {"test2"}
-            };
+            m_unitTileManager.Init();
 
-            for (int i = 0; i < factionIds.Count; ++i) 
-            {
-                m_factionContextFactories.Add(new FactionContextFactory(factionIds[i]));
-            }
+            m_controller.Init(
+                m_characterContextFactory, 
+                m_unitTileManager, 
+                m_gameStateContextFactory);
 
-            GetComponent<OptionManager>().Init(m_playerTileManager, m_factionContextFactories[0]);
+            DeployFactionUnits(deployment.DeploymentInfo);
 
-            m_factionManager = new FactionManager(m_factionContextFactories);
-            m_controller.Init(m_factionManager, m_playerTileManager, m_worldContextFactory);
-
-            m_playerManager.Init(
-                m_playerTileManager, 
+            m_commandManager.Init(
+                m_unitTileManager,
+                m_turnOrderManager,
                 m_gameState,
                 m_controller);
 
-            InitPlayer(factionIds);
 
-            m_worldContextFactory.Reset(new WorldContext(m_map));
+            // We decide on which faction to go first.
 
+
+
+            m_gameStateContextFactory.Update(new GameStateContext(m_map));
         }
 
-        void InitPlayer(List<string> factionIds)
+        void DeployFactionUnits(List<DeploymentInfo> factionDeployment)
         {
             Transform t = GetComponent<CanvasManager>().GameBoardCanvas.transform;
+            // For each faction, deploy their units.
 
-            for (int i = 0; i < factionIds.Count; ++i) 
-            {
-                TileId playerId = new TileId(TileDisplayKeywords.PLAYER, factionIds[i], i.ToString());
-                Vector3 p = m_map.GetCellCenterLocal(new Vector3Int(0, i, 0));
+            m_deploymentManager.DeployUnits(
+                    t, 
+                    factionDeployment,
+                    m_playerAsset, 
+                    m_map,
+                    m_unitTileManager,
+                    m_characterContextFactory);
 
-                GameObject playerObject = m_playerTileManager.SpawnTile(
-                    playerId,
-                    m_playerAsset,
-                    p,
-                    t
-                );
-
-                Vector3Int coord = m_map.LocalToCell(playerObject.transform.position);
-
-                ControllableDataContainer playerData = new ControllableDataContainer(coord, playerObject.transform);
-
-                foreach (FactionContextFactory factory in m_factionContextFactories)
-                {
-                    factory.UpdateContext(playerId, playerData);
-                }
-
-                m_playerTileManager.ShowTile(playerId);
-            }
+            m_turnOrderManager = new TurnOrderManager(m_gameState, m_characterContextFactory);
         }
 
         void Shutdown() 
         {
-            m_worldContextFactory.Shutdown();
+            m_gameStateContextFactory.Shutdown();
+            m_characterContextFactory.Shutdown();
 
-            foreach(FactionContextFactory faction in m_factionContextFactories) 
-            {
-                faction.Shutdown();
-            }
-
-            m_playerManager.Shutdown();
-            m_playerTileManager.Shutdown();
+            m_commandManager.Shutdown();
+            m_unitTileManager.Shutdown();
         }
 
     }

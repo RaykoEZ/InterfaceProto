@@ -14,18 +14,13 @@ namespace BlindChase
 
     public class OptionManager : MonoBehaviour
     {
-        FactionContext m_playerContext = default;
+        CharacterContext m_playerContext = default;
         ControllableTileManager m_playerPieceManagerRef;
 
         public CommandTypes CurrentCommand { get; private set; } = CommandTypes.NONE;
 
-        public void Init(
-            ControllableTileManager tileManager, 
-            FactionContextFactory p
-            ) 
+        public void Init() 
         {
-            m_playerPieceManagerRef = tileManager;
-            p.SubscribeToContextUpdate(OnUpdatePlayer);
         }
 
         public void Shutdown() 
@@ -51,7 +46,7 @@ namespace BlindChase
             }
         }
 
-        void OnUpdatePlayer(FactionContext player) 
+        void OnUpdatePlayer(CharacterContext player) 
         {
             m_playerContext = player;
         }

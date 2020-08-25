@@ -10,7 +10,7 @@ namespace BlindChase
 
     public interface IBCContextFactory<T> where T : IBCContext
     {
-        void Reset(T newContext);
+        void Update(T newContext);
 
         void Shutdown();
 

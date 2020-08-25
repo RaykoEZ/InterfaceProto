@@ -5,7 +5,7 @@ using BlindChase.Events;
 namespace BlindChase 
 {
 
-    public delegate void OnTileTrigger<T>(T info)
+    public delegate void OnTileCommand<T>(T info)
         where T : TileEventInfo;
 
     public delegate void OnTileSelected<T>(T info)
@@ -23,7 +23,7 @@ namespace BlindChase
         List<TileItem> m_tiles = new List<TileItem>();
         public bool isActive { get; protected set; } = false;
 
-        public event OnTileTrigger<TileEventInfo> OnTileTrigger = default;
+        public event OnTileCommand<TileEventInfo> OnTileTrigger = default;
         public event OnTileSelected<TileId> OnTileSelect = default;
 
 
@@ -52,7 +52,7 @@ namespace BlindChase
             foreach (TileItem o in m_tiles) 
             {
                 o.TileObject?.SetActive(false);
-                o.Behaviour?.UnlistenToEvents(OnTileEventTrigger);
+                o.Behaviour?.UnlistenToCommands(OnTileEventTrigger);
                                 o.Behaviour?.UnlistenToTileSelection(OnTileEventSelected);
 
             }
@@ -64,7 +64,7 @@ namespace BlindChase
             foreach (TileItem o in m_tiles)
             {
                 o.TileObject?.SetActive(true);
-                o.Behaviour?.ListenToEvents(OnTileEventTrigger);
+                o.Behaviour?.ListenToCommands(OnTileEventTrigger);
                 o.Behaviour?.ListenToTileSelection(OnTileEventSelected);
 
             }
@@ -85,7 +85,7 @@ namespace BlindChase
             isActive = false;
             foreach (TileItem o in m_tiles) 
             {
-                o.Behaviour?.UnlistenToEvents(OnTileEventTrigger);
+                o.Behaviour?.UnlistenToCommands(OnTileEventTrigger);
                 o.Behaviour?.UnlistenToTileSelection(OnTileEventSelected);
 
                 Object.Destroy(o.TileObject);

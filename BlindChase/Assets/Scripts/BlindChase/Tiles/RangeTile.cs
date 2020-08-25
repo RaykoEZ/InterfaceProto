@@ -4,15 +4,15 @@ using BlindChase;
 using BlindChase.Events;
 
 
-public class UITile : TileBehaviour
+public class RangeTile : TileBehaviour
 {
     public override void OnPlayerSelect() 
     {
         TileEventInfo info = new TileEventInfo(
             m_tileId, 
             transform.position,
-            CommandTypes.MOVE);
+            m_tileId.TypeId);
 
-        m_onTileTrigger?.Invoke(info);
+        m_onTileCommand?.Invoke(info);
     }
 }

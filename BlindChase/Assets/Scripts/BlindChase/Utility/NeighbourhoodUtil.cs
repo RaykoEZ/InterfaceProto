@@ -4,10 +4,9 @@ using UnityEngine;
 namespace BlindChase.Utility
 {
     [System.Serializable]
-    public class NeighbourhoodRangeMap
+    public class RangeMap
     {
         public List<Vector3Int> OffsetsFromOrigin;
-        public int Range;
     }
 
     public static class NeighbourhoodUtil 
@@ -17,14 +16,13 @@ namespace BlindChase.Utility
         /// </summary>
         /// <param name="range"></param> The max number of squares allowed to move from origin.
         /// <returns></returns> A set of offsets to define valid positions to in a range 
-        public static NeighbourhoodRangeMap GetNeighbourRangeMap(int range)
+        public static RangeMap GetNeighbourRangeMap(int range)
         {
             if (range < 1) 
             {
-                return new NeighbourhoodRangeMap 
+                return new RangeMap 
                 { 
                     OffsetsFromOrigin = new List<Vector3Int>{Vector3Int.zero}, 
-                    Range = 0 
                 };
             }
 
@@ -58,12 +56,12 @@ namespace BlindChase.Utility
                 }
             }
 
-            NeighbourhoodRangeMap map = new NeighbourhoodRangeMap { OffsetsFromOrigin = neighbours, Range = range};
+            RangeMap map = new RangeMap { OffsetsFromOrigin = neighbours};
 
             return map;
         }
 
-        static NeighbourhoodRangeMap GetImmediateNeighbourhood() 
+        static RangeMap GetImmediateNeighbourhood() 
         {
             List<Vector3Int> neighbours = new List<Vector3Int>();
             neighbours.Add(new Vector3Int(0,1, 0));
@@ -71,10 +69,9 @@ namespace BlindChase.Utility
             neighbours.Add(new Vector3Int(1, 0, 0));
             neighbours.Add(new Vector3Int(-1, 0, 0));
 
-            NeighbourhoodRangeMap map = new NeighbourhoodRangeMap 
+            RangeMap map = new RangeMap 
             { 
                 OffsetsFromOrigin = neighbours, 
-                Range = 1 
             };
 
             return map;

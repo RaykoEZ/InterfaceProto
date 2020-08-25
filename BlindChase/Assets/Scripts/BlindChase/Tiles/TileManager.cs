@@ -11,7 +11,7 @@ namespace BlindChase
 
         Dictionary<TileId, TileContainer> m_displayTiles = new Dictionary<TileId, TileContainer>();
 
-        public event OnTileTrigger<TileEventInfo> OnTileEvent = default;
+        public event OnTileCommand<TileEventInfo> OnTileEvent = default;
         public event OnTileSelected<TileId> OnTileSelect = default;
 
 

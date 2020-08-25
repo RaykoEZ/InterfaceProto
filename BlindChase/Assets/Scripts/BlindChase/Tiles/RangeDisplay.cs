@@ -16,7 +16,7 @@ namespace BlindChase
         [SerializeField] RangeDisplayMasks m_rangeDsplayMasks = default;
         TileManager m_tileManager = new TileManager();
 
-        public event OnTileTrigger<TileEventInfo> OnRangeTileEvent = default;
+        public event OnTileCommand<TileEventInfo> OnRangeTileEvent = default;
 
         void Start()
         {
@@ -41,7 +41,7 @@ namespace BlindChase
             m_tileManager.HideTile(id);
         }
 
-        void Show(TileId id, NeighbourhoodRangeMap tileOffsets, Vector3 origin, bool tilesExist)
+        void Show(TileId id, RangeMap tileOffsets, Vector3 origin, bool tilesExist)
         {
             // If tiles never existed, make new tiles
             if (!tilesExist)
@@ -74,7 +74,7 @@ namespace BlindChase
             }
             else 
             {
-                NeighbourhoodRangeMap rangeMap = m_rangeDsplayMasks.GetSquareRadiusMap(range);
+                RangeMap rangeMap = m_rangeDsplayMasks.GetSquareRadiusMap(range);
                 Show(id, rangeMap, origin, tilesExist);
             }
         }

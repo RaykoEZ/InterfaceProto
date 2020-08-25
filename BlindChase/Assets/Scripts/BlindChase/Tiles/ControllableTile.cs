@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using BlindChase.Events;
+using TMPro;
 
 
 namespace BlindChase 
@@ -8,10 +9,12 @@ namespace BlindChase
     public class ControllableTile : TileBehaviour
     {
         [SerializeField] RangeDisplay m_rangeDisplay = default;
-
+        // Test display
+        [SerializeField] TextMeshPro m_idText = default;
         public override void Init(TileId tileId)
         {
             base.Init(tileId);
+            m_idText.text = $"{m_tileId.FactionId}/{m_tileId.UnitId}";
             m_rangeDisplay.OnRangeTileEvent += OnRangeTileTrigger;
         }
 
@@ -19,7 +22,7 @@ namespace BlindChase
         public override void OnPlayerSelect()
         {
             TileId tileId = new TileId(
-                TileDisplayKeywords.TILE_HIGHTLIGHT,
+                CommandTypes.MOVE,
                 m_tileId.FactionId, 
                 m_tileId.UnitId);
 
@@ -38,7 +41,7 @@ namespace BlindChase
             payload.Add("origin", transform.position);
 
             TileEventInfo overrideArg = new TileEventInfo(m_tileId, eventArg.Location, eventArg.CommandType, payload);
-            m_onTileTrigger?.Invoke(overrideArg);
+            m_onTileCommand?.Invoke(overrideArg);
         }
     }
 

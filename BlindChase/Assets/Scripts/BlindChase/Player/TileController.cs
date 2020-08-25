@@ -5,20 +5,22 @@ using BlindChase.Events;
 namespace BlindChase
 {
     // Used by PlayerCommand to execute different actions in a player's turn
-    public class FactionMemberController
+    public class TileController
     {
         ControllableTileManager m_tileManager;
-        WorldContext m_worldContext = default;
+        GameStateContext m_worldContext = default;
         // The id of the faction member tile object we are controlling.
         TileId m_targetId;
-        FactionManager m_factionManagerRef;
+        ControllableTileContextFactory m_characterContextFactoryRef;
+        CharacterContext m_characterContext;
 
         public void Init(
-            FactionManager factionManager,
+            ControllableTileContextFactory c,
             ControllableTileManager tilemanager, 
-            WorldContextFactory w) 
+            GameStateContextFactory w) 
         {
-            m_factionManagerRef = factionManager;
+            m_characterContextFactoryRef = c;
+            c.OnContextChanged += OnCharacterContextUpdate;
             m_tileManager = tilemanager;
             m_tileManager.OnTileSelect += SetControllerTarget;
             w.SubscribeToContextUpdate(OnWorldUpdate);
@@ -31,9 +33,14 @@ namespace BlindChase
             m_targetId = tileId;
         }
 
-        void OnWorldUpdate(WorldContext world)
+        void OnWorldUpdate(GameStateContext world)
         {
             m_worldContext = world;
+        }
+
+        void OnCharacterContextUpdate(CharacterContext newContext) 
+        {
+            m_characterContext = newContext;
         }
 
         public void MovePlayer(Vector3 destination, Vector3 origin)
@@ -42,15 +49,14 @@ namespace BlindChase
 
             m_tileManager.MoveTile(m_targetId, offset);
 
-            Transform playerTransform = m_factionManagerRef.FactionContainer(m_targetId.FactionId).
-                FactionMembers.MemberDataContainer[m_targetId].PlayerTransform;
+            Transform playerTransform = m_characterContext.MemberDataContainer[m_targetId].PlayerTransform;
 
             Vector3Int dest = m_worldContext.WorldMap.LocalToCell(destination);
             ControllableDataContainer newPlayerData = new ControllableDataContainer(
                 dest,
                 playerTransform);
 
-            m_factionManagerRef.UpdateFactionData(m_targetId, newPlayerData);
+            m_characterContextFactoryRef.UpdateContext(m_targetId, newPlayerData);
 
         }
 

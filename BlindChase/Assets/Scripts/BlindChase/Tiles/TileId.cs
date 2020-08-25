@@ -5,19 +5,19 @@ namespace BlindChase
 {
     public static class TileDisplayKeywords
     {
-        public const string TILE_HIGHTLIGHT = "TH";
+        public const string MOVEMENT_RANGE = "MOVE";
+        public const string SKILL_RANGE = "SKILL";
         public const string PLAYER = "P";
         public const string ENVIRONMENT = "E";
         public const string INTERACTABLE = "I";
-
     }
 
     public class TileId : IEquatable<TileId>
     {
-        public string TypeId { get; private set; }
+        public CommandTypes TypeId { get; private set; }
         public string FactionId { get; private set; }
         public string UnitId { get; private set; }
-        public TileId(string typeId, string factionId, string unitId) 
+        public TileId(CommandTypes typeId, string factionId, string unitId) 
         {
             TypeId = typeId;
             FactionId = factionId;
@@ -41,7 +41,7 @@ namespace BlindChase
                 t1.UnitId == t2.UnitId;
         }
 
-        public static bool operator !=(TileId t1, TileId t2)
+        public static bool operator != (TileId t1, TileId t2)
         {
             return t1.TypeId != t2.TypeId ||
                 t1.FactionId != t2.FactionId ||

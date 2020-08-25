@@ -15,16 +15,16 @@ namespace BlindChase
         }
     }
 
-    public class FactionContext : IBCContext
+    public class CharacterContext : IBCContext
     {
         public Dictionary<TileId, ControllableDataContainer> MemberDataContainer { get; private set; }
 
-        public FactionContext(Dictionary<TileId, ControllableDataContainer> factionData) 
+        public CharacterContext(Dictionary<TileId, ControllableDataContainer> factionData) 
         {
             MemberDataContainer = factionData;
         }
 
-        public FactionContext(FactionContext context) 
+        public CharacterContext(CharacterContext context) 
         {
             MemberDataContainer = context.MemberDataContainer;
         }

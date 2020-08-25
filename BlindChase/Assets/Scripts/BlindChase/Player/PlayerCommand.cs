@@ -17,10 +17,10 @@ namespace BlindChase
 
     public abstract class PlayerCommand
     {
-        protected FactionMemberController m_controllerRef;
+        protected TileController m_controllerRef;
         public abstract void ExecuteCommand(CommandArgs args);
 
-        public PlayerCommand(FactionMemberController controller) 
+        public PlayerCommand(TileController controller) 
         {
             m_controllerRef = controller;
         }
@@ -31,7 +31,7 @@ namespace BlindChase
     public class MovePlayer : PlayerCommand 
     {
 
-        public MovePlayer(FactionMemberController controller) : base(controller) 
+        public MovePlayer(TileController controller) : base(controller) 
         {      
         }
 
@@ -54,6 +54,35 @@ namespace BlindChase
 
             m_controllerRef.MovePlayer(dest, origin);
 
+        }
+    }
+
+    public class Skill : PlayerCommand
+    {
+        public string SkillId { get; private set; }
+        public TileId User { get; private set; }
+        public List<TileId> Targets { get; private set; }
+
+        public override void ExecuteCommand(CommandArgs args) 
+        {
+            string id = args.Arguments["SkillId"].ToString();
+            TileId user = (TileId)args.Arguments["User"];
+            List<TileId> targets = (List<TileId>) args.Arguments["Targets"];
+
+            SkillId = id;
+            User = user;
+            SetTargets(targets);
+
+
+        }
+
+        public Skill(TileController controller) : base(controller)
+        {
+        }
+
+        public virtual void SetTargets(List<TileId> targets)
+        {
+            Targets = targets;
         }
     }
 

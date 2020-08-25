@@ -1,17 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Newtonsoft.Json;
 
 namespace BlindChase.State
 {
-
     public abstract class GameState
     {
-        protected Stack<GameEffect> m_stateEffects;
+        protected Stack<GameEffect> m_stateEffects = new Stack<GameEffect>();
+        public event OnGameStateTransition OnGameStateTransition;
+        protected Type NextState = typeof(GameState);
 
-        public virtual void Init(Stack<GameEffect> startEffects) 
+        public virtual void Init(List<GameEffect> startEffects) 
         {
-            m_stateEffects = startEffects;
+            if(startEffects == null) 
+            {
+                return;
+            }
+
+            AddEffects(startEffects);
         }
 
         // Type returned = the next game state.
@@ -24,9 +31,18 @@ namespace BlindChase.State
             }
         }
 
+        public void AddEffects(List<GameEffect> gameEffect) 
+        {
+            foreach (GameEffect effect in gameEffect)
+            {
+                m_stateEffects.Push(effect);
+            }
+        }
+
         public virtual Type TransitionTo() 
         {
-            return GetType();
+            OnGameStateTransition?.Invoke(NextState);
+            return NextState;
         }
 
         protected Stack<GameEffect> ProcessEffectStack()
@@ -60,88 +76,6 @@ namespace BlindChase.State
             return delayedEffects;
         }
 
-    }
-
-    public class TurnStart : GameState
-    {
-        public override void Init(Stack<GameEffect> startEffects)
-        {
-            base.Init(startEffects);
-
-        }
-
-        public override void OnEnter(GameState incomingState)
-        {
-            base.OnEnter(incomingState);
-
-        }
-        public override Type TransitionTo()
-        {
-            base.TransitionTo();
-            return typeof(PlayerTurn);
-        }
-    }
-
-    // Need to listen to win detector, if won/loss, => GaemEnd
-    public class PlayerTurn : GameState
-    {
-        public override void Init(Stack<GameEffect> startEffects)
-        {
-            base.Init(startEffects);
-
-        }
-
-        public override void OnEnter(GameState incomingState)
-        {
-            base.OnEnter(incomingState);
-
-        }
-        public override Type TransitionTo() 
-        {
-            base.TransitionTo();
-            return typeof(TurnEnd); 
-        }
-    }
-
-
-    public class TurnEnd : GameState
-    {
-        public override void Init(Stack<GameEffect> startEffects)
-        {
-            base.Init(startEffects);
-
-        }
-
-        public override void OnEnter(GameState incomingState)
-        {
-            base.OnEnter(incomingState);
-
-        }
-        public override Type TransitionTo() 
-        {
-            base.TransitionTo();
-            return typeof(TurnStart); 
-        }
-    }
-
-    public class GameEnd : GameState
-    {
-        public override void Init(Stack<GameEffect> startEffects)
-        {
-            base.Init(startEffects);
-
-        }
-
-        public override void OnEnter(GameState incomingState)
-        {
-            base.OnEnter(incomingState);
-
-        }
-        public override Type TransitionTo()
-        {
-            base.TransitionTo();
-            return null;
-        }
     }
 
 }
