@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace BlindChase.Utility
 {
-    [System.Serializable]
+    [Serializable]
     public class RangeMap
     {
         public List<Vector3Int> OffsetsFromOrigin;
@@ -20,8 +21,8 @@ namespace BlindChase.Utility
         {
             if (range < 1) 
             {
-                return new RangeMap 
-                { 
+                return new RangeMap
+                {
                     OffsetsFromOrigin = new List<Vector3Int>{Vector3Int.zero}, 
                 };
             }
@@ -56,7 +57,10 @@ namespace BlindChase.Utility
                 }
             }
 
-            RangeMap map = new RangeMap { OffsetsFromOrigin = neighbours};
+            RangeMap map = new RangeMap 
+            {
+                OffsetsFromOrigin = neighbours
+            };
 
             return map;
         }
@@ -70,7 +74,7 @@ namespace BlindChase.Utility
             neighbours.Add(new Vector3Int(-1, 0, 0));
 
             RangeMap map = new RangeMap 
-            { 
+            {
                 OffsetsFromOrigin = neighbours, 
             };
 

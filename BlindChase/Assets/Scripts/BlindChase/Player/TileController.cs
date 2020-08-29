@@ -11,11 +11,11 @@ namespace BlindChase
         GameStateContext m_worldContext = default;
         // The id of the faction member tile object we are controlling.
         TileId m_targetId;
-        ControllableTileContextFactory m_characterContextFactoryRef;
+        CharacterContextFactory m_characterContextFactoryRef;
         CharacterContext m_characterContext;
 
         public void Init(
-            ControllableTileContextFactory c,
+            CharacterContextFactory c,
             ControllableTileManager tilemanager, 
             GameStateContextFactory w) 
         {
@@ -52,9 +52,12 @@ namespace BlindChase
             Transform playerTransform = m_characterContext.MemberDataContainer[m_targetId].PlayerTransform;
 
             Vector3Int dest = m_worldContext.WorldMap.LocalToCell(destination);
+            CharacterState state = m_characterContext.MemberDataContainer[m_targetId].PlayerState;
+            state.Position = dest;
+
             ControllableDataContainer newPlayerData = new ControllableDataContainer(
-                dest,
-                playerTransform);
+                playerTransform,
+                state);
 
             m_characterContextFactoryRef.UpdateContext(m_targetId, newPlayerData);
 

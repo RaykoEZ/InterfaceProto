@@ -7,11 +7,10 @@ namespace BlindChase
     [CreateAssetMenu(fileName = "SkillDatabase", menuName = "BlindChase/Create collection of player skills", order = 1)]
     public class SkillDatabase : ScriptableObject 
     {
-        Dictionary<string, SkillData> m_skillCollection = new Dictionary<string, SkillData>();
-        
+        Dictionary<int, SkillDataCollection> m_skillCollection;
+
         // File address for skill data storage
-        const string c_skillFileRoot = "";
-        const string c_skillBaseValuesRoot = "";
+        const string c_skillFileRoot = "Skills/SkillCollection";
 
         static Newtonsoft.Json.Converters.StringEnumConverter m_enumConverter = 
             new Newtonsoft.Json.Converters.StringEnumConverter();
@@ -19,20 +18,27 @@ namespace BlindChase
         void OnEnable()
         {
             m_enumConverter.AllowIntegerValues = true;
+            TextAsset raw = Resources.Load<TextAsset>(c_skillFileRoot);
+
+            m_skillCollection = JsonConvert.DeserializeObject<Dictionary<int, SkillDataCollection>>(raw.text,
+                m_enumConverter);
+
+            Debug.Log(m_skillCollection.Values.Count);
         }
 
-        public SkillData GetSkill(string skillId) 
+        public SkillDataCollection GetSkill(int skillId) 
         {
-            if (string.IsNullOrWhiteSpace(skillId) || !m_skillCollection.ContainsKey(skillId)) 
+            if (!m_skillCollection.ContainsKey(skillId)) 
             {
-                return null;
+                return new SkillDataCollection();
             }
 
             return m_skillCollection[skillId];
         }
 
-        public void GetSkillDatabase() 
+        public void GetSkillAttributesFromSkill(int skillId) 
         {
+
         }
 
     }

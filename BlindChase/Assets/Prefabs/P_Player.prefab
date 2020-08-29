@@ -254,7 +254,7 @@ MonoBehaviour:
     type: 3}
   m_rangeTileParent: {fileID: 5971516560610264068}
   m_localTilemap: {fileID: 2622492250313171556}
-  m_rangeDsplayMasks: {fileID: 11400000, guid: 72bea47aa47580b4ea86e8180e9becb4, type: 2}
+  m_rangeDsplayMasks: {fileID: 11400000, guid: f90a5b666c1f0a840a8d0d3d94faf83e, type: 2}
 --- !u!23 &7218274161962686791
 MeshRenderer:
   m_ObjectHideFlags: 0

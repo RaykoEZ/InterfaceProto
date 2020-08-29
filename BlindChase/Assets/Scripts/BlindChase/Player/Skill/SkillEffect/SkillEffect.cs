@@ -1,32 +1,45 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
+using UnityEngine;
 using BlindChase.State;
 
 namespace BlindChase
 {
-    public abstract class SkillEffect<T> where T : GameState
+    public class SkillEffectArgs 
     {
-        protected SkillAttribute m_skillAttribute;
-        public SkillTargetOption EffectTarget { get; private set; }
-
-        // Type of game state for when this effect activates
-        public Type EffectTiming { get; private set; }
-        public int Delay { get; private set; }
-
-        public SkillEffect(SkillAttribute skillAttribute, SkillTargetOption target, int delay, T timing) 
+        public Vector3Int TargetPos { get; private set; }
+        public Vector3Int UserPos { get; private set; }
+        public SkillDataItem SkillData { get; private set; }
+        
+        public SkillEffectArgs(Vector3Int target, Vector3Int user, SkillDataItem args) 
         {
-            m_skillAttribute = skillAttribute;
-            EffectTiming = timing.GetType();
-            EffectTarget = target;
-            Delay = delay;
+            TargetPos = target;
+            UserPos = user;
+            SkillData = args;
+        }
+    }
+
+    public partial class SkillEffect
+    {
+        protected Action<SkillEffectArgs> m_effectMethod { get; set; }
+
+        public SkillEffect(SkillAttributeId id)
+        {
+            Type utility = typeof(SkillCollection);
+            // Using reflection to store a delegate of the defined utility method.
+            MethodInfo methodInfo = utility.GetMethod(id.EffectName);
+            m_effectMethod = 
+                (Action<SkillEffectArgs>) 
+                methodInfo?.CreateDelegate(typeof(Action<SkillEffectArgs>));    
         }
 
-        public virtual GameEffect Activate() 
+        public virtual void Activate(SkillEffectArgs skillValues) 
         {
-            GameEffect effect = new GameEffect(new Action(EffectCall), Delay);
-            return effect;
+            Debug.Log("Skill Activated");
+            m_effectMethod?.Invoke(skillValues);
+            
         }
-
-        protected abstract void EffectCall();
 
     }
 }

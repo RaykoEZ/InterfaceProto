@@ -13,7 +13,7 @@ namespace BlindChase
         [SerializeField] GameObject m_rangeTile = default;
         [SerializeField] Transform m_rangeTileParent = default;
         [SerializeField] Tilemap m_localTilemap = default;
-        [SerializeField] RangeDisplayMasks m_rangeDsplayMasks = default;
+        [SerializeField] RangeMapDatabase m_rangeDsplayMasks = default;
         TileManager m_tileManager = new TileManager();
 
         public event OnTileCommand<TileEventInfo> OnRangeTileEvent = default;

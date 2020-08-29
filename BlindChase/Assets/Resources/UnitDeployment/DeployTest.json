@@ -2,34 +2,51 @@
     "DeploymentInfo" : [  
         {    
             "FactionId" : "test0",
-            "SpawnCoordinates" : [
+            "SpawnList" : [
                 {   
-                    "x" : 1,
-                    "y" : 1,
-                    "z" : 0
+                    "CharacterId" : "C2",
+                    "SpawnLocation" :
+                    {
+                        "x" : 1,
+                        "y" : 1,
+                        "z" : 0
+                    }
                 }
                 ,
                 {   
-                    "x" : 2,
-                    "y" : 3,
-                    "z" : 0
+                    "CharacterId" : "C1",
+                    "SpawnLocation" :
+                    {
+                        "x" : 2,
+                        "y" : 3,
+                        "z" : 0
+                    }
                 }
             ]
         },
 
         {
             "FactionId" : "test1",
-            "SpawnCoordinates" : [
+            "SpawnList" : [
                 {   
-                    "x" : 0,
-                    "y" : 0,
-                    "z" : 0
+                    "CharacterId" : "C0",
+                    "SpawnLocation" :
+                    {
+                        "x" : 0,
+                        "y" : 0,
+                        "z" : 0
+                    }
+
                 }
                 ,
                 {   
-                    "x" : 0,
-                    "y" : 1,
-                    "z" : 0
+                    "CharacterId" : "C1",
+                    "SpawnLocation" :
+                    {
+                        "x" : 0,
+                        "y" : 1,
+                        "z" : 0
+                    }
                 }
             ]
         }

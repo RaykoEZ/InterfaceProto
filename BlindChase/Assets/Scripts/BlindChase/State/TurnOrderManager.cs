@@ -14,7 +14,7 @@ namespace BlindChase
 
         public event OnCharacterActivate OnCharacterActivate = default;
 
-        public TurnOrderManager(GameStateManager gameState, ControllableTileContextFactory characterContextFactory)
+        public TurnOrderManager(GameStateManager gameState, CharacterContextFactory characterContextFactory)
         {
             SetupQueue(characterContextFactory.Context);
             characterContextFactory.OnContextChanged += OnCharacterIdUpdate;

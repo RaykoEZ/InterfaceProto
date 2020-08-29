@@ -1,0 +1,42 @@
+{
+    "C0" : 
+    {
+        "SkillLevels" : 
+        {
+            "0" : 1,
+            "1" : 0
+        },
+        "MaxHP" : 10,
+        "MaxAP" : 1,
+        "MaxSP" : 3,
+        "BaseDefense" : 1,
+        "BaseSpeed" : 1.0,
+        "ClassType" : "Swordsman"
+    },
+    "C1" :
+    {
+        "SkillLevels" : 
+        {
+            "0" : 0
+        },
+        "MaxHP" : 7,
+        "MaxAP" : 1,
+        "MaxSP" : 5,
+        "BaseDefense" : 0,
+        "BaseSpeed" : 1.0,
+        "ClassType" : "Archer"
+    },               
+    "C2" : 
+    {
+        "SkillLevels" : 
+        {
+            "0" : 2
+        },
+        "MaxHP" : 10,
+        "MaxAP" : 1,
+        "MaxSP" : 3,
+        "BaseDefense" : 0,
+        "BaseSpeed" : 1.1,
+        "ClassType" : "Lancer"
+    }
+}

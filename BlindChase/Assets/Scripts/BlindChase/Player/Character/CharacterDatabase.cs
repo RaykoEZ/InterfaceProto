@@ -1,0 +1,40 @@
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
+using Newtonsoft.Json;
+using BlindChase;
+
+namespace BlindChase
+{
+    [CreateAssetMenu(fileName = "CharacterDatabase", menuName = "BlindChase/Create collection of character data", order = 1)]
+    public class CharacterDatabase : ScriptableObject
+    {
+        static Dictionary<string, CharacterData> m_characterDataCollection = default;
+
+        const string c_characterDataRoot = "Characters/Characters";
+        static Newtonsoft.Json.Converters.StringEnumConverter m_enumConverter =
+           new Newtonsoft.Json.Converters.StringEnumConverter();
+
+        void OnEnable()
+        {
+            m_enumConverter.AllowIntegerValues = true;
+
+            TextAsset raw = Resources.Load<TextAsset>(c_characterDataRoot);
+            m_characterDataCollection = JsonConvert.DeserializeObject<Dictionary<string, CharacterData>>(raw.text, 
+                m_enumConverter);
+        }
+
+        public CharacterData GetCharacterData(string id) 
+        { 
+            if(string.IsNullOrWhiteSpace(id) || !m_characterDataCollection.ContainsKey(id)) 
+            {
+                Debug.LogError("Character Id is not valid.");
+                return new CharacterData();
+            }
+            return m_characterDataCollection[id];
+        }
+    }
+
+}
+
+

@@ -1,0 +1,111 @@
+{
+    "0":
+    {
+        "Name": "Skill0",
+        "Text": "Deal small damage to an adjacent target.",
+        "MaxSkillLevel": 2,
+        "DataCollection" : 
+        {
+            "AttributeId" : 
+            {
+                "EffectName": "Strike"
+            },
+            "SkillValues" : 
+            [
+                {
+                    "TargetLimit": 1,
+                    "Cooldown": 3,
+                    "SkillCost" : 2,
+                    "EffectRange" : "Melee0",
+                    "BaseValue" : 1,
+                    "KnockPower" : 0,
+                    "Delay" : 0,
+                    "Duration" : 0
+                },
+                {
+                    "TargetLimit": 1,
+                    "Cooldown": 3,
+                    "SkillCost" : 2,
+                    "EffectRange" : "Melee0",
+                    "BaseValue" : 2,
+                    "KnockPower" : 0,
+                    "Delay" : 0,
+                    "Duration" : 0
+                },
+                {
+                    "TargetLimit": 1,
+                    "Cooldown": 2,
+                    "SkillCost" : 2,
+                    "EffectRange" : "Melee0",
+                    "BaseValue" : 3,
+                    "KnockPower" : 0,
+                    "Delay" : 0,
+                    "Duration" : 0
+                }
+
+            ]
+
+        }
+    },
+
+    "1":
+    {
+        "Name": "Skill1",
+        "Text": "Heal small amount of HP to an self.",
+        "MaxSkillLevel": 3,
+        "DataCollection" :       
+        {
+
+
+            "AttributeId" : 
+            {
+                "EffectName": "FirstAid"
+            },
+            "SkillValues" :
+            [
+                {
+                    "TargetLimit": 1,
+                    "Cooldown": 4,
+                    "SkillCost" : 3,
+                    "EffectRange" : "Self",
+                    "BaseValue" : 1,
+                    "KnockPower" : 0,
+                    "Delay" : 0,
+                    "Duration" : 0
+                },
+                {
+                    "TargetLimit": 1,
+                    "Cooldown": 4,
+                    "SkillCost" : 3,
+                    "EffectRange" : "Self",
+                    "BaseValue" : 2,
+                    "KnockPower" : 0,
+                    "Delay" : 0,
+                    "Duration" : 0
+                },
+                {
+                    "TargetLimit": 1,
+                    "Cooldown": 3,
+                    "SkillCost" : 3,
+                    "EffectRange" : "Self",
+                    "BaseValue" : 3,
+                    "KnockPower" : 0,
+                    "Delay" : 0,
+                    "Duration" : 0
+                },
+                {
+                    "TargetLimit": 1,
+                    "Cooldown": 3,
+                    "SkillCost" : 4,
+                    "EffectRange" : "Self",
+                    "BaseValue" : 1,
+                    "KnockPower" : 0,
+                    "Delay" : 0,
+                    "Duration" : 0
+                }
+
+            ]           
+        }
+        
+    }  
+}
