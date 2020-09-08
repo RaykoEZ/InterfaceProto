@@ -5,13 +5,8 @@ using BlindChase.Events;
 namespace BlindChase 
 {
 
-    public delegate void OnTileCommand<T>(T info)
-        where T : TileEventInfo;
 
-    public delegate void OnTileSelected<T>(T info)
-        where T : TileId;
-
-    public struct TileItem 
+    public class TileItem
     {
         public GameObject TileObject;
         public TileBehaviour Behaviour;
@@ -23,28 +18,29 @@ namespace BlindChase
         List<TileItem> m_tiles = new List<TileItem>();
         public bool isActive { get; protected set; } = false;
 
-        public event OnTileCommand<TileEventInfo> OnTileTrigger = default;
-        public event OnTileSelected<TileId> OnTileSelect = default;
-
+        public event OnPlayerCommand<CommandEventInfo> OnTileTrigger = default;
+        public event OnCharacterTileActivate OnPlayerSelect = default;
 
         public TileContainer(TileItem item) 
         {
             m_tiles?.Add(item);
+            isActive = item.TileObject.activeSelf;
         }
 
-        protected void OnTileEventTrigger(TileEventInfo info) 
+        protected virtual void OnTileCommandTrigger(CommandEventInfo info) 
         {
             OnTileTrigger?.Invoke(info);
         }
 
-        protected void OnTileEventSelected(TileId info)
+        protected void OnTileSelected(TileId info)
         {
-            OnTileSelect?.Invoke(info);
+            OnPlayerSelect?.Invoke(info);
         }
 
         public virtual void AddTileItem(TileItem item) 
         {
             m_tiles.Add(item);
+            isActive = item.TileObject.activeSelf;
         }
 
         public virtual void HideTiles() 
@@ -52,9 +48,8 @@ namespace BlindChase
             foreach (TileItem o in m_tiles) 
             {
                 o.TileObject?.SetActive(false);
-                o.Behaviour?.UnlistenToCommands(OnTileEventTrigger);
-                                o.Behaviour?.UnlistenToTileSelection(OnTileEventSelected);
-
+                o.Behaviour?.UnlistenToCommands(OnTileCommandTrigger);
+                o.Behaviour?.UnlistenToSelection(OnTileSelected);
             }
             isActive = false;
         }
@@ -64,8 +59,8 @@ namespace BlindChase
             foreach (TileItem o in m_tiles)
             {
                 o.TileObject?.SetActive(true);
-                o.Behaviour?.ListenToCommands(OnTileEventTrigger);
-                o.Behaviour?.ListenToTileSelection(OnTileEventSelected);
+                o.Behaviour?.ListenToCommands(OnTileCommandTrigger);
+                o.Behaviour?.ListenToSelection(OnTileSelected);
 
             }
             isActive = true;
@@ -77,7 +72,6 @@ namespace BlindChase
             {
                 o.TileObject.transform.position += diff;
             }
-            isActive = true;
         }
 
         public virtual void DestroyTiles() 
@@ -85,9 +79,8 @@ namespace BlindChase
             isActive = false;
             foreach (TileItem o in m_tiles) 
             {
-                o.Behaviour?.UnlistenToCommands(OnTileEventTrigger);
-                o.Behaviour?.UnlistenToTileSelection(OnTileEventSelected);
-
+                o.Behaviour?.UnlistenToCommands(OnTileCommandTrigger);
+                o.Behaviour?.UnlistenToSelection(OnTileSelected);
                 Object.Destroy(o.TileObject);
             }
         }

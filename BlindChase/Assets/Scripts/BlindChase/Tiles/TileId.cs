@@ -14,38 +14,43 @@ namespace BlindChase
 
     public class TileId : IEquatable<TileId>
     {
-        public CommandTypes TypeId { get; private set; }
+        public CommandTypes CommandType { get; private set; }
         public string FactionId { get; private set; }
         public string UnitId { get; private set; }
-        public TileId(CommandTypes typeId, string factionId, string unitId) 
+        
+        public TileId(
+            CommandTypes typeId, 
+            string factionId, 
+            string unitId) 
         {
-            TypeId = typeId;
+            CommandType = typeId;
             FactionId = factionId;
             UnitId = unitId;
         }
         public TileId(TileId tileId)
         {
-            TypeId = tileId.TypeId;
+            CommandType = tileId.CommandType;
             FactionId = tileId.FactionId;
             UnitId = tileId.UnitId;
         }
         public static bool operator ==(TileId t1, TileId t2) 
         {
-            if(t2 is null) 
-            {
-                return false;
-            }
-
-            return t1.TypeId == t2.TypeId &&
-                t1.FactionId == t2.FactionId &&
-                t1.UnitId == t2.UnitId;
+            return t1?.CommandType == t2?.CommandType &&
+                t1?.FactionId == t2?.FactionId &&
+                t1?.UnitId == t2?.UnitId;
         }
 
         public static bool operator != (TileId t1, TileId t2)
         {
-            return t1.TypeId != t2.TypeId ||
-                t1.FactionId != t2.FactionId ||
-                t1.UnitId != t2.UnitId;
+            return t1?.CommandType != t2?.CommandType ||
+                t1?.FactionId != t2?.FactionId ||
+                t1?.UnitId != t2?.UnitId;
+        }
+
+        public static bool CompareFactionAndUnitId(TileId t1, TileId t2) 
+        { 
+            return t1?.FactionId == t2?.FactionId &&
+                t1?.UnitId == t2?.UnitId;
         }
 
         public bool Equals(TileId obj)
@@ -66,7 +71,7 @@ namespace BlindChase
         public override int GetHashCode()
         {
             return 
-                $"{TypeId}/{FactionId}/{UnitId}".GetHashCode();
+                $"{CommandType}/{FactionId}/{UnitId}".GetHashCode();
         }
 
     }

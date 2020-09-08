@@ -19,7 +19,7 @@ namespace BlindChase.Events
         public Dictionary<string, object> Payload { get; protected set; }
     }
 
-    public class TileEventInfo : EventInfo
+    public class CommandEventInfo : EventInfo
     {
         public TileId TileId { get; private set; }
 
@@ -27,7 +27,7 @@ namespace BlindChase.Events
 
         public CommandTypes CommandType { get; private set;}
 
-        public TileEventInfo(TileId tileId, Vector3 location, CommandTypes commandTypes = CommandTypes.NONE, Dictionary<string, object> payload = null)
+        public CommandEventInfo(TileId tileId, Vector3 location, CommandTypes commandTypes = CommandTypes.NONE, Dictionary<string, object> payload = null)
         {
             TileId = tileId;
             Location = location;

@@ -44,8 +44,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_rangeTile: {fileID: 8655212242860225477}
-  m_rangeTileParent: {fileID: 6232529981744345782}
-  m_rangeDsplayMasks: {fileID: 11400000, guid: 72bea47aa47580b4ea86e8180e9becb4, type: 2}
+  m_skillRangeTile: {fileID: 2278253014183556372, guid: c8a1c458c7dc0b441864cdc887560a06,
+    type: 3}
+  m_previewRangeTile: {fileID: 0}
+  m_rangeDsplayMasks: {fileID: 0}
+  m_skillTargetManager: {fileID: 0}
+  m_HUD: {fileID: 0}
 --- !u!1 &4361190774329782871
 GameObject:
   m_ObjectHideFlags: 0
@@ -56,8 +60,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4562354886840967382}
   - component: {fileID: 7347971167302597511}
-  - component: {fileID: 7505059491978158214}
   - component: {fileID: 780635104326833431}
+  - component: {fileID: 8485889338575420917}
+  - component: {fileID: 4328987614907285396}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -116,12 +121,12 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -759064423
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: -6975971501963557229, guid: ca1fe683d8872314481b6dbcd87cb1d1,
     type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.49803922}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -131,7 +136,47 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!61 &7505059491978158214
+--- !u!114 &780635104326833431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4361190774329782871}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3f38fe0d6fb1924685bbb5af107ba51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8485889338575420917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4361190774329782871}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 2
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 780635104326833431}
+          m_MethodName: OnSelect
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+--- !u!61 &4328987614907285396
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -141,7 +186,7 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -157,19 +202,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &780635104326833431
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4361190774329782871}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e3f38fe0d6fb1924685bbb5af107ba51, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_behaviour: {fileID: 3298900833830987251}
 --- !u!1 &8655212242860225477
 GameObject:
   m_ObjectHideFlags: 0
@@ -181,7 +213,7 @@ GameObject:
   - component: {fileID: 1642879471517725927}
   - component: {fileID: 3298900833830987251}
   m_Layer: 0
-  m_Name: P_NonPlayer
+  m_Name: P_RangeTile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -219,3 +251,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2219a5069d1bc2142bd60441e477adef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tileEventTrigger: {fileID: 780635104326833431}

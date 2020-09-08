@@ -6,7 +6,6 @@ using BlindChase;
 
 namespace BlindChase
 {
-
     public class CoroutineManager : MonoBehaviour
     {
         protected delegate void OnCoroutineInterrupt(IEnumerator runThis);
@@ -16,12 +15,12 @@ namespace BlindChase
 
         bool m_coroutineInProgress = false;
 
-        void Start()
+        void OnEnable()
         {
             Init();
         }
 
-        void OnDestroy()
+        void OnDisable()
         {
             Shutdown();
         }
@@ -38,7 +37,7 @@ namespace BlindChase
 
         public void ScheduleCoroutine(IEnumerator coroutine, bool interruptNow = false)
         {
-            if (interruptNow && m_coroutineInProgress)
+            if (interruptNow)
             {
                 m_onCoroutineInterrupted?.Invoke(coroutine);
             }
@@ -50,13 +49,12 @@ namespace BlindChase
 
         public void StartScheduledCoroutines()
         {
-            StartCoroutine(StartCurrentCoroutine());
-        }
+            if (m_coroutineInProgress && m_coroutines.Count == 0) 
+            {
+                return;
+            }
 
-        public void ClearCoroutines()
-        {
-            StopCurrentCoroutine();
-            m_coroutines.Clear();
+            StartCoroutine(StartCurrentCoroutine());
         }
 
         public void StopCurrentCoroutine() 
@@ -67,13 +65,15 @@ namespace BlindChase
 
         void OnCoroutineInterrupted(IEnumerator runThis) 
         {
-            StopCurrentCoroutine();
-            StartInterruptCoroutine(runThis);
+            if (m_coroutineInProgress) 
+            {
+                StopCurrentCoroutine();
+            }
+            StartCoroutine(StartInterruptCoroutine(runThis));
         }
 
         IEnumerator StartCurrentCoroutine() 
         {
-            yield return !m_coroutineInProgress;
             while (m_coroutines.Count > 0) 
             {
                 m_coroutineInProgress = true;

@@ -11,29 +11,39 @@ namespace BlindChase
     public class RangeDisplay : MonoBehaviour
     {
         [SerializeField] GameObject m_rangeTile = default;
-        [SerializeField] Transform m_rangeTileParent = default;
-        [SerializeField] Tilemap m_localTilemap = default;
+        [SerializeField] GameObject m_skillRangeTile = default;
         [SerializeField] RangeMapDatabase m_rangeDsplayMasks = default;
+        [SerializeField] SkillTargetManager m_skillTargetManager = default;
+        [SerializeField] CharacterHUD m_HUD = default;
+
         TileManager m_tileManager = new TileManager();
+        CommandEventInfo m_latestTileEventInfo;
+        public event OnPlayerCommand<CommandEventInfo> OnRangeTileEvent = default;
 
-        public event OnTileCommand<TileEventInfo> OnRangeTileEvent = default;
-
-        void Start()
+        TileId m_currentActiveTileId = default;
+        public void Shutdown() 
         {
-            Init();
-        }
-
-        void OnDestroy()
-        {
+            m_skillTargetManager.Shutdown();
             m_tileManager.Shutdown();
-            m_tileManager.OnTileEvent -= OnRangeTileTrigger;
+            m_tileManager.OnTileCommand -= OnRangeTileTrigger;
+            m_HUD.OnRangeCancel -= HideAll;
+
             OnRangeTileEvent = null;
         }
 
-
-        public virtual void Init() 
+        public virtual void Init(TurnOrderManager turnOrderManager) 
         {
-            m_tileManager.OnTileEvent += OnRangeTileTrigger;
+            m_skillTargetManager.Init();
+            m_HUD.OnRangeCancel += HideAll;
+            turnOrderManager.OnCharacterTurnStart += OnActiveTileIdChange;
+            m_currentActiveTileId = turnOrderManager.GetActiveCharacterId();
+            m_tileManager.OnTileCommand += OnRangeTileTrigger;
+            m_skillTargetManager.OnTargetConfirmed += OnSkillTargetsConfirmed;
+        }
+
+        void OnActiveTileIdChange(TileId id) 
+        {
+            m_currentActiveTileId = id;
         }
 
         void Hide(TileId id) 
@@ -41,17 +51,29 @@ namespace BlindChase
             m_tileManager.HideTile(id);
         }
 
-        void Show(TileId id, RangeMap tileOffsets, Vector3 origin, bool tilesExist)
+        public void HideAll()
         {
-            // If tiles never existed, make new tiles
-            if (!tilesExist)
+            m_tileManager.HideAll();
+        }
+
+        void Show(TileId id, RangeMap tileOffsets, Vector3 origin, GameObject tileRef, Tilemap map, Transform parent, bool forceNew = false)
+        {
+            bool tilesExist = m_tileManager.DoTilesExist(id);
+
+            if(forceNew && tilesExist) 
             {
-                Vector3Int originCoord = m_localTilemap.LocalToCell(origin);
+                m_tileManager.DespawnTiles(id);
+            }
+
+            // If tiles never existed, make new tiles
+            if (!m_tileManager.DoTilesExist(id))
+            {
+                Vector3Int originCoord = map.LocalToCell(origin);
                 // This is for showing/creating range tiles.
                 foreach (Vector3Int p in tileOffsets.OffsetsFromOrigin)
                 {
-                    Vector3 offsetPos = m_localTilemap.GetCellCenterLocal(originCoord + p);
-                    m_tileManager.SpawnTile(id, m_rangeTile, offsetPos, m_rangeTileParent, true);
+                    Vector3 offsetPos = map.GetCellCenterLocal(originCoord + p);
+                    m_tileManager.SpawnTile(id, tileRef, offsetPos, parent);
                 }
             }
 
@@ -59,33 +81,153 @@ namespace BlindChase
 
         }
 
-        public void ToggleRangeDisplay(TileId id, int range, Vector3 origin)
+        #region Show/ToggleRangeMap variants:
+        
+        public void ShowRangeMap(
+            TileId id,
+            CharacterClassType tileClass,
+            Vector3 origin,
+            Tilemap tilemap,
+            Transform parent,
+            bool toggle = false)
         {
-            if (id == null) 
+            RangeMap rangeMap = m_rangeDsplayMasks.GetClassRangeMap(tileClass);
+            if (toggle) 
+            {
+                ToggleDisplay(id,
+                    origin,
+                    rangeMap,
+                    m_rangeTile,
+                    tilemap,
+                    parent);
+            }
+            else 
+            {
+                ShowDisplay(id,
+                    origin,
+                    rangeMap,
+                    m_rangeTile,
+                    tilemap,
+                    parent);
+            }
+
+        }
+
+        public void ShowSkillTargetOption(
+            TileId id, 
+            string skillRangeId, 
+            Vector3 origin, 
+            int targetLimit, 
+            Tilemap tilemap, 
+            Transform parent)
+        {
+            RangeMap rangeMap = m_rangeDsplayMasks.GetSkillRangeMap(skillRangeId);
+            ShowDisplay(id, origin, rangeMap, m_skillRangeTile, tilemap, parent, forceNew: true);
+            m_skillTargetManager.SetTargetInfo(targetLimit);
+        }
+
+        public void ShowRangeMapPreview(
+            TileId id,
+            CharacterClassType tileClass,
+            Vector3 origin,
+            Tilemap tilemap,
+            Transform parent,
+            bool toggle = false)
+        {
+            RangeMap rangeMap = m_rangeDsplayMasks.GetClassRangeMap(tileClass);
+
+            if (toggle)
+            {
+                ToggleDisplay(id,
+                    origin,
+                    rangeMap,
+                    m_rangeTile,
+                    tilemap,
+                    parent);
+            }
+            else
+            {
+                ShowDisplay(id,
+                    origin,
+                    rangeMap,
+                    m_rangeTile,
+                    tilemap,
+                    parent);
+            }
+        }
+
+        #endregion
+
+        #region Utility for Show/ToggleRangeMap
+        void ShowDisplay(TileId id,
+            Vector3 origin,
+            RangeMap rangeMap,
+            GameObject tileRef,
+            Tilemap tilemap,
+            Transform parent,
+            bool forceNew = false) 
+        {
+            if (id == null)
+            {
+                return;
+            }
+            HideAll();
+
+            Show(id, rangeMap, origin, tileRef, tilemap, parent, forceNew);
+        }
+
+        // true - Display is now active
+        // false - Display is now not active
+        bool ToggleDisplay(
+            TileId id, 
+            Vector3 origin, 
+            RangeMap rangeMap,
+            GameObject tileRef,
+            Tilemap tilemap,
+            Transform parent) 
+        {
+            if (id == null)
+            {
+                return false;
+            }
+            bool tilesActive = m_tileManager.AreTilesActive(id);
+            if (tilesActive)
+            {
+                Hide(id);
+                return !tilesActive;
+            }
+            HideAll();
+
+            Show(id, rangeMap, origin, tileRef, tilemap, parent);
+            return true;
+        }
+        #endregion
+
+        void OnRangeTileTrigger(CommandEventInfo tileEventInfo) 
+        {
+            if (!TileId.CompareFactionAndUnitId(tileEventInfo.TileId, m_currentActiveTileId)) 
             {
                 return;
             }
 
-            bool tilesExist = m_tileManager.DoTilesExist(id);
-            bool isActive = m_tileManager.AreTilesActive(id);
-            if (tilesExist && isActive) 
+            if (tileEventInfo.CommandType == CommandTypes.SKILL_ACTIVATE) 
             {
-                Hide(id);
+                m_skillTargetManager.ToggleTarget(tileEventInfo.Location);
+                m_latestTileEventInfo = tileEventInfo;
+                return;
             }
-            else 
-            {
-                RangeMap rangeMap = m_rangeDsplayMasks.GetSquareRadiusMap(range);
-                Show(id, rangeMap, origin, tilesExist);
-            }
-        }
-
-        void OnRangeTileTrigger(TileEventInfo tileEventInfo) 
-        {
-            ToggleRangeDisplay(tileEventInfo.TileId, 1, transform.position);
-
+            
+            HideAll();
             OnRangeTileEvent?.Invoke(tileEventInfo);
         }
 
+
+        void OnSkillTargetsConfirmed(HashSet<Vector3> targets) 
+        {
+            m_latestTileEventInfo.Payload["Target"] = targets;
+            HideAll();
+            OnRangeTileEvent?.Invoke(m_latestTileEventInfo);
+        }
     }
 
 }

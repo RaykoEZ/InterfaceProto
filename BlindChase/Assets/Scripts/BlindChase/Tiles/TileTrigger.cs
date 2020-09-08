@@ -7,11 +7,24 @@ namespace BlindChase
     public class TileTrigger : MonoBehaviour
     {
 
-        [SerializeField] TileBehaviour m_behaviour = default;
+        public event OnTileTriggered OnPonterSelected = default;
+        public event OnTileTriggered OnPonterHover = default;
+        public event OnTileTriggered OnPonterExit = default;
+
         // Start is called before the first frame update
-        void OnMouseDown()
+        public void OnSelect()
         {
-            m_behaviour.OnPlayerSelect();
+            OnPonterSelected?.Invoke();
+        }
+
+        public void OnHover()
+        {
+            OnPonterHover?.Invoke();
+        }
+
+        public void OnExit()
+        {
+            OnPonterExit?.Invoke();
         }
     }
 

@@ -17,8 +17,7 @@ namespace BlindChase.State
         }
     }
 
-    public delegate void OnGameStateTransition(Type gameStateType);
-    public delegate void OnTurnChange();
+
 
     // Responsible for handling state changes trihhered from moment-to-moment gameplay.
     public class GameStateManager
@@ -27,7 +26,8 @@ namespace BlindChase.State
         GameState m_previous;
 
         public event OnGameStateTransition OnGameStateUpdate = default;
-        public event OnTurnChange OnTurnChange = default;
+        public event OnStateChange OnTurnStart = default;
+        public event OnStateChange OnTurnEnd = default;
 
         // Add all game states into the dictionary
         Dictionary<Type, GameState> m_gameStateCollection = new Dictionary<Type, GameState>
@@ -37,7 +37,7 @@ namespace BlindChase.State
                 { typeof(PlayerTurn), new PlayerTurn() }
             };
 
-        public void Init(List<GameEffect> startEffects = null)
+        public void StartGame(List<GameEffect> startEffects = null)
         {
             SetCurrentState(typeof(TurnStart), startEffects);
         }
@@ -62,11 +62,14 @@ namespace BlindChase.State
 
         void OnStateTransition(Type type) 
         {
-            if (type == typeof(TurnStart))
+            if (type == typeof(PlayerTurn))
             {
-                OnTurnChange?.Invoke();
+                OnTurnStart?.Invoke();
             }
-            Debug.Log(type);
+            if (type == typeof(TurnEnd))
+            {
+                OnTurnEnd?.Invoke();
+            }
             TransitionToNextState(type);
             OnGameStateUpdate?.Invoke(type);
         }

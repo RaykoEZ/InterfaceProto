@@ -60,36 +60,42 @@ namespace BlindChase
             List<FactionDeploymentInfo> factionDeployment,
             GameObject objectRef,
             Tilemap tilemap,
-            ControllableTileManager tileManager,
-            CharacterContextFactory characterContextFactory
+            CharacterTileManager tileManager,
+            WorldStateContextFactory worldStateContextFactory,
+            CharacterContextFactory characterContextFactory,
+            RangeDisplay rangeDisplay
             ) 
         {
-            Dictionary<TileId, ControllableDataContainer> contextData = new Dictionary<TileId, ControllableDataContainer>();
+            Dictionary<TileId, CharacterStateContainer> contextData = new Dictionary<TileId, CharacterStateContainer>();
             List<CharacterState> ret = new List<CharacterState>();
-
+            WorldStateContext worldContext = new WorldStateContext(tilemap);
             foreach (FactionDeploymentInfo info in factionDeployment) 
             {
                 // For each unit in this faction, spawn them accordingly.
                 for (int i = 0; i < info.SpawnList.Count; ++i)
                 {
-                    TileId id = new TileId(CommandTypes.NONE, info.FactionId, i.ToString());
 
                     UnitDeploymentInfo unitDeploymentInfo = info.SpawnList[i];
 
                     Vector3Int spawnCoord = unitDeploymentInfo.SpawnLocation;
 
-                   //Vector3Int coord = new Vector3Int(spawnCoord.x, spawnCoord.y, spawnCoord.z);
 
                     Vector3 p = tilemap.GetCellCenterLocal(spawnCoord);
+
+                    TileId id = new TileId(CommandTypes.NONE, info.FactionId, i.ToString());
+
+                    worldContext.UpdateBoardState(spawnCoord, id);
+
+                    CharacterData charData = m_characterDatabase.GetCharacterData(unitDeploymentInfo.CharacterId);
 
                     GameObject playerObject = tileManager.SpawnTile(
                         id,
                         objectRef,
                         p,
-                        parent
+                        parent, 
+                        charData,
+                        rangeDisplay
                     );
-
-                    CharacterData charData = m_characterDatabase.GetCharacterData(unitDeploymentInfo.CharacterId);
 
                     CharacterState characterState = new CharacterState(
                         id,
@@ -98,7 +104,7 @@ namespace BlindChase
                         spawnCoord);
                     ret.Add(characterState);
 
-                    ControllableDataContainer playerData = new ControllableDataContainer(playerObject.transform, characterState);
+                    CharacterStateContainer playerData = new CharacterStateContainer(playerObject.transform, characterState);
 
                     tileManager.ShowTile(id);
                     contextData[id] = playerData;
@@ -108,6 +114,7 @@ namespace BlindChase
 
             CharacterContext newContext = new CharacterContext(contextData);
             characterContextFactory.Update(newContext);
+            worldStateContextFactory.Update(worldContext);
             return ret;
         }
     }

@@ -17,21 +17,19 @@ namespace BlindChase
 
     public abstract class PlayerCommand
     {
-        protected TileController m_controllerRef;
+        protected PlayerController m_controllerRef;
         public abstract void ExecuteCommand(CommandArgs args);
-
-        public PlayerCommand(TileController controller) 
+        public virtual void ExpectData(CommandArgs args) { }
+        public PlayerCommand(PlayerController controller) 
         {
             m_controllerRef = controller;
         }
-
-
     }
+
 
     public class MovePlayer : PlayerCommand 
     {
-
-        public MovePlayer(TileController controller) : base(controller) 
+        public MovePlayer(PlayerController controller) : base(controller) 
         {      
         }
 
@@ -39,13 +37,13 @@ namespace BlindChase
         {
             Dictionary<string, object> arg = args.Arguments;
 
-            if (!arg.ContainsKey("destination") || !arg.ContainsKey("origin")) 
+            if (!arg.ContainsKey("Destination") || !arg.ContainsKey("Origin")) 
             {
                 return;
             }
 
-            Vector3 dest = (Vector3)arg["destination"];
-            Vector3 origin = (Vector3) arg["origin"];
+            Vector3 dest = (Vector3)arg["Destination"];
+            Vector3 origin = (Vector3) arg["Origin"];
 
             if (dest == null || origin == null) 
             {
@@ -57,34 +55,49 @@ namespace BlindChase
         }
     }
 
-    public class Skill : PlayerCommand
+    // A command to prompt skill target selection/confirmation when player chooses a skill.
+    public class SkillPrompt : PlayerCommand
     {
-        public string SkillId { get; private set; }
-        public TileId User { get; private set; }
-        public List<TileId> Targets { get; private set; }
-
         public override void ExecuteCommand(CommandArgs args) 
         {
-            string id = args.Arguments["SkillId"].ToString();
-            TileId user = (TileId)args.Arguments["User"];
-            List<TileId> targets = (List<TileId>) args.Arguments["Targets"];
+            int id = (int)args.Arguments["SkillId"];
+            int level = (int)args.Arguments["SkillLevel"];
 
-            SkillId = id;
-            User = user;
-            SetTargets(targets);
-
-
+            m_controllerRef.PromptSkillTargetSelection(id, level);
+            
         }
 
-        public Skill(TileController controller) : base(controller)
+        public SkillPrompt(PlayerController controller) : base(controller)
         {
-        }
-
-        public virtual void SetTargets(List<TileId> targets)
-        {
-            Targets = targets;
         }
     }
 
+
+    public class SkillActivate : PlayerCommand
+    {
+        int m_currentPromptingSkillId = -1;
+        int m_currentPromptingSkillLevel = -1;
+
+        public override void ExecuteCommand(CommandArgs args)
+        {
+
+            HashSet<Vector3> targetPos = (HashSet<Vector3>)args.Arguments["Target"];
+            Vector3 userPos = (Vector3)args.Arguments["Origin"];
+
+            m_controllerRef.ActivateSkill(m_currentPromptingSkillId, m_currentPromptingSkillLevel, targetPos, userPos);
+            m_currentPromptingSkillId = -1;
+            m_currentPromptingSkillLevel = -1;
+        }
+
+        public override void ExpectData(CommandArgs args) 
+        {
+            m_currentPromptingSkillId = (int)args.Arguments["SkillId"];
+            m_currentPromptingSkillLevel = (int)args.Arguments["SkillLevel"];
+        }
+
+        public SkillActivate(PlayerController controller) : base(controller)
+        {
+        }
+    }
 }
 

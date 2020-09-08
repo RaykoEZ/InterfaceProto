@@ -16,28 +16,41 @@ namespace BlindChase
             foreach(int skillId in skillIds) 
             {
                 SkillDataCollection skillDataColllection = m_skillDatabase.GetSkill(skillId);
-                SkillValueCollection skillData = skillDataColllection.DataCollection;
+                SkillValueCollection skillData = skillDataColllection.ValueCollection;
                 m_skillEffectCollection[skillData.AttributeId] = new SkillEffect(skillData.AttributeId);
             }
         }
 
-        public void ProcessSkillEffect(int skillId, int skillLevel, Vector3Int targetPos, Vector3Int userPos)
+        void SetSkillCooldown(CharacterState characterState, int skillId, int cooldown) 
+        {
+            characterState.CurrentSkillCooldowns[skillId] = cooldown;
+        }
+
+        public GameContextCollection ActivateSkill(int skillId, int skillLevel, GameContextCollection context, HashSet<TileId> targets, TileId userid) 
         {
             SkillDataCollection skillDataColllection = m_skillDatabase.GetSkill(skillId);
-            int validLevel = GetValidSkillLevel(skillDataColllection.DataCollection.SkillValues.Count, skillLevel);
-            SkillDataItem skillData = skillDataColllection.DataCollection.SkillValues[validLevel];
+            int validSkillLevel = GetValidSkillLevel(skillDataColllection.ValueCollection.SkillValues.Count, skillLevel);
 
-            SkillEffectArgs args = new SkillEffectArgs(targetPos, userPos, skillData);
-            
-            m_skillEffectCollection[skillDataColllection.DataCollection.AttributeId].Activate(args);
+            // Set skill cooldown.
+            int cooldown = skillDataColllection.ValueCollection.SkillValues[validSkillLevel].Cooldown;
+            SetSkillCooldown(context.Characters.MemberDataContainer[userid].PlayerState, skillId, cooldown);
+
+            SkillDataItem skillData = skillDataColllection.ValueCollection.SkillValues[validSkillLevel];
+            SkillEffectArgs args = new SkillEffectArgs(context, targets, userid, skillData);
+
+            GameContextCollection skillResults;
+            skillResults = m_skillEffectCollection[skillDataColllection.ValueCollection.AttributeId].Activate(args);
+                   
+            return skillResults;
         }
+
 
         public int GetSkillTargetLimit(int skillId, int skillLevel) 
         {
             SkillDataCollection data = m_skillDatabase.GetSkill(skillId);
-            int levelIndex = GetValidSkillLevel(data.DataCollection.SkillValues.Count, skillLevel);
+            int levelIndex = GetValidSkillLevel(data.ValueCollection.SkillValues.Count, skillLevel);
 
-            return data.DataCollection.SkillValues[levelIndex].TargetLimit;
+            return data.ValueCollection.SkillValues[levelIndex].TargetLimit;
         }
 
         public static SkillDataCollection GetSkillData(int skillId)

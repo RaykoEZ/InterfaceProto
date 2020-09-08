@@ -8,9 +8,10 @@ namespace BlindChase
     [Serializable]
     public struct CharacterData
     {
-        public Dictionary<int, int> SkillLevels;
+        public string Name;
+        public List<int> SkillIds;
+        public List<int> SkillLevels;
         public int MaxHP;
-        public int MaxAP;
         public int MaxSP;
         public int BaseDefense;
         public float BaseSpeed;
@@ -24,10 +25,12 @@ namespace BlindChase
         public CharacterData Character { get; set; }
         public Vector3Int Position { get; set; }
         public int CurrentHP { get; set; }
-        public int CurrentAP { get; set; }
         public int CurrentSP { get; set; }
         public int CurrentDefense { get; set; }
         public float CurrentSpeed { get; set; }
+
+        public Dictionary<int, int> CurrentSkillCooldowns { get; private set; }
+
         public bool IsActive { get; set; }
 
         public CharacterState(
@@ -44,12 +47,17 @@ namespace BlindChase
             Position = pos;
 
             CurrentHP = Character.MaxHP;
-            CurrentAP = Character.MaxAP;
             CurrentSP = Character.MaxSP;
             CurrentDefense = Character.BaseDefense;
             CurrentSpeed = Character.BaseSpeed;
             IsActive = isActive;
 
+            CurrentSkillCooldowns = new Dictionary<int, int>();
+
+            foreach (int skillId in Character.SkillIds) 
+            {
+                CurrentSkillCooldowns[skillId] = 0;
+            }
         }
     }
 
@@ -58,7 +66,7 @@ namespace BlindChase
     public struct PlayerSaveData 
     {
         public int PlayerLevel;
-        public Dictionary<TileId, CharacterState> CharacterStates;
+        public Dictionary<TileId, CharacterData> CharacterStates;
     }
 
 

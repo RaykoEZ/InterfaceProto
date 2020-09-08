@@ -3,13 +3,13 @@ using UnityEngine;
 
 namespace BlindChase
 {
-    public class ControllableDataContainer
+    public class CharacterStateContainer
     {
         public Transform PlayerTransform { get; private set; }
 
         public CharacterState PlayerState { get; private set; }
 
-        public ControllableDataContainer(Transform transform, CharacterState state) 
+        public CharacterStateContainer(Transform transform, CharacterState state) 
         {
             PlayerTransform = transform;
             PlayerState = state;
@@ -18,9 +18,9 @@ namespace BlindChase
 
     public class CharacterContext : IBCContext
     {
-        public Dictionary<TileId, ControllableDataContainer> MemberDataContainer { get; private set; }
+        public Dictionary<TileId, CharacterStateContainer> MemberDataContainer { get; private set; }
 
-        public CharacterContext(Dictionary<TileId, ControllableDataContainer> factionData) 
+        public CharacterContext(Dictionary<TileId, CharacterStateContainer> factionData) 
         {
             MemberDataContainer = factionData;
         }
@@ -28,7 +28,8 @@ namespace BlindChase
         public CharacterContext(CharacterContext context) 
         {
             MemberDataContainer = context.MemberDataContainer;
-        }
+        } 
+        
     }
 
 }

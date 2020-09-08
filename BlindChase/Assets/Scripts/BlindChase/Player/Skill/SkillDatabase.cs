@@ -8,9 +8,11 @@ namespace BlindChase
     public class SkillDatabase : ScriptableObject 
     {
         Dictionary<int, SkillDataCollection> m_skillCollection;
+        Dictionary<int, Sprite> m_skillIcons = new Dictionary<int, Sprite>();
 
         // File address for skill data storage
         const string c_skillFileRoot = "Skills/SkillCollection";
+        const string c_skillIconRoot = "Skills/Art/Icons/";
 
         static Newtonsoft.Json.Converters.StringEnumConverter m_enumConverter = 
             new Newtonsoft.Json.Converters.StringEnumConverter();
@@ -23,7 +25,11 @@ namespace BlindChase
             m_skillCollection = JsonConvert.DeserializeObject<Dictionary<int, SkillDataCollection>>(raw.text,
                 m_enumConverter);
 
-            Debug.Log(m_skillCollection.Values.Count);
+            foreach (int skillId in m_skillCollection.Keys) 
+            {
+                Sprite skillIcon = Resources.Load<Sprite>(c_skillIconRoot + m_skillCollection[skillId].Image);
+                m_skillIcons[skillId] = skillIcon;
+            }
         }
 
         public SkillDataCollection GetSkill(int skillId) 
@@ -36,11 +42,15 @@ namespace BlindChase
             return m_skillCollection[skillId];
         }
 
-        public void GetSkillAttributesFromSkill(int skillId) 
+        public Sprite GetSkillIcon(int skillId)
         {
+            if (!m_skillIcons.ContainsKey(skillId))
+            {
+                return null;
+            }
 
+            return m_skillIcons[skillId];
         }
-
     }
 
 }

@@ -8,37 +8,39 @@ namespace BlindChase
 {
     public class SkillEffectArgs 
     {
-        public Vector3Int TargetPos { get; private set; }
-        public Vector3Int UserPos { get; private set; }
+        public GameContextCollection Context { get; private set; }
+        public HashSet<TileId> TargetIds { get; private set; }
+        public TileId UserId { get; private set; }
         public SkillDataItem SkillData { get; private set; }
         
-        public SkillEffectArgs(Vector3Int target, Vector3Int user, SkillDataItem args) 
+        public SkillEffectArgs(GameContextCollection context, HashSet<TileId> target, TileId user, SkillDataItem args) 
         {
-            TargetPos = target;
-            UserPos = user;
+            Context = context;
+            TargetIds = target;
+            UserId = user;
             SkillData = args;
         }
     }
 
     public partial class SkillEffect
     {
-        protected Action<SkillEffectArgs> m_effectMethod { get; set; }
+        protected Func<SkillEffectArgs, GameContextCollection> m_effectMethod { get; set; }
 
         public SkillEffect(SkillAttributeId id)
         {
-            Type utility = typeof(SkillCollection);
+            Type utility = typeof(SkillOperation);
             // Using reflection to store a delegate of the defined utility method.
             MethodInfo methodInfo = utility.GetMethod(id.EffectName);
             m_effectMethod = 
-                (Action<SkillEffectArgs>) 
-                methodInfo?.CreateDelegate(typeof(Action<SkillEffectArgs>));    
+                (Func<SkillEffectArgs, GameContextCollection>) 
+                methodInfo?.CreateDelegate(typeof(Func<SkillEffectArgs, GameContextCollection>));    
         }
 
-        public virtual void Activate(SkillEffectArgs skillValues) 
+        public virtual GameContextCollection Activate(SkillEffectArgs skillValues) 
         {
-            Debug.Log("Skill Activated");
-            m_effectMethod?.Invoke(skillValues);
-            
+            GameContextCollection result = m_effectMethod(skillValues);
+
+            return result;
         }
 
     }

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3293737940543976167}
   - component: {fileID: 2167495378511169813}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -67,8 +67,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -637203997
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: 8145951374611147372, guid: ca1fe683d8872314481b6dbcd87cb1d1,
     type: 3}
@@ -210,7 +210,6 @@ GameObject:
   - component: {fileID: 569342791210495253}
   - component: {fileID: 4777465294726825765}
   - component: {fileID: 7218274161962686791}
-  - component: {fileID: 93588044826138541}
   - component: {fileID: 3462973420030506013}
   m_Layer: 0
   m_Name: RangeTiles
@@ -252,9 +251,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_rangeTile: {fileID: 8655212242860225477, guid: 905a9179f698a5a49af264186e618608,
     type: 3}
-  m_rangeTileParent: {fileID: 5971516560610264068}
-  m_localTilemap: {fileID: 2622492250313171556}
+  m_skillRangeTile: {fileID: 2278253014183556372, guid: c8a1c458c7dc0b441864cdc887560a06,
+    type: 3}
+  m_previewRangeTile: {fileID: 0}
   m_rangeDsplayMasks: {fileID: 11400000, guid: f90a5b666c1f0a840a8d0d3d94faf83e, type: 2}
+  m_skillTargetManager: {fileID: 0}
+  m_HUD: {fileID: 0}
 --- !u!23 &7218274161962686791
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -294,14 +296,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!33 &93588044826138541
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3355617638064600863}
-  m_Mesh: {fileID: 0}
 --- !u!222 &3462973420030506013
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -320,8 +314,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7745443745806111505}
   - component: {fileID: 7759940404760287897}
-  - component: {fileID: 8719538369305077231}
-  - component: {fileID: 7553363575059202897}
   - component: {fileID: 6239274709658801711}
   - component: {fileID: 1510396591025413094}
   - component: {fileID: 1310426991208793571}
@@ -367,47 +359,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a462a3113baacc642b814c26a01679c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_rangeDisplay: {fileID: 4777465294726825765}
+  m_tileTrigger: {fileID: 0}
   m_idText: {fileID: 8487096350636729654}
---- !u!61 &8719538369305077231
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7017530606483938943}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
-    newSize: {x: 0.16, y: 0.16}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1}
-  m_EdgeRadius: 0
---- !u!114 &7553363575059202897
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7017530606483938943}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e3f38fe0d6fb1924685bbb5af107ba51, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_behaviour: {fileID: 7759940404760287897}
+  m_localMap: {fileID: 2622492250313171556}
+  m_rangeTileParent: {fileID: 5971516560610264068}
 --- !u!23 &6239274709658801711
 MeshRenderer:
   m_ObjectHideFlags: 0

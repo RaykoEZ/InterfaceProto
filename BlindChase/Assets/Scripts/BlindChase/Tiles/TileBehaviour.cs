@@ -7,38 +7,53 @@ namespace BlindChase
 {
     public abstract class TileBehaviour : MonoBehaviour
     {
-        protected OnTileCommand<TileEventInfo> m_onTileCommand = default;
-        protected OnTileSelected<TileId> m_onTileSelected = default;
-
+        protected OnPlayerCommand<CommandEventInfo> m_onTileCommand = default;
+        protected OnCharacterTileActivate m_onTileSelect = default;
         protected TileId m_tileId;
-
-        public virtual void Init(TileId tileId) 
+        protected CharacterData m_charData;
+        protected bool m_previewOnly = true;
+        protected RangeDisplay m_rangeDisplayRef = default;
+        public virtual void Init(TileId tileId, RangeDisplay rangeDisplay, CharacterData charData = default) 
         {
+            m_rangeDisplayRef = rangeDisplay;
             m_tileId = tileId;
+            m_charData = charData;
         }
 
-        public void ListenToCommands(OnTileCommand<TileEventInfo> callme)
+        public virtual void OnStartCommand() { }
+        public virtual void OnFinishCommand() { }
+
+        public virtual void Shutdown() 
+        {
+            m_onTileCommand = null;
+            m_onTileSelect = null;
+        }
+
+        public void ListenToCommands(OnPlayerCommand<CommandEventInfo> callme)
         {
             m_onTileCommand += callme;
         }
 
-        public void UnlistenToCommands(OnTileCommand<TileEventInfo> callme)
+        public void UnlistenToCommands(OnPlayerCommand<CommandEventInfo> callme)
         {
             m_onTileCommand -= callme;
         }
 
-        public void ListenToTileSelection(OnTileSelected<TileId> callme) 
+        public void ListenToSelection(OnCharacterTileActivate callme)
         {
-            m_onTileSelected += callme;
-        }
-        public void UnlistenToTileSelection(OnTileSelected<TileId> callme)
-        {
-            m_onTileSelected -= callme;
-
+            m_onTileSelect += callme;
         }
 
-        public abstract void OnPlayerSelect();
+        public void UnlistenToSelection(OnCharacterTileActivate callme)
+        {
+            m_onTileSelect -= callme;
+        }
 
+        public virtual void OnPlayerPointerSelect() { }
+        public virtual void OnPlayerPointerUnselect() { }
+
+        public virtual void OnPlayerPointerHover() { }
+        public virtual void OnPlayerPointerExit() { }
 
 
     }

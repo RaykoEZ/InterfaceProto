@@ -1,13 +1,10 @@
 {
     "C0" : 
     {
-        "SkillLevels" : 
-        {
-            "0" : 1,
-            "1" : 0
-        },
+        "Name" : "Swordsman",
+        "SkillIds" : [0,1],
+        "SkillLevels" : [1, 1],
         "MaxHP" : 10,
-        "MaxAP" : 1,
         "MaxSP" : 3,
         "BaseDefense" : 1,
         "BaseSpeed" : 1.0,
@@ -15,12 +12,10 @@
     },
     "C1" :
     {
-        "SkillLevels" : 
-        {
-            "0" : 0
-        },
+        "Name" : "Archer",
+        "SkillIds" : [1],
+        "SkillLevels" : [2],
         "MaxHP" : 7,
-        "MaxAP" : 1,
         "MaxSP" : 5,
         "BaseDefense" : 0,
         "BaseSpeed" : 1.0,
@@ -28,12 +23,10 @@
     },               
     "C2" : 
     {
-        "SkillLevels" : 
-        {
-            "0" : 2
-        },
+        "Name" : "Lancer",
+        "SkillIds" : [0],
+        "SkillLevels" : [2],
         "MaxHP" : 10,
-        "MaxAP" : 1,
         "MaxSP" : 3,
         "BaseDefense" : 0,
         "BaseSpeed" : 1.1,

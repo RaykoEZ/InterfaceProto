@@ -6,19 +6,19 @@ using BlindChase.State;
 
 namespace BlindChase
 {
-    public delegate void OnCharacterActivate(TileId activeFactionData);
 
     public class TurnOrderManager
     {
         Queue<TileId> m_waitingCharacters = new Queue<TileId>();
 
-        public event OnCharacterActivate OnCharacterActivate = default;
+        public event OnCharacterTileActivate OnCharacterTurnStart = default;
 
         public TurnOrderManager(GameStateManager gameState, CharacterContextFactory characterContextFactory)
         {
             SetupQueue(characterContextFactory.Context);
             characterContextFactory.OnContextChanged += OnCharacterIdUpdate;
-            gameState.OnTurnChange += NextCharacterTurn;
+            gameState.OnTurnStart += NextPlayerTurn;
+            gameState.OnTurnEnd += OnPlayerTurnEnd;
         }
 
         public TileId GetActiveCharacterId() 
@@ -26,12 +26,15 @@ namespace BlindChase
             return m_waitingCharacters.Peek();
         }
 
-        public void NextCharacterTurn()
+        void NextPlayerTurn()
+        {
+            // Send message to listeners of the newly active faction.
+            OnCharacterTurnStart?.Invoke(m_waitingCharacters.Peek());
+        }
+
+        void OnPlayerTurnEnd() 
         {
             m_waitingCharacters.Enqueue(m_waitingCharacters.Dequeue());
-
-            // Send message to listeners of the newly active faction.
-            OnCharacterActivate?.Invoke(m_waitingCharacters.Peek());
         }
 
         void SetupQueue(CharacterContext newContext) 
@@ -45,13 +48,37 @@ namespace BlindChase
         void OnCharacterIdUpdate(CharacterContext newContext) 
         {
             List<TileId> temp = new List<TileId>(m_waitingCharacters);
+            List<TileId> toRemove = new List<TileId>();
+            List<TileId> toAdd = new List<TileId>();
+
+            // See which characters are removed from play
             foreach(TileId id in temp) 
             {
-                if (!newContext.MemberDataContainer.ContainsKey(id)) 
+                if (!newContext.MemberDataContainer[id].PlayerState.IsActive) 
                 {
-                    temp.Remove(id);
+                    toRemove.Add(id);
                 }
+            }
 
+            // See if there are any to add
+            foreach(TileId id in newContext.MemberDataContainer.Keys) 
+            {
+                if (!temp.Contains(id) && newContext.MemberDataContainer[id].PlayerState.IsActive) 
+                {
+                    toAdd.Add(id);
+                }
+            }
+
+            // Remove characters from play
+            foreach (TileId id in toRemove)
+            {
+                temp.Remove(id);
+            }
+
+            // Add characters into play
+            foreach (TileId id in toAdd)
+            {
+                temp.Add(id);
             }
 
             m_waitingCharacters = new Queue<TileId>(temp);

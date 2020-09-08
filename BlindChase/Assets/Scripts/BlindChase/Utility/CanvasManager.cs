@@ -29,7 +29,8 @@ namespace BlindChase.Utility
         }
 
         public List<Canvas> OverlayCanvas 
-        { get 
+        { 
+            get 
             {
                 return m_overlayCanvas;             
             } 

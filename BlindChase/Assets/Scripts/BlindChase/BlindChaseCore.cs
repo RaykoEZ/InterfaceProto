@@ -12,17 +12,20 @@ namespace BlindChase
     {
         [SerializeField] GameObject m_playerAsset = default;
         [SerializeField] Tilemap m_map = default;
+        [SerializeField] CharacterHUDManager m_characterHUD = default;
+        [SerializeField] RangeDisplay m_rangeDisplay = default;
+        [SerializeField] TileSelectionManager m_tileSelector = default;
 
-        GameStateContextFactory m_gameStateContextFactory = new GameStateContextFactory();
+        WorldStateContextFactory m_worldStateContextFactory = new WorldStateContextFactory();
         CharacterContextFactory m_characterContextFactory = new CharacterContextFactory();
 
         SkillManager m_skillManager = default;
         CommandManager m_commandManager = new CommandManager();
-        ControllableTileManager m_unitTileManager = new ControllableTileManager();
+        CharacterTileManager m_characterTileManager = new CharacterTileManager();
 
         CharacterDeploymentManager m_deploymentManager = new CharacterDeploymentManager();
 
-        TileController m_controller = new TileController();
+        PlayerController m_controller = new PlayerController();
         
         GameStateManager m_gameState = new GameStateManager();
         TurnOrderManager m_turnOrderManager = default;
@@ -39,34 +42,49 @@ namespace BlindChase
 
         void Init() 
         {
+            m_worldStateContextFactory.Update(new WorldStateContext(m_map));
+
             m_deploymentManager.Init("test");
             CharacterDeploymentList deployment = m_deploymentManager.GetNPCDeployment();
+            List<CharacterState> stateList = InitCharacterDeployment(deployment.DeploymentInfo);
+            m_turnOrderManager = new TurnOrderManager(m_gameState, m_characterContextFactory);
+            m_rangeDisplay.Init(m_turnOrderManager);
+            m_characterTileManager.Init(m_turnOrderManager);
+            m_characterHUD.Init(m_turnOrderManager, m_characterContextFactory);
 
-            List<GameEffect> startGameEffects = new List<GameEffect>();
-            m_gameState.Init(startGameEffects);
-
-            m_unitTileManager.Init();
+            // Append all unique skill ids for characters
+            HashSet<int> skillIds = new HashSet<int>();
+            foreach (CharacterState characterState in stateList)
+            {
+                skillIds.UnionWith(characterState.Character.SkillIds);
+            }
+            // Load all possible skills the deployed characters have into the skill manager.
+            m_skillManager = new SkillManager(skillIds);
+            m_tileSelector.Init(m_worldStateContextFactory, m_characterTileManager, m_turnOrderManager);
 
             m_controller.Init(
-                m_characterContextFactory, 
-                m_unitTileManager, 
-                m_gameStateContextFactory);
-
-            DeployFactionUnits(deployment.DeploymentInfo);
+                m_characterContextFactory,
+                m_turnOrderManager,
+                m_skillManager,
+                m_gameState,
+                m_characterTileManager,
+                m_worldStateContextFactory);
 
             m_commandManager.Init(
-                m_unitTileManager,
-                m_turnOrderManager,
-                m_gameState,
+                m_characterTileManager,
+                m_characterHUD,
                 m_controller);
-
 
             // We decide on which faction to go first.
 
-            m_gameStateContextFactory.Update(new GameStateContext(m_map));
+
+
+            List<GameEffect> startGameEffects = new List<GameEffect>();
+            m_gameState.StartGame(startGameEffects);
+
         }
 
-        void DeployFactionUnits(List<FactionDeploymentInfo> factionDeployment)
+        List<CharacterState> InitCharacterDeployment(List<FactionDeploymentInfo> factionDeployment)
         {
             Transform t = GetComponent<CanvasManager>().GameBoardCanvas.transform;
             // For each faction, deploy their units.
@@ -76,28 +94,21 @@ namespace BlindChase
                     factionDeployment,
                     m_playerAsset, 
                     m_map,
-                    m_unitTileManager,
-                    m_characterContextFactory);
+                    m_characterTileManager,
+                    m_worldStateContextFactory,
+                    m_characterContextFactory,
+                    m_rangeDisplay);
 
-            m_turnOrderManager = new TurnOrderManager(m_gameState, m_characterContextFactory);
-
-            // Append all unique skill ids for characters
-            HashSet<int> skillIds = new HashSet<int>();
-            foreach(CharacterState characterState in stateList) 
-            {
-                skillIds.UnionWith(characterState.Character.SkillLevels.Keys);
-            }
-            // Load all possible skills the deployed characters have into the skill manager.
-            m_skillManager = new SkillManager(skillIds);
+            return stateList;
         }
 
         void Shutdown() 
         {
-            m_gameStateContextFactory.Shutdown();
+            m_worldStateContextFactory.Shutdown();
             m_characterContextFactory.Shutdown();
-
+            m_rangeDisplay.Shutdown();
             m_commandManager.Shutdown();
-            m_unitTileManager.Shutdown();
+            m_characterTileManager.Shutdown();
         }
 
     }

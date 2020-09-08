@@ -31,7 +31,7 @@ namespace BlindChase.Utility
 
         public RangeMap GetClassRangeMap(CharacterClassType type)
         {
-            if (type == CharacterClassType.UnKnown || m_characterClassesRangeMaps.ContainsKey(type)) 
+            if (type == CharacterClassType.UnKnown || !m_characterClassesRangeMaps.ContainsKey(type)) 
             {
                 return null;
             }
@@ -41,7 +41,7 @@ namespace BlindChase.Utility
 
         public RangeMap GetSkillRangeMap(string id)
         {
-            if (string.IsNullOrWhiteSpace(id) || m_skillRangeMaps.ContainsKey(id))
+            if (string.IsNullOrWhiteSpace(id) || !m_skillRangeMaps.ContainsKey(id))
             {
                 return null;
             }

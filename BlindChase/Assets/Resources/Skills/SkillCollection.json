@@ -3,8 +3,9 @@
     {
         "Name": "Skill0",
         "Text": "Deal small damage to an adjacent target.",
+        "Image": "Test0",
         "MaxSkillLevel": 2,
-        "DataCollection" : 
+        "ValueCollection" : 
         {
             "AttributeId" : 
             {
@@ -52,11 +53,10 @@
     {
         "Name": "Skill1",
         "Text": "Heal small amount of HP to an self.",
+        "Image": "Test0",
         "MaxSkillLevel": 3,
-        "DataCollection" :       
+        "ValueCollection" :       
         {
-
-
             "AttributeId" : 
             {
                 "EffectName": "FirstAid"

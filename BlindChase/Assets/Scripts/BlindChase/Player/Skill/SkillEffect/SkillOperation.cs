@@ -2,18 +2,26 @@
 {
     public partial class SkillEffect
     {
-        static partial class SkillCollection
+        // This contains all possible calls available for a skill effect.
+        static partial class SkillOperation
         {
-            static class SkillOperation 
+            public static GameContextCollection Strike(SkillEffectArgs args) 
             {
-                static void DealDamage(SkillEffectArgs args)
-                {
+                GameContextCollection gameContext = args.Context;
 
-                }
-                static void RestoreHP(SkillEffectArgs args)
-                {
+                SkillUtility.DealDamage(args);
 
-                }
+                return gameContext;
+            }
+
+
+            public static GameContextCollection FirstAid(SkillEffectArgs args) 
+            {
+                GameContextCollection gameContext = args.Context;
+
+                SkillUtility.RestoreHP(args);
+
+                return gameContext;
             }
         }
     }

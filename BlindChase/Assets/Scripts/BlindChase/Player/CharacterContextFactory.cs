@@ -2,7 +2,6 @@
 
 namespace BlindChase
 {
-    public delegate void OnCharacterUpdate(CharacterContext newContext);
     public class CharacterContextFactory : IBCContextFactory<CharacterContext>
     {
         public CharacterContext Context { get; private set; }
@@ -14,11 +13,11 @@ namespace BlindChase
             OnContextUpdated();
         }
 
-        public void UpdateContext(TileId id, ControllableDataContainer playerData)
+        public void UpdateCharacterData(TileId id, CharacterStateContainer playerData)
         {
             if (Context == null) 
             {
-                Context = new CharacterContext(new Dictionary<TileId, ControllableDataContainer>());
+                Context = new CharacterContext(new Dictionary<TileId, CharacterStateContainer>());
             }
 
             Context.MemberDataContainer[id] = playerData;

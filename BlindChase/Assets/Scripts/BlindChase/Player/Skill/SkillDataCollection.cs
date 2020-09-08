@@ -9,11 +9,13 @@ namespace BlindChase
     {
         public string Name { get; set; }
         public string Text { get; set; }
+        public string Image { get; set; }
+        public string SkillIcon { get; set; }
 
         public int MaxSkillLevel { get; set; }
 
         // Each item defines the skill definition. 
-        public SkillValueCollection DataCollection { get; set; }
+        public SkillValueCollection ValueCollection { get; set; }
     }
 
     // Skill data structure defining all skill levels

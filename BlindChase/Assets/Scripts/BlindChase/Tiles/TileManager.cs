@@ -11,29 +11,30 @@ namespace BlindChase
 
         Dictionary<TileId, TileContainer> m_displayTiles = new Dictionary<TileId, TileContainer>();
 
-        public event OnTileCommand<TileEventInfo> OnTileEvent = default;
-        public event OnTileSelected<TileId> OnTileSelect = default;
+        public event OnPlayerCommand<CommandEventInfo> OnTileCommand = default;
 
-
-        public virtual void Init()
+        public virtual void Init(TurnOrderManager turnOrderManager)
         {
         }
 
         public virtual void Shutdown() 
         {
-            OnTileEvent = null;
-            OnTileSelect = null;
+            OnTileCommand = null;
         }
 
-        public virtual GameObject SpawnTile(TileId id, GameObject objectRef, Vector3 position, Transform parent, bool isActive = true)
+        public virtual GameObject SpawnTile(
+            TileId id, GameObject objectRef, Vector3 position, Transform parent, 
+            CharacterData charData = default,
+            RangeDisplay rangeDisplay = null, 
+            bool isActive = true
+            )
         {
             if (id == null) 
             {
                 Debug.LogError("Null ID when calling SpawnTile in TileMananger.cs");
             }
-            GameObject o = m_spawner.SpawnTile(id, objectRef, position, parent, isActive);
+            GameObject o = m_spawner.SpawnTile(id, objectRef, position, parent, charData, rangeDisplay, isActive);
             TileItem item = new TileItem { TileObject = o, Behaviour = o.GetComponent<TileBehaviour>() };
-
 
             if (m_displayTiles.ContainsKey(id) && m_displayTiles[id] != null) 
             {
@@ -45,37 +46,28 @@ namespace BlindChase
                 m_displayTiles.Add(id, newTiles);
             }
 
+
+
             return o;
         }
 
-        protected void OnTileEventTriggered(TileEventInfo info) 
+        protected virtual void OnTileEventTriggered(CommandEventInfo info) 
         {
             if (info == null)
             {
                 return;
             }
-            OnTileEvent?.Invoke(info);
+            OnTileCommand?.Invoke(info);
         }
 
-        protected void OnTileSelected(TileId info)
-        {
-            if (info == null)
-            {
-                return;
-            }
-            OnTileSelect?.Invoke(info);
-        }
-
-        protected void SubscribeToTileEvents(TileContainer container)
+        protected virtual void SubscribeToCommand(TileContainer container)
         {
             container.OnTileTrigger += OnTileEventTriggered;
-            container.OnTileSelect += OnTileSelected;
         }
 
-        protected void UnsubscribeToTileEvents(TileContainer container)
+        protected virtual void UnsubscribeToCommand(TileContainer container)
         {
             container.OnTileTrigger -= OnTileEventTriggered;
-            container.OnTileSelect -= OnTileSelected;
         }
 
         public bool DoTilesExist(TileId id)
@@ -97,7 +89,6 @@ namespace BlindChase
         }
 
 
-
         public virtual void DespawnTiles(TileId id)
         {
             if (id == null)
@@ -105,7 +96,7 @@ namespace BlindChase
                 return;
             }
 
-            UnsubscribeToTileEvents(m_displayTiles[id]);
+            UnsubscribeToCommand(m_displayTiles[id]);
             m_displayTiles[id].DestroyTiles();
             m_displayTiles.Remove(id);
         }
@@ -125,14 +116,14 @@ namespace BlindChase
             if (container != null)
             {
                 container.ShowTiles();
-                SubscribeToTileEvents(container);
+                SubscribeToCommand(container);
 
             }
         }
 
         public virtual void HideTile(TileId id)
         {
-            if (id == null)
+            if (id == null || !m_displayTiles.ContainsKey(id))
             {
                 return;
             }
@@ -141,8 +132,16 @@ namespace BlindChase
             if (container != null)
             {
                 container.HideTiles();
-                UnsubscribeToTileEvents(container);
+                UnsubscribeToCommand(container);
 
+            }
+        }
+
+        public virtual void HideAll()
+        {
+            foreach (TileId id in m_displayTiles.Keys) 
+            {
+                HideTile(id);
             }
         }
 
