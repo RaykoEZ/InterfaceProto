@@ -11,24 +11,12 @@ namespace BlindChase
     {
         // Test display
         [SerializeField] TextMeshPro m_idText = default;
-        [SerializeField] Tilemap m_localMap = default;
-        [SerializeField] Transform m_rangeTileParent = default;
 
-        static TileId m_commandingTileId = default;
-        public override void Init(TileId tileId, RangeDisplay rangeDisplay, CharacterData characterData)
+        public override void Init(TileId tileId, CharacterData characterData)
         {
-            base.Init(tileId, rangeDisplay, characterData);
+            base.Init(tileId, characterData);
 
             m_idText.text = $"{m_tileId.FactionId}/{m_tileId.UnitId}";
-        }
-        public override void OnStartCommand() 
-        {
-            m_rangeDisplayRef.OnRangeTileEvent += OnRangeTileTrigger;
-            m_commandingTileId = m_tileId;
-        }
-        public override void OnFinishCommand()
-        {
-            m_rangeDisplayRef.OnRangeTileEvent -= OnRangeTileTrigger;
         }
 
         public override void Shutdown()
@@ -36,54 +24,40 @@ namespace BlindChase
             base.Shutdown();
         }
 
-        public override void OnPlayerPointerSelect()
+        public override void OnSelect()
         {
-            if (m_commandingTileId == m_tileId) 
-            {
-                ShowMovementRange(true);
-            }
-            else 
-            {
-                ShowMovementRangePreview(true);
-            }
-
-            m_onTileSelect?.Invoke(m_tileId);
         }
 
-        public override void OnPlayerPointerUnselect()
+        public override void OnUnselect()
         {
-            m_rangeDisplayRef.HideAll();
         }
 
+        public void OnAttack(EventInfo info)
+        {
+            Debug.Log("Attack!!!");
+        }
+
+        public void OnSkillActivate(EventInfo info)
+        {
+            Debug.Log("Skill Activated");
+        }
+        public void OnSelfDefeated(EventInfo info)
+        {
+            Debug.Log("Defeated");
+        }
+
+        public void OnLeaderDefeated(EventInfo info)
+        {
+            Debug.Log("Defeated");
+        }
+        public void OnTakeDamage(EventInfo info)
+        {
+            Debug.Log("Owwww");
+
+        }
 
         public virtual void OnPlayerSkillSelect(string rangeId, int targetLimit) 
         {
-            TileId tileId = new TileId(
-                CommandTypes.SKILL_ACTIVATE,
-                m_tileId.FactionId,
-                m_tileId.UnitId);
-            m_rangeDisplayRef.ShowSkillTargetOption(
-                tileId, rangeId, transform.position, targetLimit, m_localMap, m_rangeTileParent);
-        }
-
-        void ShowMovementRange(bool toggle = false) 
-        {
-            TileId tileId = new TileId(
-                    CommandTypes.MOVE,
-                    m_tileId.FactionId,
-                    m_tileId.UnitId);
-            m_rangeDisplayRef.ShowRangeMap(
-                tileId, m_charData.ClassType, transform.position, m_localMap, m_rangeTileParent, toggle);
-        }
-
-        void ShowMovementRangePreview(bool toggle = false)
-        {
-            TileId tileId = new TileId(
-                    CommandTypes.MOVE_PROMPT,
-                    m_tileId.FactionId,
-                    m_tileId.UnitId);
-            m_rangeDisplayRef.ShowRangeMapPreview(
-                tileId, m_charData.ClassType, transform.position, m_localMap, m_rangeTileParent, toggle);
         }
 
         public virtual void OnRangeTileTrigger(CommandEventInfo eventArg)
@@ -95,7 +69,7 @@ namespace BlindChase
             }
 
             payload.Add("Origin", transform.position);
-            CommandEventInfo overrideArg = new CommandEventInfo(m_tileId, eventArg.Location, eventArg.CommandType, payload);
+            CommandEventInfo overrideArg = new CommandEventInfo(m_tileId, eventArg.CommandType, payload);
             m_onTileCommand?.Invoke(overrideArg);
         }
     }

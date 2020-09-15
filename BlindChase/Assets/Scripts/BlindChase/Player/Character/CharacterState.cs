@@ -29,6 +29,8 @@ namespace BlindChase
         public int CurrentDefense { get; set; }
         public float CurrentSpeed { get; set; }
 
+        public bool IsHPZero { get { return CurrentHP < 0; } }
+
         public Dictionary<int, int> CurrentSkillCooldowns { get; private set; }
 
         public bool IsActive { get; set; }

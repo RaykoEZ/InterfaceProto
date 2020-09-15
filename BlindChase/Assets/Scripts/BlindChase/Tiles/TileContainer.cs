@@ -6,10 +6,16 @@ namespace BlindChase
 {
 
 
-    public class TileItem
+    public struct TileItem
     {
         public GameObject TileObject;
         public TileBehaviour Behaviour;
+    }
+
+    public struct CharacterTileItem
+    {
+        public GameObject TileObject;
+        public CharacterBehaviour Behaviour;
     }
 
     // Stores tile gameobjects generated in a session.
@@ -21,10 +27,8 @@ namespace BlindChase
         public event OnPlayerCommand<CommandEventInfo> OnTileTrigger = default;
         public event OnCharacterTileActivate OnPlayerSelect = default;
 
-        public TileContainer(TileItem item) 
+        public TileContainer() 
         {
-            m_tiles?.Add(item);
-            isActive = item.TileObject.activeSelf;
         }
 
         protected virtual void OnTileCommandTrigger(CommandEventInfo info) 

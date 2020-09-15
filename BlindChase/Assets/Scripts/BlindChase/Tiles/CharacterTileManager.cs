@@ -7,7 +7,7 @@ namespace BlindChase
 {
     public class CharacterTileManager : TileManager
     {
-        Dictionary<TileId, ControllableTileContainer> m_players = new Dictionary<TileId, ControllableTileContainer>();
+        static Dictionary<TileId, CharacterTileContainer> m_players = new Dictionary<TileId, CharacterTileContainer>();
         public event OnCharacterTileActivate OnPlayerSelect = default;
         TileId m_commandTarget;
 
@@ -37,39 +37,17 @@ namespace BlindChase
         public override GameObject SpawnTile(
             TileId id, GameObject objectRef, Vector3 position, Transform parent,
             CharacterData charData = default,
-            RangeDisplay rangeDisplay = null,
+            PromptHandler rangeDisplay = null,
             bool isActive = true) 
         {
-            GameObject o = m_spawner.SpawnTile(id, objectRef, position, parent, charData, rangeDisplay, isActive);
-            TileItem item = new TileItem { TileObject = o, Behaviour = o.GetComponent<TileBehaviour>() };
-
-            ControllableTileContainer newPlayer = new ControllableTileContainer(item);
-
+            GameObject o = m_spawner.SpawnTile(id, objectRef, position, parent, charData, isActive);
+            CharacterTileItem item = new CharacterTileItem { TileObject = o, Behaviour = o.GetComponent<CharacterBehaviour>()};
+            CharacterTileContainer newPlayer = new CharacterTileContainer(item);
+            
             m_players.Add(id, newPlayer);
 
             return o;
         }
-
-        public void SelectCharacter(TileId id) 
-        { 
-            if( id == null || !m_players.ContainsKey(id)) 
-            {
-                return;
-            }
-
-            m_players[id].SelectTile();
-        }
-
-        public void UnselectCharacter(TileId id)
-        {
-            if (id == null || !m_players.ContainsKey(id))
-            {
-                return;
-            }
-
-            m_players[id].UnselectTile();
-        }
-
 
         protected void OnPlayerSelectCharacter(TileId id) 
         {
@@ -111,6 +89,11 @@ namespace BlindChase
 
         public override void MoveTile(TileId id, Vector3 offset)
         {
+            MoveCharacter(id, offset);
+        }
+
+        public static void MoveCharacter(TileId id, Vector3 offset) 
+        {
             if (id == null)
             {
                 return;
@@ -132,6 +115,83 @@ namespace BlindChase
         public override void Shutdown()
         {
             base.Shutdown();
+        }
+
+
+        public void OnCharacterSkillActivate(EventInfo info) 
+        {
+            TileId id = info.SourceId;
+            if (id == null || !m_players.ContainsKey(id))
+            {
+                return;
+            }
+            m_players[id].OnCharacterSkillActivate(info);
+
+        }
+
+        public void OnCharacterAttack(EventInfo info)
+        {
+            TileId id = info.SourceId;
+            if (id == null || !m_players.ContainsKey(id))
+            {
+                return;
+            }
+            m_players[id].OnCharacterAttack(info);
+
+        }
+
+        public void OnCharacterDefeated(EventInfo info)
+        {
+            TileId id = info.SourceId;
+            if (id == null || !m_players.ContainsKey(id))
+            {
+                return;
+            }
+            m_players[id].OnCharacterDefeated(info);
+
+        }
+
+        public void OnLeaderDefeated(EventInfo info)
+        {
+            TileId id = info.SourceId;
+            if (id == null || !m_players.ContainsKey(id))
+            {
+                return;
+            }
+            m_players[id].OnLeaderDefeated(info);
+        }
+
+        public void OnCharacterTakeDamage(EventInfo info)
+        {
+            TileId id = info.SourceId;
+            if (id == null || !m_players.ContainsKey(id))
+            {
+                return;
+            }
+
+            m_players[id].OnCharacterTakeDamage(info);
+        }
+
+        public void OnCharacterSelected(EventInfo info)
+        {
+            TileId id = info.SourceId;
+            if (id == null || !m_players.ContainsKey(id))
+            {
+                return;
+            }
+
+            m_players[id].SelectCharacter();
+        }
+
+        public void OnCharacterUnselected(EventInfo info)
+        {
+            TileId id = info.SourceId;
+            if (id == null || !m_players.ContainsKey(id))
+            {
+                return;
+            }
+
+            m_players[id].UnselectCharacter();
         }
     }
 

@@ -58,9 +58,12 @@ namespace BlindChase
             m_boardState.BoardOccupiers[pos] = id;
         }
 
-        public void RemoveBoardPiece(Vector3Int pos) 
+        public void RemoveBoardPiece(Vector3Int pos, TileId id) 
         {
-            m_boardState.BoardOccupiers.Remove(pos);
+            if (m_boardState.BoardOccupiers.ContainsKey(pos) && m_boardState.BoardOccupiers[pos] == id) 
+            {
+                m_boardState.BoardOccupiers.Remove(pos);
+            }
         }
     }
 

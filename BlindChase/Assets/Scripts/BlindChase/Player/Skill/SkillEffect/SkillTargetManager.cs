@@ -15,7 +15,6 @@ namespace BlindChase
         public event OnSkillTargetConfirmed OnTargetConfirmed = default;
         int m_targetLimit = 0;
         HashSet<Vector3> m_targets = new HashSet<Vector3>();
-
         public void Init()
         {
             m_HUD.OnRangeCancel += TargetsCancelled;

@@ -5,7 +5,7 @@ using BlindChase.Events;
 
 namespace BlindChase 
 {
-    public class TileManager
+    public class TileManager : MonoBehaviour
     {
         protected TileSpawner m_spawner = new TileSpawner();
 
@@ -25,7 +25,7 @@ namespace BlindChase
         public virtual GameObject SpawnTile(
             TileId id, GameObject objectRef, Vector3 position, Transform parent, 
             CharacterData charData = default,
-            RangeDisplay rangeDisplay = null, 
+            PromptHandler rangeDisplay = null, 
             bool isActive = true
             )
         {
@@ -33,7 +33,7 @@ namespace BlindChase
             {
                 Debug.LogError("Null ID when calling SpawnTile in TileMananger.cs");
             }
-            GameObject o = m_spawner.SpawnTile(id, objectRef, position, parent, charData, rangeDisplay, isActive);
+            GameObject o = m_spawner.SpawnTile(id, objectRef, position, parent, charData, isActive);
             TileItem item = new TileItem { TileObject = o, Behaviour = o.GetComponent<TileBehaviour>() };
 
             if (m_displayTiles.ContainsKey(id) && m_displayTiles[id] != null) 
@@ -42,7 +42,8 @@ namespace BlindChase
             }
             else 
             {
-                TileContainer newTiles = new TileContainer(item);
+                TileContainer newTiles = new TileContainer();
+                newTiles.AddTileItem(item);
                 m_displayTiles.Add(id, newTiles);
             }
 

@@ -9,7 +9,7 @@ namespace BlindChase
     {
         public virtual GameObject SpawnTile(
             TileId tileId, GameObject objectRef, Vector3 position, Transform parent,
-            CharacterData charData = default, RangeDisplay rangeDisplayRef = null, bool isActive = true
+            CharacterData charData = default, bool isActive = true
             ) 
         {
             GameObject o = Object.Instantiate(objectRef, position, Quaternion.identity, parent);
@@ -17,7 +17,7 @@ namespace BlindChase
             
             if (behaviour != null) 
             {
-                behaviour?.Init(tileId, rangeDisplayRef, charData);
+                behaviour?.Init(tileId, charData);
             }
 
             o.SetActive(isActive);

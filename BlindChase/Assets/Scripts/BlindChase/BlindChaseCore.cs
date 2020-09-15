@@ -12,21 +12,20 @@ namespace BlindChase
     {
         [SerializeField] GameObject m_playerAsset = default;
         [SerializeField] Tilemap m_map = default;
-        [SerializeField] CharacterHUDManager m_characterHUD = default;
-        [SerializeField] RangeDisplay m_rangeDisplay = default;
+        [SerializeField] GameplayScreen m_gameplayScreen = default;
+        [SerializeField] PromptHandler m_promptHandler = default;
         [SerializeField] TileSelectionManager m_tileSelector = default;
+        [SerializeField] PlayerController m_controller = default;
+        [SerializeField] CharacterTileManager m_characterTileManager = default;
+        [SerializeField] CommandEventHandler m_commandEventHandler = default;
 
         WorldStateContextFactory m_worldStateContextFactory = new WorldStateContextFactory();
         CharacterContextFactory m_characterContextFactory = new CharacterContextFactory();
 
         SkillManager m_skillManager = default;
         CommandManager m_commandManager = new CommandManager();
-        CharacterTileManager m_characterTileManager = new CharacterTileManager();
-
         CharacterDeploymentManager m_deploymentManager = new CharacterDeploymentManager();
-
-        PlayerController m_controller = new PlayerController();
-        
+       
         GameStateManager m_gameState = new GameStateManager();
         TurnOrderManager m_turnOrderManager = default;
 
@@ -48,9 +47,8 @@ namespace BlindChase
             CharacterDeploymentList deployment = m_deploymentManager.GetNPCDeployment();
             List<CharacterState> stateList = InitCharacterDeployment(deployment.DeploymentInfo);
             m_turnOrderManager = new TurnOrderManager(m_gameState, m_characterContextFactory);
-            m_rangeDisplay.Init(m_turnOrderManager);
+            m_promptHandler.Init(m_characterContextFactory, m_turnOrderManager);
             m_characterTileManager.Init(m_turnOrderManager);
-            m_characterHUD.Init(m_turnOrderManager, m_characterContextFactory);
 
             // Append all unique skill ids for characters
             HashSet<int> skillIds = new HashSet<int>();
@@ -61,6 +59,7 @@ namespace BlindChase
             // Load all possible skills the deployed characters have into the skill manager.
             m_skillManager = new SkillManager(skillIds);
             m_tileSelector.Init(m_worldStateContextFactory, m_characterTileManager, m_turnOrderManager);
+            m_gameplayScreen.Init(m_turnOrderManager, m_characterContextFactory);
 
             m_controller.Init(
                 m_characterContextFactory,
@@ -70,16 +69,14 @@ namespace BlindChase
                 m_characterTileManager,
                 m_worldStateContextFactory);
 
+
             m_commandManager.Init(
-                m_characterTileManager,
-                m_characterHUD,
-                m_controller);
+                m_controller,
+                m_commandEventHandler);
 
             // We decide on which faction to go first.
 
-
-
-            List<GameEffect> startGameEffects = new List<GameEffect>();
+            List<DelayedEffect> startGameEffects = new List<DelayedEffect>();
             m_gameState.StartGame(startGameEffects);
 
         }
@@ -97,7 +94,7 @@ namespace BlindChase
                     m_characterTileManager,
                     m_worldStateContextFactory,
                     m_characterContextFactory,
-                    m_rangeDisplay);
+                    m_promptHandler);
 
             return stateList;
         }
@@ -106,7 +103,7 @@ namespace BlindChase
         {
             m_worldStateContextFactory.Shutdown();
             m_characterContextFactory.Shutdown();
-            m_rangeDisplay.Shutdown();
+            m_promptHandler.Shutdown();
             m_commandManager.Shutdown();
             m_characterTileManager.Shutdown();
         }

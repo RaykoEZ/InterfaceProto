@@ -6,22 +6,6 @@ using BlindChase.State;
 
 namespace BlindChase
 {
-    public class SkillEffectArgs 
-    {
-        public GameContextCollection Context { get; private set; }
-        public HashSet<TileId> TargetIds { get; private set; }
-        public TileId UserId { get; private set; }
-        public SkillDataItem SkillData { get; private set; }
-        
-        public SkillEffectArgs(GameContextCollection context, HashSet<TileId> target, TileId user, SkillDataItem args) 
-        {
-            Context = context;
-            TargetIds = target;
-            UserId = user;
-            SkillData = args;
-        }
-    }
-
     public partial class SkillEffect
     {
         protected Func<SkillEffectArgs, GameContextCollection> m_effectMethod { get; set; }

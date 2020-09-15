@@ -63,7 +63,7 @@ namespace BlindChase
             CharacterTileManager tileManager,
             WorldStateContextFactory worldStateContextFactory,
             CharacterContextFactory characterContextFactory,
-            RangeDisplay rangeDisplay
+            PromptHandler rangeDisplay
             ) 
         {
             Dictionary<TileId, CharacterStateContainer> contextData = new Dictionary<TileId, CharacterStateContainer>();

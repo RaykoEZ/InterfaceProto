@@ -35,6 +35,9 @@ namespace BlindChase
         // This will be used to determine the method to be called for the skilleffect.
         public string EffectName { get; set; }
 
+        static readonly SkillAttributeId c_basicMovement = new SkillAttributeId("BasicMovement");
+        public static SkillAttributeId BasicMovement { get { return c_basicMovement; } }
+
         public SkillAttributeId(string effectName)
         {
             EffectName = effectName;

@@ -3,24 +3,22 @@ using System.Collections.Generic;
 
 namespace BlindChase.State
 {
-    // Need to listen to win detector, if won/loss, => GaemEnd
-    public class PlayerTurn : GameState
+    public class TurnEnd : GameState
     {
-        public override void Init(List<GameEffect> startEffects)
+        public override void Init(List<DelayedEffect> startEffects)
         {
             base.Init(startEffects);
-            NextState = typeof(TurnEnd);
-
+            NextState = typeof(TurnStart);
         }
 
         public override void OnEnter(GameState incomingState)
         {
             base.OnEnter(incomingState);
-
+            TransitionTo();
         }
         public override Type TransitionTo() 
-        {
-            return base.TransitionTo();
+        {          
+            return base.TransitionTo(); 
         }
     }
 

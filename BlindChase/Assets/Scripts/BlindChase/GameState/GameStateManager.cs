@@ -5,19 +5,19 @@ using BlindChase;
 
 namespace BlindChase.State 
 {
-    public class GameEffect
+    public class DelayedEffect
     { 
-        public Action EffectCall { get; private set; }
+        public SkillEffect Effect { get; private set; }
+
+        public SkillEffectArgs Args { get; private set; }
         public int Delay { get; set; }
 
-        public GameEffect(Action action, int delay = 0) 
+        public DelayedEffect(SkillEffect effect, int delay = 0) 
         {
-            EffectCall = action;
+            Effect = effect;
             Delay = delay;
         }
     }
-
-
 
     // Responsible for handling state changes trihhered from moment-to-moment gameplay.
     public class GameStateManager
@@ -28,6 +28,7 @@ namespace BlindChase.State
         public event OnGameStateTransition OnGameStateUpdate = default;
         public event OnStateChange OnTurnStart = default;
         public event OnStateChange OnTurnEnd = default;
+        public event OnStateChange OnGameEnd = default;
 
         // Add all game states into the dictionary
         Dictionary<Type, GameState> m_gameStateCollection = new Dictionary<Type, GameState>
@@ -37,7 +38,7 @@ namespace BlindChase.State
                 { typeof(PlayerTurn), new PlayerTurn() }
             };
 
-        public void StartGame(List<GameEffect> startEffects = null)
+        public void StartGame(List<DelayedEffect> startEffects = null)
         {
             SetCurrentState(typeof(TurnStart), startEffects);
         }
@@ -47,12 +48,12 @@ namespace BlindChase.State
             return m_current.GetType();
         }
 
-        public void AddGameEffectsToState(Type gameState, List<GameEffect> gameEffects) 
+        public void AddGameEffectsToState(Type gameState, List<DelayedEffect> gameEffects) 
         {
             m_gameStateCollection[gameState].AddEffects(gameEffects);
         }
 
-        void SetCurrentState(Type type, List<GameEffect> gameEffects = null) 
+        void SetCurrentState(Type type, List<DelayedEffect> gameEffects = null) 
         {
             m_current = m_gameStateCollection[type];
             m_current.Init(gameEffects);
@@ -85,8 +86,6 @@ namespace BlindChase.State
             m_previous = m_current;
             SetCurrentState(newGameState);
         }
-
-
 
     }
 

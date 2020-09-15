@@ -1,14 +1,15 @@
 ﻿using UnityEngine;
-using BlindChase;
+using BlindChase.Events;
+
 
 namespace BlindChase 
 {
-    public class ControllableTileContainer : TileContainer
+    public class CharacterTileContainer : TileContainer
     {
-        public TileItem Player { get; private set; }
+        public CharacterTileItem Player { get; private set; }
         
 
-        public ControllableTileContainer(TileItem item) : base(item)
+        public CharacterTileContainer(CharacterTileItem item)
         {
             Player = item;
         }
@@ -25,14 +26,39 @@ namespace BlindChase
             Player.Behaviour?.OnFinishCommand();
         }
 
-        public void SelectTile() 
+        public void SelectCharacter() 
         {
-            Player.Behaviour?.OnPlayerPointerSelect();
+            Player.Behaviour?.OnSelect();
         }
 
-        public void UnselectTile() 
+        public void UnselectCharacter() 
         {
-            Player.Behaviour?.OnPlayerPointerSelect();
+            Player.Behaviour?.OnUnselect();
+        }
+
+        public void OnCharacterSkillActivate(EventInfo info)
+        {
+            Player.Behaviour?.OnSkillActivate(info);
+        }
+
+        public void OnCharacterAttack(EventInfo info)
+        {
+            Player.Behaviour?.OnAttack(info);
+        }
+
+        public void OnCharacterDefeated(EventInfo info)
+        {
+            Player.Behaviour?.OnSelfDefeated(info);
+        }
+
+        public void OnLeaderDefeated(EventInfo info)
+        {
+            Player.Behaviour?.OnLeaderDefeated(info);
+
+        }
+        public void OnCharacterTakeDamage(EventInfo info)
+        {
+            Player.Behaviour?.OnTakeDamage(info);
         }
 
         public override void HideTiles()

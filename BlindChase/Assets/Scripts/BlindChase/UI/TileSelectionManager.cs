@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Tilemaps;
-using BlindChase;
+using BlindChase.Events;
 
 namespace BlindChase 
 {
@@ -10,12 +10,14 @@ namespace BlindChase
         [SerializeField] GameObject m_highlightObject = default;
         [SerializeField] CameraManager m_camera = default;
         [SerializeField] Tilemap m_map = default;
+        [SerializeField] TileManager m_tileHighlightManager = default;
+        [SerializeField] BCGameEventTrigger OnCharacterSelect = default;
+        [SerializeField] BCGameEventTrigger OnCharacterUnselect = default;
 
         public event OnCharacterTileActivate OnTileSelect = default;
         static readonly TileId m_highlighterTileId = new TileId(CommandTypes.NONE, "none", "none");
 
         WorldStateContext m_worldRef;
-        TileManager m_tileHighlightManager = new TileManager();
         CharacterTileManager m_characterManagerRef;
         Vector3Int m_lastMouseCoordinate = default;
         TileId m_lastSelectedTileId = default;
@@ -36,24 +38,23 @@ namespace BlindChase
         void OnPlayerActivate(TileId id) 
         {
             SelectPlayerCharacter(id);
-
-            m_tileHighlightManager.HideTile(m_highlighterTileId);
         }
 
         void SelectPlayerCharacter(TileId id) 
         {
-            if (m_lastSelectedTileId != null && m_lastSelectedTileId == id)
+            EventInfo info = new EventInfo(id);
+            if (id == null || (m_lastSelectedTileId != null && m_lastSelectedTileId == id))
             {
-                m_characterManagerRef.UnselectCharacter(m_lastSelectedTileId);
+                OnCharacterUnselect?.TriggerEvent(info);
+                m_lastSelectedTileId = null;
                 return;
             }
 
             if (id != null)
             {
                 OnTileSelect?.Invoke(id);
-                m_characterManagerRef.SelectCharacter(id);
+                OnCharacterSelect?.TriggerEvent(info);
             }
-
             m_lastSelectedTileId = id;
         }
 
@@ -73,11 +74,12 @@ namespace BlindChase
 
                     m_tileHighlightManager.MoveTile(m_highlighterTileId, diff);
                     m_lastMouseCoordinate = gridCoord;
-                    m_tileHighlightManager.ShowTile(m_highlighterTileId);
                 }
 
-                m_camera.FocusCamera(worldPos);
             }
+
+            m_tileHighlightManager.ShowTile(m_highlighterTileId);
+            m_camera.FocusCamera(worldPos);
         }
 
         public void HandleHighlightTile() 

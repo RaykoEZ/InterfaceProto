@@ -1,24 +1,18 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using BlindChase.Events;
-using BlindChase.State;
 
 namespace BlindChase
 {
-
     public class CommandManager
     {
-
         Dictionary<CommandTypes, PlayerCommand> m_playerCommandCollection;
 
         public void Init(
-            CharacterTileManager tilemanager,
-            CharacterHUDManager characterHUD,
-            PlayerController c) 
+            PlayerController c,
+            CommandEventHandler eventHandler) 
         {
-            tilemanager.OnTileCommand += ExecutePlayerCommand;
-            characterHUD.OnPlayerCommand += ExecutePlayerCommand;
-
+            eventHandler.OnCommand += ExecutePlayerCommand;
             // Initialize all available player commands
             m_playerCommandCollection = new Dictionary<CommandTypes, PlayerCommand>
             {
@@ -26,7 +20,6 @@ namespace BlindChase
                 {CommandTypes.SKILL_PROMPT, new SkillPrompt(c)},
                 {CommandTypes.SKILL_ACTIVATE, new SkillActivate(c)}
             };
-
         }
 
         public void Shutdown()
@@ -44,12 +37,12 @@ namespace BlindChase
             {
                 case CommandTypes.MOVE:
                     {
-                        input.Add("Destination", eventArgs.Location);
+                        input.Add("Destination", eventArgs.Payload["Destination"]);
                         Vector3 origin = (Vector3)eventArgs.Payload["Origin"];
                         input.Add("Origin", origin);
                         break;
                     }
-                case CommandTypes.SKILL_PROMPT:
+                case CommandTypes.SKILL_PROMPT: 
                     {
                         input.Add("SkillId", eventArgs.Payload["SkillId"]);
                         input.Add("SkillLevel", eventArgs.Payload["SkillLevel"]);

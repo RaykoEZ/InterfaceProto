@@ -12,10 +12,8 @@ namespace BlindChase
         protected TileId m_tileId;
         protected CharacterData m_charData;
         protected bool m_previewOnly = true;
-        protected RangeDisplay m_rangeDisplayRef = default;
-        public virtual void Init(TileId tileId, RangeDisplay rangeDisplay, CharacterData charData = default) 
+        public virtual void Init(TileId tileId, CharacterData charData = default) 
         {
-            m_rangeDisplayRef = rangeDisplay;
             m_tileId = tileId;
             m_charData = charData;
         }
@@ -49,8 +47,8 @@ namespace BlindChase
             m_onTileSelect -= callme;
         }
 
-        public virtual void OnPlayerPointerSelect() { }
-        public virtual void OnPlayerPointerUnselect() { }
+        public virtual void OnSelect() { }
+        public virtual void OnUnselect() { }
 
         public virtual void OnPlayerPointerHover() { }
         public virtual void OnPlayerPointerExit() { }

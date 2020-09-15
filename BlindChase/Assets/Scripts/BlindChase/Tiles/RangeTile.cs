@@ -8,19 +8,19 @@ public class RangeTile : TileBehaviour
 {
     [SerializeField] TileTrigger tileEventTrigger = default;
 
-    public override void Init(TileId tileId, RangeDisplay rangeDisplay, CharacterData charData = default)
+    public override void Init(TileId tileId, CharacterData charData = default)
     {
-        base.Init(tileId, rangeDisplay, charData);
-        tileEventTrigger.OnPonterSelected += OnPlayerPointerSelect;
+        base.Init(tileId, charData);
+        tileEventTrigger.OnPonterSelected += OnSelect;
     }
 
-    public override void OnPlayerPointerSelect() 
+    public override void OnSelect() 
     {
         Dictionary<string, object> payload = new Dictionary<string, object>();
+        payload["Destination"] = transform.position;
 
         CommandEventInfo info = new CommandEventInfo(
             m_tileId, 
-            transform.position,
             m_tileId.CommandType, payload);
 
         m_onTileCommand?.Invoke(info);

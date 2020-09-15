@@ -8,9 +8,17 @@ namespace BlindChase
 {
     public delegate void OnWorldStateUpdate(WorldStateContext context);
     public delegate void OnCharacterUpdate(CharacterContext newContext);
-    public delegate void OnCharacterDefeated(TileId id);
+
+    public delegate void OnSkillActivate(EventInfo id);
+    public delegate void OnCharacterAttack(EventInfo id);
+    public delegate void OnTakeDamage(EventInfo id);
+
+    public delegate void OnCharacterDefeated(EventInfo id);
+    public delegate void OnLeaderDefeated(EventInfo id);
+
 
     public delegate void OnStateChange();
+
     public delegate void OnGameStateTransition(Type gameStateType);
     public delegate void OnCharacterTileActivate(TileId activeCharacterId);
 

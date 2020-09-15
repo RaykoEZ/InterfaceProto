@@ -13,21 +13,24 @@ namespace BlindChase
     }
 
     // Used by PlayerCommand to execute different actions in a player's turn
-    public class PlayerController
+    public class PlayerController : MonoBehaviour
     {
         CharacterTileManager m_tileManager;
         GameContextCollection m_gameContext = new GameContextCollection();
         // The id of the faction member tile object we are controlling.
         TileId m_targetId;
-        CharacterBehaviour m_playerBehaviourRef;
         CharacterState m_currentTargetState;
         WorldStateContextFactory m_worldContextFactoryRef;
         CharacterContextFactory m_characterContextFactoryRef;
         GameStateManager m_gameStateManagerRef;
         SkillManager m_skillManagerRef;
 
-        CombatHandler m_combatHandler = new CombatHandler();
-        public event OnCharacterDefeated OnCharacterDefeated = default;
+        [SerializeField] PromptHandler m_rangeDisplay = default;
+        [SerializeField] BCGameEventTrigger OnCharacterDefeated = default;
+        [SerializeField] BCGameEventTrigger OnLeaderDefeated = default;
+        [SerializeField] BCGameEventTrigger OnCharacterAttack = default;
+        [SerializeField] BCGameEventTrigger OnSkillActivated = default;
+        [SerializeField] BCGameEventTrigger OnTakeDamage = default;
 
         public void Init(
             CharacterContextFactory c,
@@ -45,19 +48,122 @@ namespace BlindChase
             m_worldContextFactoryRef = w;
             m_gameContext.World = w.Context;
 
-
             m_skillManagerRef = skillManager;
+            m_skillManagerRef.OnCharacterDefeat += OnCharacterDefeat;
+
             m_gameStateManagerRef = state;
             m_gameStateManagerRef.OnTurnStart += OnTurnChange;
 
             m_tileManager = tilemanager;
             turnOrder.OnCharacterTurnStart += SetControllerTarget;
-            m_combatHandler.OnCharacterDefeat += OnCharacterDefeat;
+
         }
 
-        void OnCharacterDefeat(TileId id) 
+        public void Shutdown() 
         {
-            OnCharacterDefeated?.Invoke(id);
+            m_characterContextFactoryRef.OnContextChanged -= OnCharacterContextUpdate;
+            m_worldContextFactoryRef.OnContextChanged -= OnWorldUpdate;
+            m_skillManagerRef.OnCharacterDefeat -= OnCharacterDefeat;
+            m_gameStateManagerRef.OnTurnStart -= OnTurnChange;
+
+        }
+
+        public void MovePlayer(Vector3 destination)
+        {
+            Vector3Int targetCoord = m_gameContext.World.WorldMap.WorldToCell(destination);
+            GameContextCollection resultingContext = m_skillManagerRef.BasicMovement(m_gameContext, targetCoord, m_targetId);
+
+            UpdateCharacterContext(resultingContext.Characters);
+            m_worldContextFactoryRef.Update(resultingContext.World);
+            m_gameStateManagerRef.TransitionToNextState();
+        }
+
+        // If player can use this skill, prompt target selection/confirmation
+        // If skill not usable, prompt a GUI message
+        public void PromptSkillTargetSelection(int skillId, int skillLevel)
+        {
+            SkillValueCollection skillValues = SkillManager.GetSkillData(skillId).ValueCollection;
+            SkillDataItem skillData = skillValues.SkillValues[skillLevel];
+            int cost = skillData.SkillCost;
+
+            //Player cannot use this skill, return.
+            if (!PreSkillActivationChecks(skillId, cost))
+            {
+                return;
+            }
+
+            // Prompt Skill target selection here
+            string rangeId = skillData.EffectRange;
+            int targetLimit = SkillManager.GetSkillTargetLimit(skillId, skillLevel);
+
+            Transform parent = m_gameContext.Characters.MemberDataContainer[m_targetId].PlayerTransform;
+            TileId tileId = new TileId(
+                CommandTypes.SKILL_ACTIVATE,
+                m_targetId.FactionId,
+                m_targetId.UnitId);
+            m_rangeDisplay.ShowSkillTargetOption(tileId, rangeId, parent.position, targetLimit, parent);
+        }
+
+
+        public void ActivateSkill(int skillId, int skillLevel, HashSet<Vector3> targetPos, Vector3 userPos)
+        {
+            List<Vector3Int> targetCoords = new List<Vector3Int>();
+            foreach (Vector3 pos in targetPos)
+            {
+                Vector3Int coord = m_gameContext.World.WorldMap.WorldToCell(pos);
+                targetCoords.Add(coord);
+            }
+
+            Vector3Int userCoord = m_gameContext.World.WorldMap.WorldToCell(userPos);
+            TileId userId = m_gameContext.World.GetOccupyingTileAt(userCoord);
+
+            GameContextCollection newContext = m_skillManagerRef.ActivateSkill(skillId, skillLevel, m_gameContext, targetCoords, userId);
+
+            UpdateCharacterContext(newContext.Characters);
+            m_worldContextFactoryRef.Update(newContext.World);
+
+
+            Dictionary<string, object> payload = new Dictionary<string, object>
+            {
+                {"SkillId", skillId}
+            };
+
+            EventInfo eventInfo = new EventInfo(userId, payload);
+            OnCharacterSkilllActivate(eventInfo);
+        }
+
+        public void OnCharacterDefeat(EventInfo info)
+        {
+            OnCharacterDefeated?.TriggerEvent(info);
+            // [BLOCKOUT] Hide sprite for now
+            m_tileManager.HideTile(info.SourceId);
+            CharacterClassType defeatedCharacterClass = m_gameContext.
+                Characters.MemberDataContainer[info.SourceId].PlayerState.Character.ClassType;
+
+            if (defeatedCharacterClass == CharacterClassType.Master)
+            {
+                OnLeaderCharacterDefeated(info);
+            }
+        }
+
+        public void OnLeaderCharacterDefeated(EventInfo info) 
+        {
+            OnLeaderDefeated?.TriggerEvent(info);
+        }
+
+        public void OnCharacterAttacking(EventInfo info)
+        {
+            OnCharacterAttack?.TriggerEvent(info);
+        }
+
+        public void OnCharacterSkilllActivate(EventInfo info)
+        {
+            OnSkillActivated?.TriggerEvent(info);
+        }
+
+        public void OnCharacterTakeDamage(EventInfo info)
+        {
+            OnTakeDamage?.TriggerEvent(info);
         }
 
         // When the player selects a member tile on the map, we start controlling the character
@@ -65,8 +171,6 @@ namespace BlindChase
         {
             m_targetId = tileId;
             m_currentTargetState = m_gameContext.Characters.MemberDataContainer[m_targetId].PlayerState;
-            m_playerBehaviourRef = m_gameContext.Characters.MemberDataContainer[m_targetId].PlayerTransform.
-                GetComponent<CharacterBehaviour>();
         }
 
         void OnWorldUpdate(WorldStateContext world)
@@ -81,16 +185,6 @@ namespace BlindChase
         void UpdateCharacterContext(CharacterContext context)
         {
             m_characterContextFactoryRef.Update(context);
-        }
-
-        void UpdateCharacterContext(TileId id)
-        {
-            CharacterStateContainer stateContainer =
-                new CharacterStateContainer(
-                    m_gameContext.Characters.MemberDataContainer[id].PlayerTransform,
-                    m_gameContext.Characters.MemberDataContainer[id].PlayerState);
-
-            m_characterContextFactoryRef.UpdateCharacterData(id, stateContainer);
         }
 
         void OnTurnChange() 
@@ -114,63 +208,6 @@ namespace BlindChase
             m_characterContextFactoryRef.UpdateCharacterData(m_targetId, newPlayerData);
         }
 
-        public void MovePlayer(Vector3 destination, Vector3 origin)
-        {
-            m_combatHandler.SetupContext(m_gameContext.World, m_gameContext.Characters, m_tileManager);
-            GameContextCollection resultingContext = m_combatHandler.MoveTarget(m_targetId, m_targetId, destination, origin);
-
-            UpdateCharacterContext(resultingContext.Characters);
-            m_worldContextFactoryRef.Update(resultingContext.World);
-            m_gameStateManagerRef.TransitionToNextState();
-        }
-
-        // If player can use this skill, prompt target selection/confirmation
-        // If skill not usable, prompt a GUI message
-        public void PromptSkillTargetSelection(int skillId, int skillLevel) 
-        {
-            SkillValueCollection skillValues = SkillManager.GetSkillData(skillId).ValueCollection;
-            SkillDataItem skillData = skillValues.SkillValues[skillLevel];
-            int cost = skillData.SkillCost;
-
-            //Player cannot use this skill, return.
-            if (!PreSkillActivationChecks(skillId, cost))
-            {
-                return;
-            }
-
-            // Prompt Skill target selection here
-            string rangeId = skillData.EffectRange;
-            int targetLimit = m_skillManagerRef.GetSkillTargetLimit(skillId, skillLevel);
-            m_playerBehaviourRef.OnPlayerSkillSelect(rangeId, targetLimit);
-        }
-
-        public void ActivateSkill(int skillId, int skillLevel, HashSet<Vector3> targetPos, Vector3 userPos)
-        {
-            HashSet<TileId> targetCoords = new HashSet<TileId>();
-            foreach(Vector3 pos in targetPos)
-            {
-                Vector3Int coord = m_gameContext.World.WorldMap.WorldToCell(pos);
-                TileId target = m_gameContext.World.GetOccupyingTileAt(coord);
-                
-                if( target!= null) 
-                {
-                    targetCoords.Add(target);
-                }
-            }
-
-            Vector3Int userCoord = m_gameContext.World.WorldMap.WorldToCell(userPos);
-            TileId userId = m_gameContext.World.GetOccupyingTileAt(userCoord);
-            GameContextCollection context = new GameContextCollection 
-            { 
-                Characters = m_gameContext.Characters, 
-                World = m_gameContext.World
-            };
-
-            GameContextCollection newContext = m_skillManagerRef.ActivateSkill(skillId, skillLevel, context, targetCoords, userId);
-
-            UpdateCharacterContext(newContext.Characters);
-            m_worldContextFactoryRef.Update(newContext.World);
-        }
 
         bool PreSkillActivationChecks(int skillId, int cost) 
         {

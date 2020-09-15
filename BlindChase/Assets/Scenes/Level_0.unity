@@ -336,6 +336,7 @@ GameObject:
   - component: {fileID: 318491038}
   - component: {fileID: 318491039}
   - component: {fileID: 318491040}
+  - component: {fileID: 318491041}
   m_Layer: 8
   m_Name: Tilemap
   m_TagString: TileMap
@@ -1628,6 +1629,11 @@ MonoBehaviour:
     type: 3}
   m_camera: {fileID: 1534613102}
   m_map: {fileID: 318491036}
+  m_tileHighlightManager: {fileID: 318491041}
+  OnCharacterSelect:
+    m_eventToTrigger: {fileID: 11400000, guid: 9910a3854726cf341982e08ef6da374a, type: 2}
+  OnCharacterUnselect:
+    m_eventToTrigger: {fileID: 11400000, guid: befd5eeabda3fb34c8c2c2685daecb09, type: 2}
 --- !u!114 &318491040
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1656,6 +1662,18 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+--- !u!114 &318491041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 318491033}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cab8fbe54c66b904d98af379cb8fd852, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &466314013
 GameObject:
   m_ObjectHideFlags: 0
@@ -1698,7 +1716,7 @@ RectTransform:
   m_Children:
   - {fileID: 318491034}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1801,7 +1819,7 @@ RectTransform:
   - {fileID: 237994758}
   - {fileID: 591030781}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -1823,8 +1841,111 @@ MonoBehaviour:
   m_camera: {fileID: 1534613102}
   m_HUD: {fileID: 4534060085320391304}
   m_skillDatabase: {fileID: 11400000, guid: 0d638a20f035fd143a567c030eaaa1ae, type: 2}
-  m_actionOption: {fileID: 0}
   m_tileSelector: {fileID: 318491039}
+  OnSkillPrompt:
+    m_eventToTrigger: {fileID: 11400000, guid: 508e809059adc304eb60f1ec1175356c, type: 2}
+--- !u!1 &563746925
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 563746928}
+  - component: {fileID: 563746927}
+  - component: {fileID: 563746926}
+  m_Layer: 0
+  m_Name: CommandEvent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &563746926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 563746925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08f3583af6127314bbbf3ac054315565, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_eventListeners:
+  - m_eventToListen: {fileID: 11400000, guid: 687dcafa716c0a24bb8ee4b5dc4952e3, type: 2}
+    m_responses:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 563746927}
+          m_MethodName: OnPlayerMove
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - m_eventToListen: {fileID: 11400000, guid: 508e809059adc304eb60f1ec1175356c, type: 2}
+    m_responses:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 563746927}
+          m_MethodName: OnSkillPrompt
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - m_eventToListen: {fileID: 11400000, guid: 4c072b4e2aad6264bb79b94346baa62b, type: 2}
+    m_responses:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 563746927}
+          m_MethodName: OnSkillConfirm
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+--- !u!114 &563746927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 563746925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7055a2abb4737949b69698d803e25cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &563746928
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 563746925}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &591030780
 GameObject:
   m_ObjectHideFlags: 0
@@ -2028,6 +2149,7 @@ GameObject:
   - component: {fileID: 808719386}
   - component: {fileID: 808719387}
   - component: {fileID: 808719388}
+  - component: {fileID: 808719389}
   m_Layer: 0
   m_Name: BlindChaseCore
   m_TagString: Untagged
@@ -2064,9 +2186,12 @@ MonoBehaviour:
   m_playerAsset: {fileID: 7017530606483938943, guid: 645923643cc0c9f46b3c96bb7caf09bb,
     type: 3}
   m_map: {fileID: 318491036}
-  m_characterHUD: {fileID: 480288884}
-  m_rangeDisplay: {fileID: 2020056523}
+  m_gameplayScreen: {fileID: 480288884}
+  m_promptHandler: {fileID: 2020056523}
   m_tileSelector: {fileID: 318491039}
+  m_controller: {fileID: 808719389}
+  m_characterTileManager: {fileID: 1968933273}
+  m_commandEventHandler: {fileID: 563746927}
 --- !u!114 &808719387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2095,6 +2220,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 375b51c8caa3b2049a57ccde67e07690, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &808719389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 808719384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 242165421d3661041b944539ade73429, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_rangeDisplay: {fileID: 2020056523}
+  OnCharacterDefeated:
+    m_eventToTrigger: {fileID: 11400000, guid: 95039c154d324ea4d96b67ffb44b57e5, type: 2}
+  OnLeaderDefeated:
+    m_eventToTrigger: {fileID: 11400000, guid: c2c37984f42261e44b33df33738aa3ae, type: 2}
+  OnCharacterAttack:
+    m_eventToTrigger: {fileID: 11400000, guid: 71508a6f75a3b244f9eaf2d3484f41e6, type: 2}
+  OnSkillActivated:
+    m_eventToTrigger: {fileID: 11400000, guid: 6e680b7c8e2fa4a45a6d4867a7eac77e, type: 2}
+  OnTakeDamage:
+    m_eventToTrigger: {fileID: 11400000, guid: f7066b1455c3765458e4fe312903540f, type: 2}
 --- !u!1 &951375799
 GameObject:
   m_ObjectHideFlags: 0
@@ -2186,7 +2334,7 @@ RectTransform:
   m_LocalScale: {x: 0.6666667, y: 0.6666667, z: 0.6666667}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -2257,7 +2405,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1534613097
 GameObject:
@@ -2342,7 +2490,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1534613101
 MonoBehaviour:
@@ -2377,6 +2525,168 @@ MonoBehaviour:
   m_zoomHalfHieght: 3.5
   m_defaultHalfHieght: 5
   m_coroutineManager: {fileID: 808719388}
+--- !u!1 &1968933272
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1968933274}
+  - component: {fileID: 1968933273}
+  - component: {fileID: 1968933275}
+  m_Layer: 0
+  m_Name: CharacterManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1968933273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1968933272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15d58825395be44e80218619ae8489b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1968933274
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1968933272}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1968933275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1968933272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08f3583af6127314bbbf3ac054315565, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_eventListeners:
+  - m_eventToListen: {fileID: 11400000, guid: 71508a6f75a3b244f9eaf2d3484f41e6, type: 2}
+    m_responses:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1968933273}
+          m_MethodName: OnCharacterAttack
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - m_eventToListen: {fileID: 11400000, guid: f7066b1455c3765458e4fe312903540f, type: 2}
+    m_responses:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1968933273}
+          m_MethodName: OnCharacterTakeDamage
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - m_eventToListen: {fileID: 11400000, guid: 6e680b7c8e2fa4a45a6d4867a7eac77e, type: 2}
+    m_responses:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1968933273}
+          m_MethodName: OnCharacterSkillActivate
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - m_eventToListen: {fileID: 11400000, guid: c2c37984f42261e44b33df33738aa3ae, type: 2}
+    m_responses:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1968933273}
+          m_MethodName: OnLeaderDefeated
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - m_eventToListen: {fileID: 11400000, guid: 95039c154d324ea4d96b67ffb44b57e5, type: 2}
+    m_responses:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1968933273}
+          m_MethodName: OnCharacterDefeated
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - m_eventToListen: {fileID: 11400000, guid: 9910a3854726cf341982e08ef6da374a, type: 2}
+    m_responses:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1968933273}
+          m_MethodName: OnCharacterSelected
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - m_eventToListen: {fileID: 11400000, guid: befd5eeabda3fb34c8c2c2685daecb09, type: 2}
+    m_responses:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1968933273}
+          m_MethodName: OnCharacterUnselected
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &2020056517
 GameObject:
   m_ObjectHideFlags: 0
@@ -2391,6 +2701,8 @@ GameObject:
   - component: {fileID: 2020056518}
   - component: {fileID: 2020056523}
   - component: {fileID: 2020056522}
+  - component: {fileID: 2020056524}
+  - component: {fileID: 2020056525}
   m_Layer: 0
   m_Name: GameBoardCanvas
   m_TagString: Untagged
@@ -2470,7 +2782,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -2509,6 +2821,82 @@ MonoBehaviour:
   m_rangeDsplayMasks: {fileID: 11400000, guid: f90a5b666c1f0a840a8d0d3d94faf83e, type: 2}
   m_skillTargetManager: {fileID: 2020056522}
   m_HUD: {fileID: 4534060085320391304}
+  m_rangeTileManager: {fileID: 2020056524}
+  m_map: {fileID: 318491036}
+  OnSkillConfirmed:
+    m_eventToTrigger: {fileID: 11400000, guid: 4c072b4e2aad6264bb79b94346baa62b, type: 2}
+  OnPlayerMove:
+    m_eventToTrigger: {fileID: 11400000, guid: 687dcafa716c0a24bb8ee4b5dc4952e3, type: 2}
+--- !u!114 &2020056524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2020056517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cab8fbe54c66b904d98af379cb8fd852, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2020056525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2020056517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08f3583af6127314bbbf3ac054315565, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_eventListeners:
+  - m_eventToListen: {fileID: 11400000, guid: 9910a3854726cf341982e08ef6da374a, type: 2}
+    m_responses:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 2020056523}
+          m_MethodName: OnPlayerSelect
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - m_eventToListen: {fileID: 11400000, guid: befd5eeabda3fb34c8c2c2685daecb09, type: 2}
+    m_responses:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 2020056523}
+          m_MethodName: OnPlayerUnSelect
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - m_eventToListen: {fileID: 11400000, guid: 508e809059adc304eb60f1ec1175356c, type: 2}
+    m_responses:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 2020056523}
+          m_MethodName: OnSkillPrompt
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &2127329265
 GameObject:
   m_ObjectHideFlags: 0

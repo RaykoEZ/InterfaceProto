@@ -4,33 +4,29 @@ using UnityEngine;
 
 namespace BlindChase.Events 
 {
-    public class BCEventArgs<T> where T : EventInfo
-    { 
-        public T EventInfo { get; private set; }
-
-        public BCEventArgs(T info) 
-        {
-            EventInfo = info;
-        }
-    }
-
-    public abstract class EventInfo 
+    [Serializable]
+    public class EventInfo 
     {
+        public TileId SourceId { get; protected set; }
         public Dictionary<string, object> Payload { get; protected set; }
+
+        public EventInfo(TileId id, Dictionary<string, object> payload = null) 
+        {
+            SourceId = id;
+            Payload = payload;
+        }
     }
 
     public class CommandEventInfo : EventInfo
     {
-        public TileId TileId { get; private set; }
-
-        public Vector3 Location { get; private set; }
-
         public CommandTypes CommandType { get; private set;}
 
-        public CommandEventInfo(TileId tileId, Vector3 location, CommandTypes commandTypes = CommandTypes.NONE, Dictionary<string, object> payload = null)
+        public CommandEventInfo(
+            TileId tileId, 
+            CommandTypes commandTypes = CommandTypes.NONE, 
+            Dictionary<string, object> payload = null) 
+            : base(tileId, payload)
         {
-            TileId = tileId;
-            Location = location;
             CommandType = commandTypes;
             Payload = payload;
         }

@@ -37,41 +37,37 @@ namespace BlindChase
         {
             Dictionary<string, object> arg = args.Arguments;
 
-            if (!arg.ContainsKey("Destination") || !arg.ContainsKey("Origin")) 
+            if (!arg.ContainsKey("Destination")) 
             {
                 return;
             }
 
             Vector3 dest = (Vector3)arg["Destination"];
-            Vector3 origin = (Vector3) arg["Origin"];
 
-            if (dest == null || origin == null) 
+            if (dest == null) 
             {
                 return;
             }
 
-            m_controllerRef.MovePlayer(dest, origin);
+            m_controllerRef.MovePlayer(dest);
 
         }
     }
 
-    // A command to prompt skill target selection/confirmation when player chooses a skill.
     public class SkillPrompt : PlayerCommand
     {
-        public override void ExecuteCommand(CommandArgs args) 
+        public override void ExecuteCommand(CommandArgs args)
         {
-            int id = (int)args.Arguments["SkillId"];
-            int level = (int)args.Arguments["SkillLevel"];
+            int skillId = (int)args.Arguments["SkillId"];
+            int skillLevel = (int)args.Arguments["SkillLevel"];
 
-            m_controllerRef.PromptSkillTargetSelection(id, level);
-            
+            m_controllerRef.PromptSkillTargetSelection(skillId, skillLevel);
         }
 
         public SkillPrompt(PlayerController controller) : base(controller)
         {
         }
     }
-
 
     public class SkillActivate : PlayerCommand
     {
@@ -80,7 +76,6 @@ namespace BlindChase
 
         public override void ExecuteCommand(CommandArgs args)
         {
-
             HashSet<Vector3> targetPos = (HashSet<Vector3>)args.Arguments["Target"];
             Vector3 userPos = (Vector3)args.Arguments["Origin"];
 

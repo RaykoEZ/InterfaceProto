@@ -7,8 +7,6 @@ using BlindChase;
 
 namespace BlindChase
 {
-
-
     // This class populates the given character status into the correct display fields.
     public class CharacterHUD : MonoBehaviour
     {

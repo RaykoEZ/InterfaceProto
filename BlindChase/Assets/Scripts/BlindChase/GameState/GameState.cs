@@ -7,11 +7,11 @@ namespace BlindChase.State
 {
     public abstract class GameState
     {
-        protected Stack<GameEffect> m_stateEffects = new Stack<GameEffect>();
+        protected Stack<DelayedEffect> m_stateEffects = new Stack<DelayedEffect>();
         public event OnGameStateTransition OnGameStateTransition;
         protected Type NextState = typeof(GameState);
 
-        public virtual void Init(List<GameEffect> startEffects) 
+        public virtual void Init(List<DelayedEffect> startEffects) 
         {
             if(startEffects == null) 
             {
@@ -31,9 +31,9 @@ namespace BlindChase.State
             }
         }
 
-        public void AddEffects(List<GameEffect> gameEffect) 
+        public void AddEffects(List<DelayedEffect> gameEffect) 
         {
-            foreach (GameEffect effect in gameEffect)
+            foreach (DelayedEffect effect in gameEffect)
             {
                 m_stateEffects.Push(effect);
             }
@@ -45,9 +45,9 @@ namespace BlindChase.State
             return NextState;
         }
 
-        protected Stack<GameEffect> ProcessEffectStack()
+        protected Stack<DelayedEffect> ProcessEffectStack()
         {
-            Stack<GameEffect> delayedEffects = new Stack<GameEffect>();
+            Stack<DelayedEffect> delayedEffects = new Stack<DelayedEffect>();
 
             if (m_stateEffects == null || m_stateEffects.Count == 0)
             {
@@ -58,14 +58,15 @@ namespace BlindChase.State
             // Call all effects in this effect stack.
             for (int i = 0; i < m_stateEffects.Count; ++i)
             {
-                GameEffect effect = m_stateEffects.Peek();
+                DelayedEffect effect = m_stateEffects.Peek();
 
                 effect.Delay--;
 
                 if (effect.Delay < 0)
                 {
                     // This may need to be a coroutine
-                    m_stateEffects.Pop().EffectCall.Invoke();
+                    effect.Effect.Activate(effect.Args);
+                    m_stateEffects.Pop();
                 }
                 else
                 {
