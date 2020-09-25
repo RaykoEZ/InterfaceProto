@@ -10,6 +10,8 @@ namespace BlindChase
     public class CharacterDatabase : ScriptableObject
     {
         static Dictionary<string, CharacterData> m_characterDataCollection = default;
+        static Dictionary<string, Sprite> m_characterIcons = default;
+        static Dictionary<CharacterClassType, Sprite> m_classIcons = default;
 
         const string c_characterDataRoot = "Characters/Characters";
         static Newtonsoft.Json.Converters.StringEnumConverter m_enumConverter =
@@ -32,6 +34,11 @@ namespace BlindChase
                 return new CharacterData();
             }
             return m_characterDataCollection[id];
+        }
+
+        public Sprite GetCharacterIcon(string id) 
+        {
+            return null;      
         }
     }
 

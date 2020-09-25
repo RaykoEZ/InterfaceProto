@@ -14,7 +14,9 @@ namespace BlindChase
         [SerializeField] TileSelectionManager m_tileSelector = default;
         [SerializeField] BCGameEventTrigger OnSkillPrompt = default;
 
-        TileId m_focusedTileId;
+        TileId m_focusedCharacterId;
+        // The character that can execute commands right now.
+        TileId m_activeCharacterId;
         CharacterContext m_characterContext;
 
         public void Init(
@@ -22,9 +24,9 @@ namespace BlindChase
             CharacterContextFactory characterContext)
         {
             // Whenever turn starts, focus onto the active character
-            turnOrder.OnCharacterTurnStart += ChangeFocusCharacter;
+            turnOrder.OnCharacterTurnStart += OnTurnStart;
             // Whenever player selects a character, focus on that character
-            m_tileSelector.OnTileSelect += ChangeFocusCharacter;
+            m_tileSelector.OnTileSelected += OnTileSelection;
             characterContext.OnContextChanged += OnCharacterContextUpdate;
             m_characterContext = characterContext.Context;
             m_HUD.OnSkillClick += OnSkillSelect;
@@ -34,12 +36,12 @@ namespace BlindChase
         void OnCharacterContextUpdate(CharacterContext context) 
         {
             m_characterContext = context;
-            UpdateCharacterStateDisplay(m_focusedTileId);
+            UpdateCharacterStateDisplay(m_activeCharacterId);
         }
 
         void UpdateCharacterStateDisplay(TileId id) 
         {
-            m_focusedTileId = id;
+            m_focusedCharacterId = id;
             CharacterState state = m_characterContext.MemberDataContainer[id].PlayerState;
 
             List<int> skillIds = state.Character.SkillIds;
@@ -57,13 +59,16 @@ namespace BlindChase
                 sprites.Add(m_skillDatabase.GetSkillIcon(skillId));  
             }
 
+            bool isPreview = id != m_activeCharacterId;
+
             m_HUD.LoadValues(state);
             m_HUD.LoadSkillData(
                 skillIds,
                 skillLevels,
                 skillCooldowns,
                 skillDataCollection,
-                sprites
+                sprites,
+                isPreview
                 );
         }
 
@@ -73,9 +78,40 @@ namespace BlindChase
             UpdateCharacterStateDisplay(id);
         }
 
+        public void FocusOnActiveCharacter(EventInfo info)
+        {
+            bool isMoving = (bool)info.Payload["isMoving"];
+            if (isMoving) 
+            {
+                ChangeFocusCharacter(m_activeCharacterId);
+            }
+            else 
+            {
+                m_camera.UnFocusCamera();
+            }
+        }
+
+        void OnTurnStart(TileId id) 
+        {
+            m_activeCharacterId = id;
+            ChangeFocusCharacter(id);
+        }
+
+        void OnTileSelection(EventInfo info) 
+        { 
+            if(info.SourceId != null) 
+            {
+                ChangeFocusCharacter(info.SourceId);
+            }
+            else 
+            {
+                m_camera.MoveCamera((Vector3)info.Payload["Destination"]);
+            }
+        }
+
         void OnSkillSelect(int skillId, int skillLevel) 
         {
-            CharacterStateContainer characterData = m_characterContext.MemberDataContainer[m_focusedTileId];
+            CharacterStateContainer characterData = m_characterContext.MemberDataContainer[m_focusedCharacterId];
 
             Dictionary<string, object> payload = new Dictionary<string, object>();
             payload["SkillId"] = skillId;

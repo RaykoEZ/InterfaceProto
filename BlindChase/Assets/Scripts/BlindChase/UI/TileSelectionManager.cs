@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Tilemaps;
 using BlindChase.Events;
 
@@ -8,54 +9,56 @@ namespace BlindChase
     public class TileSelectionManager : MonoBehaviour
     {
         [SerializeField] GameObject m_highlightObject = default;
-        [SerializeField] CameraManager m_camera = default;
         [SerializeField] Tilemap m_map = default;
         [SerializeField] TileManager m_tileHighlightManager = default;
-        [SerializeField] BCGameEventTrigger OnCharacterSelect = default;
-        [SerializeField] BCGameEventTrigger OnCharacterUnselect = default;
+        [SerializeField] BCGameEventTrigger OnPlayerSelect = default;
 
-        public event OnCharacterTileActivate OnTileSelect = default;
+        public event OnTileSelect OnTileSelected = default;
+
         static readonly TileId m_highlighterTileId = new TileId(CommandTypes.NONE, "none", "none");
 
-        WorldStateContext m_worldRef;
-        CharacterTileManager m_characterManagerRef;
+        WorldStateContext m_worldContext;
+        CharacterContext m_characterContext;
         Vector3Int m_lastMouseCoordinate = default;
-        TileId m_lastSelectedTileId = default;
 
-        public void Init(WorldStateContextFactory w, CharacterTileManager tileManager, TurnOrderManager turnOrder)
+        public void Init(WorldStateContextFactory w, CharacterContextFactory c, TurnOrderManager turnOrder)
         {
-            m_characterManagerRef = tileManager;
-            m_worldRef = w.Context;
+            m_worldContext = w.Context;
             w.OnContextChanged += OnWorldUpdate;
-            turnOrder.OnCharacterTurnStart += OnPlayerActivate;
+
+            m_characterContext = c.Context;
+            c.OnContextChanged += OnCharacterUpdate;
+
+            turnOrder.OnCharacterTurnStart += SelectCharacter;
         }
 
         void OnWorldUpdate(WorldStateContext world) 
         {
-            m_worldRef = world;
+            m_worldContext = world;
+        }
+        void OnCharacterUpdate(CharacterContext character)
+        {
+            m_characterContext = character;
         }
 
-        void OnPlayerActivate(TileId id) 
+        void SelectCharacter(TileId id)
         {
-            SelectPlayerCharacter(id);
+            Vector3 pos = m_characterContext.MemberDataContainer[id].PlayerTransform.position;
+
+            Dictionary<string, object> payload = new Dictionary<string, object>
+            {
+                {"Destination", pos}
+            };
+            EventInfo info = new EventInfo(id, payload);
+
+            OnTileSelected?.Invoke(info);
+            OnPlayerSelect?.TriggerEvent(info);
         }
 
-        void SelectPlayerCharacter(TileId id) 
+        void SelectTile(EventInfo info)
         {
-            EventInfo info = new EventInfo(id);
-            if (id == null || (m_lastSelectedTileId != null && m_lastSelectedTileId == id))
-            {
-                OnCharacterUnselect?.TriggerEvent(info);
-                m_lastSelectedTileId = null;
-                return;
-            }
-
-            if (id != null)
-            {
-                OnTileSelect?.Invoke(id);
-                OnCharacterSelect?.TriggerEvent(info);
-            }
-            m_lastSelectedTileId = id;
+            OnTileSelected?.Invoke(info);
+            OnPlayerSelect?.TriggerEvent(info);
         }
 
         void HighlightTileInternal(Vector3 worldPos, Vector3Int gridCoord) 
@@ -79,18 +82,22 @@ namespace BlindChase
             }
 
             m_tileHighlightManager.ShowTile(m_highlighterTileId);
-            m_camera.FocusCamera(worldPos);
         }
 
         public void HandleHighlightTile() 
         {
             Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector3Int gridCoord = m_map.WorldToCell(worldPos);
-
-            TileId occupier = m_worldRef.GetOccupyingTileAt(gridCoord);
-            SelectPlayerCharacter(occupier);
-
             Vector3 gridWorldPos = m_map.GetCellCenterWorld(gridCoord);
+
+            TileId occupier = m_worldContext.GetOccupyingTileAt(gridCoord);
+
+            Dictionary<string, object> payload = new Dictionary<string, object> 
+            {
+                {"Destination", gridWorldPos}
+            };
+            EventInfo info = new EventInfo(occupier, payload);
+            SelectTile(info);
 
             HighlightTileInternal(gridWorldPos, gridCoord);
         }

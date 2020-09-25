@@ -1,6 +1,7 @@
 {
     "C0" : 
     {
+        "CharacterId" : "C0",
         "Name" : "Swordsman",
         "SkillIds" : [0,1],
         "SkillLevels" : [1, 1],
@@ -12,6 +13,7 @@
     },
     "C1" :
     {
+        "CharacterId" : "C1",
         "Name" : "Archer",
         "SkillIds" : [1],
         "SkillLevels" : [2],
@@ -23,13 +25,14 @@
     },               
     "C2" : 
     {
+        "CharacterId" : "C2",
         "Name" : "Lancer",
         "SkillIds" : [0],
         "SkillLevels" : [2],
         "MaxHP" : 10,
         "MaxSP" : 3,
         "BaseDefense" : 0,
-        "BaseSpeed" : 1.1,
+        "BaseSpeed" : 1.8,
         "ClassType" : "Lancer"
     }
 }

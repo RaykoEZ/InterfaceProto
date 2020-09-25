@@ -28,7 +28,6 @@ namespace BlindChase.State
         public event OnGameStateTransition OnGameStateUpdate = default;
         public event OnStateChange OnTurnStart = default;
         public event OnStateChange OnTurnEnd = default;
-        public event OnStateChange OnGameEnd = default;
 
         // Add all game states into the dictionary
         Dictionary<Type, GameState> m_gameStateCollection = new Dictionary<Type, GameState>

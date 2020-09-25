@@ -6,9 +6,30 @@ using BlindChase.State;
 
 namespace BlindChase
 {
+    public struct EffectResult
+    {
+        public bool IsSuccessful;
+        public string Message;
+        public GameContextCollection ResultStates;
+
+        public void OnSuccess(string message, GameContextCollection result) 
+        {
+            IsSuccessful = true;
+            Message = message;
+            ResultStates = result;   
+        }
+
+        public void OnFail(string message, GameContextCollection result)
+        {
+            IsSuccessful = false;
+            Message = message;
+            ResultStates = result;
+        }
+    }
+
     public partial class SkillEffect
     {
-        protected Func<SkillEffectArgs, GameContextCollection> m_effectMethod { get; set; }
+        protected Func<SkillEffectArgs, EffectResult> m_effectMethod { get; set; }
 
         public SkillEffect(SkillAttributeId id)
         {
@@ -16,13 +37,13 @@ namespace BlindChase
             // Using reflection to store a delegate of the defined utility method.
             MethodInfo methodInfo = utility.GetMethod(id.EffectName);
             m_effectMethod = 
-                (Func<SkillEffectArgs, GameContextCollection>) 
-                methodInfo?.CreateDelegate(typeof(Func<SkillEffectArgs, GameContextCollection>));    
+                (Func<SkillEffectArgs, EffectResult>) 
+                methodInfo?.CreateDelegate(typeof(Func<SkillEffectArgs, EffectResult>));    
         }
 
-        public virtual GameContextCollection Activate(SkillEffectArgs skillValues) 
+        public virtual EffectResult Activate(SkillEffectArgs skillValues) 
         {
-            GameContextCollection result = m_effectMethod(skillValues);
+            EffectResult result = m_effectMethod(skillValues);
 
             return result;
         }

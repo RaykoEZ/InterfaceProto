@@ -18,13 +18,14 @@ namespace BlindChase
             return targetPosition + knockbackScale * direction;
         }
 
-        public static GameContextCollection RestoreHP(SkillEffectArgs args)
+        public static CharacterState RestoreHP(int baseValue, ref CharacterState targetState)
         {
-            Debug.Log("Heal");
+            Debug.Log($"Healing for {baseValue} HP.");
 
-            return args.Context;
+            targetState.CurrentHP = Mathf.Min(targetState.CurrentHP + baseValue, targetState.Character.MaxHP);
+
+            return targetState;
         }
-
 
         public static GameContextCollection MoveTo(
             GameContextCollection context,
@@ -73,22 +74,11 @@ namespace BlindChase
             TileId occupier = world.GetOccupyingTileAt(retreatDestination);
             GameContextCollection gameContext = new GameContextCollection { Characters = characters, World = world };
 
-            // If the retreating destination has another occupier (not the attacker):
+            // If the retreating destination has another ally unit to pincer attack(not the attacker):
             if (occupier != null && occupier != attackerId)
             {
-                bool isAlly = occupier.FactionId == targetId.FactionId;
-                // If retreat blocked by ally, combat cancels
-                if (isAlly) 
-                {
-                    Debug.Log("Blocked by ally");
-                    return context;
-                }
-                // Character defeated if target is surrounded by enemy characters during knockback.
-                else
-                {
-                    DefeatTarget(target, world);
-                    return MoveTo(gameContext, attacker.TileId, target.Position, attacker.Position);
-                }
+                DefeatTarget(target, world);
+                return MoveTo(gameContext, attacker.TileId, target.Position, attacker.Position);
             }
             
             // Retreat to the free destination with attacker occupying previous position of retreating character.
@@ -110,7 +100,7 @@ namespace BlindChase
             world.RemoveBoardPiece(characterState.Position, characterState.TileId);
         }
 
-        static Vector3Int GetClassKnockbackPattern(CharacterClassType attackerClass, Vector3Int attackerPos, Vector3Int targetPos)
+        public static Vector3Int GetClassKnockbackPattern(CharacterClassType attackerClass, Vector3Int attackerPos, Vector3Int targetPos)
         {
             Vector3 dist = targetPos - attackerPos;
             Vector3Int direction = Vector3Int.RoundToInt(dist / dist.magnitude);

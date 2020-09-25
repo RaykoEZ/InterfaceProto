@@ -7,52 +7,75 @@ using BlindChase.State;
 namespace BlindChase
 {
 
-    public class TurnOrderManager
+    public class TurnOrderManager : MonoBehaviour
     {
-        Queue<TileId> m_waitingCharacters = new Queue<TileId>();
+        [SerializeField] TurnOrderBar m_turnOrderBar = default;
+        HashSet<TileId> m_waitingCharacters = new HashSet<TileId>();
 
-        public event OnCharacterTileActivate OnCharacterTurnStart = default;
-
-        public TurnOrderManager(GameStateManager gameState, CharacterContextFactory characterContextFactory)
+        public event OnCharacterActivate OnCharacterTurnStart = default;
+        public void Init(GameStateManager gameState, CharacterContextFactory characterContextFactory)
         {
-            SetupQueue(characterContextFactory.Context);
+            SetupCharacterList(characterContextFactory.Context);
             characterContextFactory.OnContextChanged += OnCharacterIdUpdate;
-            gameState.OnTurnStart += NextPlayerTurn;
-            gameState.OnTurnEnd += OnPlayerTurnEnd;
+            gameState.OnTurnStart += NextPlayer;
+            m_turnOrderBar.OnCharacterGoalReached += OnPlayerTurn;
         }
 
-        public TileId GetActiveCharacterId() 
+        void NextPlayer()
         {
-            return m_waitingCharacters.Peek();
+            // Resume the turn order race
+            m_turnOrderBar.StartRace();
         }
 
-        void NextPlayerTurn()
+        void OnPlayerTurn(TileId id)
         {
             // Send message to listeners of the newly active faction.
-            OnCharacterTurnStart?.Invoke(m_waitingCharacters.Peek());
+            OnCharacterTurnStart?.Invoke(id);
         }
 
-        void OnPlayerTurnEnd() 
-        {
-            m_waitingCharacters.Enqueue(m_waitingCharacters.Dequeue());
-        }
-
-        void SetupQueue(CharacterContext newContext) 
+        void SetupCharacterList(CharacterContext newContext) 
         {
             foreach (TileId id in newContext?.MemberDataContainer.Keys)
             {
-                m_waitingCharacters.Enqueue(id);
+                CharacterTurnRacer racer = new CharacterTurnRacer
+                {
+                    Progress = 0f,
+                    Speed = newContext.MemberDataContainer[id].PlayerState.CurrentSpeed
+                };
+
+                m_waitingCharacters.Add(id);
+                m_turnOrderBar.AddParticipant(id, racer);
+            }
+        }
+
+        void AddToTurnOrderBar(List<TileId> ids, CharacterContext context)
+        {
+            foreach (TileId id in ids)
+            {
+                CharacterTurnRacer racer = new CharacterTurnRacer
+                {
+                    Progress = 0f,
+                    Speed = context.MemberDataContainer[id].PlayerState.CurrentSpeed
+                };
+                m_turnOrderBar.AddParticipant(id, racer);
+            }
+        }
+
+        void RemoveFromTurnOrderBar(List<TileId> ids)
+        {
+            foreach (TileId id in ids)
+            {
+                m_turnOrderBar.RemoveParticipant(id);
             }
         }
 
         void OnCharacterIdUpdate(CharacterContext newContext) 
         {
-            List<TileId> temp = new List<TileId>(m_waitingCharacters);
             List<TileId> toRemove = new List<TileId>();
             List<TileId> toAdd = new List<TileId>();
 
             // See which characters are removed from play
-            foreach(TileId id in temp) 
+            foreach(TileId id in m_waitingCharacters) 
             {
                 if (!newContext.MemberDataContainer[id].PlayerState.IsActive) 
                 {
@@ -60,30 +83,31 @@ namespace BlindChase
                 }
             }
 
-            // See if there are any to add
+            // See if there are any new active ids to add
             foreach(TileId id in newContext.MemberDataContainer.Keys) 
             {
-                if (!temp.Contains(id) && newContext.MemberDataContainer[id].PlayerState.IsActive) 
+                if (!m_waitingCharacters.Contains(id) && 
+                    newContext.MemberDataContainer[id].PlayerState.IsActive) 
                 {
                     toAdd.Add(id);
                 }
             }
 
-            // Remove characters from play
-            foreach (TileId id in toRemove)
+            if(toAdd.Count > 0) 
             {
-                temp.Remove(id);
+                AddToTurnOrderBar(toAdd, newContext);
+                // Add and new ids, then remove the inactive ones.
+                m_waitingCharacters.UnionWith(toAdd);
             }
 
-            // Add characters into play
-            foreach (TileId id in toAdd)
+            if (toRemove.Count > 0)
             {
-                temp.Add(id);
+                RemoveFromTurnOrderBar(toRemove);
+                m_waitingCharacters.ExceptWith(toRemove);
             }
-
-            m_waitingCharacters = new Queue<TileId>(temp);
-
         }
+
+
 
     }
 

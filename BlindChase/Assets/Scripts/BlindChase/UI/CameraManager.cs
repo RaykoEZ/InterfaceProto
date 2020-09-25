@@ -17,6 +17,11 @@ namespace BlindChase
             m_coroutineManager.ScheduleCoroutine(OnCameraFocus(dest, m_zoomHalfHieght), interruptNow: true);
         }
 
+        public void MoveCamera(Vector3 dest)
+        {
+            m_coroutineManager.ScheduleCoroutine(OnCameraFocus(dest, m_defaultHalfHieght), interruptNow: true);
+        }
+
         public void UnFocusCamera()
         {
             m_coroutineManager.ScheduleCoroutine(OnCameraFocus(Vector3.zero, m_defaultHalfHieght), interruptNow: true);

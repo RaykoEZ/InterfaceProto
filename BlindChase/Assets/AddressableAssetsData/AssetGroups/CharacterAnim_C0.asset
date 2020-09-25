@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: CharacterAnim_C0
+  m_EditorClassIdentifier: 
+  m_GroupName: CharacterAnim_C0
+  m_Data:
+    m_SerializedData: []
+  m_GUID: b240874d42464474691d166ed3b26c70
+  m_SerializeEntries:
+  - m_GUID: 44c113b8f23c96340bfdc34769d75b3f
+    m_Address: C0_AnimOverride
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  - m_GUID: 482fe9a537c46e544aa5c25687b1a344
+    m_Address: C0_Idle
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Anim_Idle
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  - m_GUID: 6f6f41520087dc34784a8e2e9d39752e
+    m_Address: C0_Idle_Sprite
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  - m_GUID: dd5e6e20cc2c99b40b6158e9794226de
+    m_Address: C0_Attack_Sprite
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Anim_Attack
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  - m_GUID: e121b6e3e6d9370498ef5b5a24b1d256
+    m_Address: C0_OnAttack
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Anim_OnAttack
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: c8a5e894bf47d8e41b94a4debb257f2c, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 895322aae624c324aa0d55d361decc11, type: 2}
+    - {fileID: 11400000, guid: fea90adb2cea0064f9e4dc7d8c70c819, type: 2}

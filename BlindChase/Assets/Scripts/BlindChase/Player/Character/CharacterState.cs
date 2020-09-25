@@ -8,6 +8,7 @@ namespace BlindChase
     [Serializable]
     public struct CharacterData
     {
+        public string CharacterId;
         public string Name;
         public List<int> SkillIds;
         public List<int> SkillLevels;

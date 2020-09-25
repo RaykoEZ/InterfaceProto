@@ -1,22 +1,24 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 using BlindChase.Events;
+using BlindChase.Animation;
 using TMPro;
-
 
 namespace BlindChase 
 {
     public class CharacterBehaviour : TileBehaviour
     {
         // Test display
-        [SerializeField] TextMeshPro m_idText = default;
-
+        //[SerializeField] TextMeshPro m_idText = default;
+        [SerializeField] AnimatorSetupHelper m_animSetupHelper = default;
+        
         public override void Init(TileId tileId, CharacterData characterData)
         {
             base.Init(tileId, characterData);
 
-            m_idText.text = $"{m_tileId.FactionId}/{m_tileId.UnitId}";
+            //m_idText.text = $"{m_tileId.FactionId}/{m_tileId.UnitId}";
+
+            m_animSetupHelper.Init(characterData.CharacterId);
         }
 
         public override void Shutdown()
@@ -72,6 +74,7 @@ namespace BlindChase
             CommandEventInfo overrideArg = new CommandEventInfo(m_tileId, eventArg.CommandType, payload);
             m_onTileCommand?.Invoke(overrideArg);
         }
+     
     }
 
 }

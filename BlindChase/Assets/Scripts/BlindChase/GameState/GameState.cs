@@ -7,8 +7,8 @@ namespace BlindChase.State
 {
     public abstract class GameState
     {
-        protected Stack<DelayedEffect> m_stateEffects = new Stack<DelayedEffect>();
         public event OnGameStateTransition OnGameStateTransition;
+        protected Stack<DelayedEffect> m_stateEffects = new Stack<DelayedEffect>();
         protected Type NextState = typeof(GameState);
 
         public virtual void Init(List<DelayedEffect> startEffects) 

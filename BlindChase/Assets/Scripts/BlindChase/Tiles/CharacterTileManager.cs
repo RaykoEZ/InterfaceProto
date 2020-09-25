@@ -8,7 +8,7 @@ namespace BlindChase
     public class CharacterTileManager : TileManager
     {
         static Dictionary<TileId, CharacterTileContainer> m_players = new Dictionary<TileId, CharacterTileContainer>();
-        public event OnCharacterTileActivate OnPlayerSelect = default;
+        public event OnCharacterActivate OnPlayerSelect = default;
         TileId m_commandTarget;
 
         public override void Init(TurnOrderManager turnOrderManager)

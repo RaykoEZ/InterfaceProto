@@ -13,7 +13,15 @@ namespace BlindChase.Events
         public EventInfo(TileId id, Dictionary<string, object> payload = null) 
         {
             SourceId = id;
-            Payload = payload;
+
+            if(payload == null) 
+            {
+                Payload = new Dictionary<string, object>();
+            }
+            else 
+            {
+                Payload = payload;
+            }
         }
     }
 

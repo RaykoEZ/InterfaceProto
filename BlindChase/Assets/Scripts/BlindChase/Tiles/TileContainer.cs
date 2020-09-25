@@ -25,7 +25,7 @@ namespace BlindChase
         public bool isActive { get; protected set; } = false;
 
         public event OnPlayerCommand<CommandEventInfo> OnTileTrigger = default;
-        public event OnCharacterTileActivate OnPlayerSelect = default;
+        public event OnCharacterActivate OnPlayerSelect = default;
 
         public TileContainer() 
         {

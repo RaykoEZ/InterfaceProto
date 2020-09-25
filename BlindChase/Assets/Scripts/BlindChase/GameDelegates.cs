@@ -16,11 +16,12 @@ namespace BlindChase
     public delegate void OnCharacterDefeated(EventInfo id);
     public delegate void OnLeaderDefeated(EventInfo id);
 
+    public delegate void OnTileSelect(EventInfo tileCoord);
 
     public delegate void OnStateChange();
 
     public delegate void OnGameStateTransition(Type gameStateType);
-    public delegate void OnCharacterTileActivate(TileId activeCharacterId);
+    public delegate void OnCharacterActivate(TileId activeCharacterId);
 
     public delegate void OnPlayerCommand<T>(T info)
         where T : CommandEventInfo;

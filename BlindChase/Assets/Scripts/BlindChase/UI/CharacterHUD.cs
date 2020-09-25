@@ -8,7 +8,7 @@ using BlindChase;
 namespace BlindChase
 {
     // This class populates the given character status into the correct display fields.
-    public class CharacterHUD : MonoBehaviour
+    public class CharacterHUD : UIBehaviour
     {
         [SerializeField] Image m_characterImage = default;
         [SerializeField] Image m_characterClassIcon = default;
@@ -22,6 +22,9 @@ namespace BlindChase
         [SerializeField] Button m_confirmSkill = default;
         [SerializeField] Button m_cancelSkill = default;
 
+        [SerializeField] Toggle m_movementToggle = default;
+
+        bool m_skillTargetInProgress = false;
 
         public event OnSkillClicked OnSkillClick = default;
         public event OnSkillCancelled OnRangeCancel = default;
@@ -47,9 +50,9 @@ namespace BlindChase
 
         void OnSkillSlotClicked(int skillId, int skillLevel) 
         {
+            m_skillTargetInProgress = true;
             OnSkillClick?.Invoke(skillId, skillLevel);
             m_confirmSkill.interactable = false;
-            ResetSkillButtons(true);
             m_cancelSkill.interactable = true;
         }
 
@@ -66,13 +69,14 @@ namespace BlindChase
         public void ConfirmOption()
         {
             ResetSkillButtons(false);
+            m_skillTargetInProgress = false;
             OnRangeConfirm?.Invoke();
         }
 
         void ResetSkillButtons(bool value) 
         {
-            m_confirmSkill.gameObject.SetActive(value);
-            m_cancelSkill.gameObject.SetActive(value);
+            m_confirmSkill.interactable = value;
+            m_cancelSkill.interactable = value;
         }
 
         public void LoadValues(CharacterState characterState)
@@ -93,6 +97,11 @@ namespace BlindChase
             bool isPreview = false
             ) 
         {
+            if (m_skillTargetInProgress) 
+            {
+                return;
+            }
+
             if (skillIds.Count > skillLevels.Count ||
                 skillIds.Count > skillData.Count ||
                 skillIds.Count > skillCooldown.Count)
@@ -101,7 +110,11 @@ namespace BlindChase
                 return;
             }
 
-            foreach(SkillSlot slot in m_skillSlots) 
+            // We shutdown the button interactions if it's preview-only.
+            ResetSkillButtons(false);
+            m_movementToggle.interactable = !isPreview;
+
+            foreach (SkillSlot slot in m_skillSlots) 
             {
                 slot.gameObject.SetActive(false);
             }

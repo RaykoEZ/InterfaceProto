@@ -8,8 +8,8 @@ namespace BlindChase
     public abstract class TileBehaviour : MonoBehaviour
     {
         protected OnPlayerCommand<CommandEventInfo> m_onTileCommand = default;
-        protected OnCharacterTileActivate m_onTileSelect = default;
-        protected TileId m_tileId;
+        protected OnCharacterActivate m_onTileSelect = default;
+        public TileId m_tileId { get; protected set; }
         protected CharacterData m_charData;
         protected bool m_previewOnly = true;
         public virtual void Init(TileId tileId, CharacterData charData = default) 
@@ -37,12 +37,12 @@ namespace BlindChase
             m_onTileCommand -= callme;
         }
 
-        public void ListenToSelection(OnCharacterTileActivate callme)
+        public void ListenToSelection(OnCharacterActivate callme)
         {
             m_onTileSelect += callme;
         }
 
-        public void UnlistenToSelection(OnCharacterTileActivate callme)
+        public void UnlistenToSelection(OnCharacterActivate callme)
         {
             m_onTileSelect -= callme;
         }

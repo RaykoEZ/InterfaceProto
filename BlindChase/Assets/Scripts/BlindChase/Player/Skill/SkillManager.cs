@@ -32,7 +32,7 @@ namespace BlindChase
             characterState.CurrentSP -= cost;
         }
 
-        public GameContextCollection ActivateSkill(int skillId, int skillLevel, GameContextCollection context, List<Vector3Int> targets, TileId userid) 
+        public EffectResult ActivateSkill(int skillId, int skillLevel, GameContextCollection context, List<Vector3Int> targets, TileId userid) 
         {
             SkillDataCollection skillDataColllection = m_skillDatabase.GetSkill(skillId);
             int validSkillLevel = GetValidSkillLevel(skillDataColllection.ValueCollection.SkillValues.Count, skillLevel);
@@ -46,33 +46,33 @@ namespace BlindChase
 
             SkillDataItem skillData = skillDataColllection.ValueCollection.SkillValues[validSkillLevel];
 
-            GameContextCollection skillResults = context;
+            EffectResult skillResults = new EffectResult();
+            GameContextCollection contextCollection = context;
 
-            foreach(Vector3Int targetCoord in targets) 
+            foreach (Vector3Int targetCoord in targets) 
             {
-                SkillEffectArgs args = new SkillEffectArgs(skillResults, targetCoord, userid, skillData);
+                SkillEffectArgs args = new SkillEffectArgs(contextCollection, targetCoord, userid, skillData);
                 skillResults = ActivateSkill_Internal(skillDataColllection.ValueCollection.AttributeId, args);
             }
 
             return skillResults;
         }
 
-        public GameContextCollection BasicMovement(GameContextCollection context, Vector3Int targetCoord, TileId userid)
+        public EffectResult BasicMovement(GameContextCollection context, Vector3Int targetCoord, TileId userid)
         {
             SkillEffectArgs args = new SkillEffectArgs(context, targetCoord, userid, null);
-
-            GameContextCollection result = ActivateSkill_Internal(SkillAttributeId.BasicMovement, args);
+            EffectResult result = ActivateSkill_Internal(SkillAttributeId.BasicMovement, args);
             return result;
         }
 
-        GameContextCollection ActivateSkill_Internal(SkillAttributeId effectId, SkillEffectArgs arg)  
+        EffectResult ActivateSkill_Internal(SkillAttributeId effectId, SkillEffectArgs arg)  
         {
             TileId targetId = arg.TargetId;
-            GameContextCollection result = m_skillEffectCollection[effectId].Activate(arg);
+            EffectResult result = m_skillEffectCollection[effectId].Activate(arg);
 
-            if (targetId != null)
+            if (result.IsSuccessful && targetId != null)
             {
-                CharacterState targetState = result.Characters.MemberDataContainer[targetId].PlayerState;
+                CharacterState targetState = result.ResultStates.Characters.MemberDataContainer[targetId].PlayerState;
                 CheckSkillResult(targetState);
             }
 
@@ -87,9 +87,6 @@ namespace BlindChase
                 OnCharacterDefeat?.Invoke(info);
             }
         }
-
-
-
 
         public static int GetSkillTargetLimit(int skillId, int skillLevel) 
         {

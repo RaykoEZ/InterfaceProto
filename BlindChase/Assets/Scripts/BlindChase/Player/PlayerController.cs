@@ -71,11 +71,17 @@ namespace BlindChase
         public void MovePlayer(Vector3 destination)
         {
             Vector3Int targetCoord = m_gameContext.World.WorldMap.WorldToCell(destination);
-            GameContextCollection resultingContext = m_skillManagerRef.BasicMovement(m_gameContext, targetCoord, m_targetId);
+            EffectResult result = m_skillManagerRef.BasicMovement(m_gameContext, targetCoord, m_targetId);
 
-            UpdateCharacterContext(resultingContext.Characters);
-            m_worldContextFactoryRef.Update(resultingContext.World);
-            m_gameStateManagerRef.TransitionToNextState();
+            Debug.Log(result.Message);
+
+            if (result.IsSuccessful) 
+            {
+                UpdateCharacterContext(result.ResultStates.Characters);
+                m_worldContextFactoryRef.Update(result.ResultStates.World);
+                m_gameStateManagerRef.TransitionToNextState();
+            }
+            // IMPLEMENT OnSkillFail HERE
         }
 
         // If player can use this skill, prompt target selection/confirmation
@@ -89,6 +95,7 @@ namespace BlindChase
             //Player cannot use this skill, return.
             if (!PreSkillActivationChecks(skillId, cost))
             {
+                // IMPLEMENT OnSkillFail HERE
                 return;
             }
 
@@ -117,19 +124,23 @@ namespace BlindChase
             Vector3Int userCoord = m_gameContext.World.WorldMap.WorldToCell(userPos);
             TileId userId = m_gameContext.World.GetOccupyingTileAt(userCoord);
 
-            GameContextCollection newContext = m_skillManagerRef.ActivateSkill(skillId, skillLevel, m_gameContext, targetCoords, userId);
+            EffectResult result = m_skillManagerRef.ActivateSkill(skillId, skillLevel, m_gameContext, targetCoords, userId);
 
-            UpdateCharacterContext(newContext.Characters);
-            m_worldContextFactoryRef.Update(newContext.World);
-
-
-            Dictionary<string, object> payload = new Dictionary<string, object>
+            Debug.Log(result.Message);
+            if (result.IsSuccessful) 
             {
-                {"SkillId", skillId}
-            };
+                UpdateCharacterContext(result.ResultStates.Characters);
+                m_worldContextFactoryRef.Update(result.ResultStates.World);
 
-            EventInfo eventInfo = new EventInfo(userId, payload);
-            OnCharacterSkilllActivate(eventInfo);
+                Dictionary<string, object> payload = new Dictionary<string, object>
+                {
+                    {"SkillId", skillId}
+                };
+
+                EventInfo eventInfo = new EventInfo(userId, payload);
+                OnCharacterSkilllActivate(eventInfo);
+            }
+            // IMPLEMENT OnSkillFail HERE
         }
 
         public void OnCharacterDefeat(EventInfo info)

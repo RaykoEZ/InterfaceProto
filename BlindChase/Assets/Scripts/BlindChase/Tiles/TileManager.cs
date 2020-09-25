@@ -46,9 +46,6 @@ namespace BlindChase
                 newTiles.AddTileItem(item);
                 m_displayTiles.Add(id, newTiles);
             }
-
-
-
             return o;
         }
 
