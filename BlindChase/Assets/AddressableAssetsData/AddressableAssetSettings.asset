@@ -71,6 +71,7 @@ MonoBehaviour:
     - default
     - Anim_OnAttack
     - Anim_Idle
+    - Anim_TakeDamage
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: b95a4e82d42155b48843ae3699eca98e, type: 2}

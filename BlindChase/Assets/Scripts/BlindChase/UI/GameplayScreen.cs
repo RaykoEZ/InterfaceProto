@@ -85,10 +85,6 @@ namespace BlindChase
             {
                 ChangeFocusCharacter(m_activeCharacterId);
             }
-            else 
-            {
-                m_camera.UnFocusCamera();
-            }
         }
 
         void OnTurnStart(TileId id) 
@@ -105,7 +101,7 @@ namespace BlindChase
             }
             else 
             {
-                m_camera.MoveCamera((Vector3)info.Payload["Destination"]);
+                m_camera.FocusCamera((Vector3)info.Payload["Destination"]);
             }
         }
 
@@ -122,6 +118,7 @@ namespace BlindChase
                 CommandTypes.SKILL_PROMPT,
                 payload);
 
+            m_camera.FocusCamera(characterData.PlayerTransform.position);
             OnSkillPrompt?.TriggerEvent(info);
         }
     }

@@ -60,7 +60,7 @@ namespace BlindChase
             List<FactionDeploymentInfo> factionDeployment,
             GameObject objectRef,
             Tilemap tilemap,
-            CharacterTileManager tileManager,
+            CharacterManager tileManager,
             WorldStateContextFactory worldStateContextFactory,
             CharacterContextFactory characterContextFactory,
             PromptHandler rangeDisplay

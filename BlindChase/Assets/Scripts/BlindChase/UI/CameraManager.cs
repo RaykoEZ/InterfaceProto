@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Diagnostics;
 using UnityEngine;
-using BlindChase;
+using BlindChase.Events;
 
 namespace BlindChase
 {

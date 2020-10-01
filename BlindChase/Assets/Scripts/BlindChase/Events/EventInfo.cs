@@ -9,8 +9,9 @@ namespace BlindChase.Events
     {
         public TileId SourceId { get; protected set; }
         public Dictionary<string, object> Payload { get; protected set; }
+        public Action OnFinishedCallback { get; protected set; }
 
-        public EventInfo(TileId id, Dictionary<string, object> payload = null) 
+        public EventInfo(TileId id, Dictionary<string, object> payload = null, Action onFinishCallback = null) 
         {
             SourceId = id;
 
@@ -22,6 +23,8 @@ namespace BlindChase.Events
             {
                 Payload = payload;
             }
+
+            OnFinishedCallback = onFinishCallback;
         }
     }
 

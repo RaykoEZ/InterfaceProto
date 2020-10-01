@@ -21,8 +21,8 @@ MonoBehaviour:
     m_Address: Base_Controller
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 9100000, guid: bae12cfb5b3d81c418f3dd35460e5058, type: 2}
-    m_TargetAsset: {fileID: 9100000, guid: bae12cfb5b3d81c418f3dd35460e5058, type: 2}
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: c8a5e894bf47d8e41b94a4debb257f2c, type: 2}
   m_SchemaSet:

@@ -22,6 +22,7 @@ namespace BlindChase
 
         [SerializeField] BCGameEventTrigger OnSkillConfirmed = default;
         [SerializeField] BCGameEventTrigger OnPlayerMove = default;
+        [SerializeField] BCGameEventTrigger OnPromptCancel = default;
 
         CharacterContext m_characterContext;
         EventInfo m_latestTileEventInfo;
@@ -86,14 +87,19 @@ namespace BlindChase
                 CharacterState state = m_characterContext.MemberDataContainer[m_currentActiveTileId].PlayerState;
                 Transform parent = m_characterContext.MemberDataContainer[m_currentActiveTileId].PlayerTransform;
 
-                TileId movementRangeTileId = new TileId(CommandTypes.MOVE, m_currentActiveTileId.FactionId, m_currentActiveTileId.UnitId);
-                m_currentPrompt = CommandTypes.MOVE;
+                TileId movementRangeTileId = new TileId(CommandTypes.ADVANCE, m_currentActiveTileId.FactionId, m_currentActiveTileId.UnitId);
+                m_currentPrompt = CommandTypes.ADVANCE;
                 ShowRangeMap(movementRangeTileId, state.Character.ClassType, state.Position, parent, true);
             }
             else 
             {
                 CancelAll();            
             }
+        }
+
+        public void OnPromptFinish(EventInfo info) 
+        {
+            m_currentPrompt = CommandTypes.NONE;
         }
 
         #region Method to handle player inputs from a prompt.
@@ -112,31 +118,36 @@ namespace BlindChase
             }
 
             Vector3Int offset = m_map.WorldToCell(dest) - m_characterContext.MemberDataContainer[m_currentActiveTileId].PlayerState.Position;
-
-            bool isStationary = offset == Vector3Int.zero;
-            if (m_currentPromptRange == null || (!isStationary && !m_currentPromptRange.OffsetsFromOrigin.Contains(offset))) 
-            {
-                return;
-            }
+            bool isSelectionValid = m_currentPromptRange != null && m_currentPromptRange.OffsetsFromOrigin.Contains(offset);
 
             tileEventInfo.Payload["Origin"] =
                 m_characterContext.MemberDataContainer[m_currentActiveTileId].PlayerTransform.position;
 
             switch (m_currentPrompt)
             {
-                case CommandTypes.MOVE:
+                case CommandTypes.ADVANCE:
                     {
                         CancelAll();
+                        bool isStationary = offset == Vector3Int.zero;
                         // If player selects self, cancel the move prompt.
-                        if (isStationary) 
+                        if (isStationary || !isSelectionValid) 
                         {
-                            break;
+                            CommandEventInfo commandCancelled = new CommandEventInfo(m_currentActiveTileId, m_currentPrompt);
+                            OnPromptCancel?.TriggerEvent(commandCancelled);
+                            return;
                         }
                         OnPlayerMove?.TriggerEvent(tileEventInfo);
+                        m_currentPrompt = CommandTypes.NONE;
                         break;
                     }
                 case CommandTypes.SKILL_ACTIVATE:
                     {
+                        if (!isSelectionValid) 
+                        {
+                            Debug.Log("Selected skill target not valid.");
+                            return;
+                        }
+
                         m_skillTargetManager.ToggleTarget(dest);
                         m_latestTileEventInfo = tileEventInfo;
                         break;
@@ -144,18 +155,17 @@ namespace BlindChase
                 default:
                     break;
             }
+
         }
         #endregion
 
         #region Methods to cancel prompt state
         void CancelPrompt(TileId id) 
         {
-            m_currentPrompt = CommandTypes.NONE;
             m_rangeTileManager.HideTile(id);
         }
         public void CancelAll()
         {
-            m_currentPrompt = CommandTypes.NONE;
             m_rangeTileManager.HideAll();
         }
         #endregion
@@ -303,6 +313,19 @@ namespace BlindChase
             return true;
         }
         #endregion
+
+
+        void SetCurrentPromptState(CommandTypes newPromptState) 
+        { 
+            if( m_currentPrompt != CommandTypes.NONE ) 
+            {
+                CommandEventInfo info = new CommandEventInfo(m_currentActiveTileId, m_currentPrompt);
+                OnPromptCancel?.TriggerEvent(info);
+            }
+
+            m_currentPrompt = newPromptState;
+
+        }
 
         // Used to trigger skill activation when player clicks CONFIRM button and targets are sufficient & valid.
         void OnSkillTargetsConfirmed(HashSet<Vector3> targets) 

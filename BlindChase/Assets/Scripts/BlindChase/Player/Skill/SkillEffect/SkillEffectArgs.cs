@@ -7,6 +7,8 @@ namespace BlindChase
         public GameContextCollection Context { get; private set; }
         public Vector3Int TargetCoord { get; private set; }
 
+        public TileId UserId { get; private set; }
+
         public TileId TargetId 
         { 
             get 
@@ -15,7 +17,11 @@ namespace BlindChase
             } 
         }
 
-        public TileId UserId { get; private set; }
+
+        public CharacterState UserState { get { return Context.Characters?.MemberDataContainer[UserId].PlayerState; } }
+        public CharacterState TargetState { get { return Context.Characters?.MemberDataContainer[TargetId].PlayerState; } }
+
+
         public SkillDataItem SkillData { get; private set; }
         
         public SkillEffectArgs(GameContextCollection context, Vector3Int target, TileId user, SkillDataItem args) 

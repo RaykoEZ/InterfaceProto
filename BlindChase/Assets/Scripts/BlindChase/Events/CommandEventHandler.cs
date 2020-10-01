@@ -12,7 +12,7 @@ namespace BlindChase
         public void OnPlayerMove(EventInfo info) 
         {
             CommandEventInfo commandInfo = 
-                new CommandEventInfo(info.SourceId, CommandTypes.MOVE, info.Payload);
+                new CommandEventInfo(info.SourceId, CommandTypes.ADVANCE, info.Payload);
 
             OnCommand?.Invoke(commandInfo);
         }

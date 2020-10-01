@@ -5,21 +5,7 @@ using BlindChase;
 
 namespace BlindChase.State 
 {
-    public class DelayedEffect
-    { 
-        public SkillEffect Effect { get; private set; }
-
-        public SkillEffectArgs Args { get; private set; }
-        public int Delay { get; set; }
-
-        public DelayedEffect(SkillEffect effect, int delay = 0) 
-        {
-            Effect = effect;
-            Delay = delay;
-        }
-    }
-
-    // Responsible for handling state changes trihhered from moment-to-moment gameplay.
+    // Responsible for handling state changes triggered from moment-to-moment gameplay.
     public class GameStateManager
     {
         GameState m_current;

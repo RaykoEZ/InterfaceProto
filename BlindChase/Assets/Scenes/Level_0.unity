@@ -1713,7 +1713,7 @@ RectTransform:
   m_Children:
   - {fileID: 318491034}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1817,7 +1817,7 @@ RectTransform:
   - {fileID: 237994758}
   - {fileID: 591030781}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -1970,7 +1970,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &591030781 stripped
 RectTransform:
@@ -2235,12 +2235,12 @@ MonoBehaviour:
     m_eventToTrigger: {fileID: 11400000, guid: 95039c154d324ea4d96b67ffb44b57e5, type: 2}
   OnLeaderDefeated:
     m_eventToTrigger: {fileID: 11400000, guid: c2c37984f42261e44b33df33738aa3ae, type: 2}
-  OnCharacterAttack:
+  OnCharacterAdvance:
     m_eventToTrigger: {fileID: 11400000, guid: 71508a6f75a3b244f9eaf2d3484f41e6, type: 2}
   OnSkillActivated:
     m_eventToTrigger: {fileID: 11400000, guid: 6e680b7c8e2fa4a45a6d4867a7eac77e, type: 2}
-  OnTakeDamage:
-    m_eventToTrigger: {fileID: 11400000, guid: f7066b1455c3765458e4fe312903540f, type: 2}
+  OnCommandFail:
+    m_eventToTrigger: {fileID: 11400000, guid: 81eebfa6c334dcf42bff72bb1263d6c4, type: 2}
 --- !u!1 &951375799
 GameObject:
   m_ObjectHideFlags: 0
@@ -2332,7 +2332,7 @@ RectTransform:
   m_LocalScale: {x: 0.6666667, y: 0.6666667, z: 0.6666667}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -2403,7 +2403,37 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1518292011
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1518292012}
+  m_Layer: 0
+  m_Name: SkillManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1518292012
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1518292011}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.9700012, y: 0.76000977, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1534613097
 GameObject:
@@ -2488,7 +2518,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1534613101
 MonoBehaviour:
@@ -2553,6 +2583,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a15d58825395be44e80218619ae8489b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_map: {fileID: 318491036}
 --- !u!4 &1968933274
 Transform:
   m_ObjectHideFlags: 0
@@ -2565,7 +2596,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1968933275
 MonoBehaviour:
@@ -2580,36 +2611,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_eventListeners:
-  - m_eventToListen: {fileID: 11400000, guid: 71508a6f75a3b244f9eaf2d3484f41e6, type: 2}
-    m_responses:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1968933273}
-          m_MethodName: OnCharacterAttack
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-  - m_eventToListen: {fileID: 11400000, guid: f7066b1455c3765458e4fe312903540f, type: 2}
-    m_responses:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1968933273}
-          m_MethodName: OnCharacterTakeDamage
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
   - m_eventToListen: {fileID: 11400000, guid: 6e680b7c8e2fa4a45a6d4867a7eac77e, type: 2}
     m_responses:
       m_PersistentCalls:
@@ -2780,7 +2781,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -2827,6 +2828,8 @@ MonoBehaviour:
     m_eventToTrigger: {fileID: 11400000, guid: 4c072b4e2aad6264bb79b94346baa62b, type: 2}
   OnPlayerMove:
     m_eventToTrigger: {fileID: 11400000, guid: 687dcafa716c0a24bb8ee4b5dc4952e3, type: 2}
+  OnPromptCancel:
+    m_eventToTrigger: {fileID: 11400000, guid: d803049ce9ecc784e9a6db8733b52037, type: 2}
 --- !u!114 &2020056524
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2873,6 +2876,21 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 2020056523}
           m_MethodName: OnMovementPrompt
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - m_eventToListen: {fileID: 11400000, guid: 6e680b7c8e2fa4a45a6d4867a7eac77e, type: 2}
+    m_responses:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 2020056523}
+          m_MethodName: OnPromptFinish
           m_Mode: 0
           m_Arguments:
             m_ObjectArgument: {fileID: 0}

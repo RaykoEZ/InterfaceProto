@@ -49,7 +49,7 @@ namespace BlindChase
                 return;
             }
 
-            m_controllerRef.MovePlayer(dest);
+            m_controllerRef.AdvancePlayer(dest);
 
         }
     }

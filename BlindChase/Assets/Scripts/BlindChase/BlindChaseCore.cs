@@ -16,7 +16,7 @@ namespace BlindChase
         [SerializeField] PromptHandler m_promptHandler = default;
         [SerializeField] TileSelectionManager m_tileSelector = default;
         [SerializeField] PlayerController m_controller = default;
-        [SerializeField] CharacterTileManager m_characterTileManager = default;
+        [SerializeField] CharacterManager m_characterTileManager = default;
         [SerializeField] CommandEventHandler m_commandEventHandler = default;
         [SerializeField] TurnOrderManager m_turnOrderManager = default;
 
@@ -48,7 +48,7 @@ namespace BlindChase
             List<CharacterState> stateList = InitCharacterDeployment(deployment.DeploymentInfo);
             m_turnOrderManager.Init(m_gameState, m_characterContextFactory);
             m_promptHandler.Init(m_characterContextFactory, m_turnOrderManager);
-            m_characterTileManager.Init(m_turnOrderManager);
+            m_characterTileManager.Init();
 
             // Append all unique skill ids for characters
             HashSet<int> skillIds = new HashSet<int>();
@@ -63,11 +63,12 @@ namespace BlindChase
 
             m_controller.Init(
                 m_characterContextFactory,
+                m_worldStateContextFactory,
                 m_turnOrderManager,
                 m_skillManager,
                 m_gameState,
-                m_characterTileManager,
-                m_worldStateContextFactory);
+                m_characterTileManager
+                );
 
 
             m_commandManager.Init(
@@ -106,6 +107,7 @@ namespace BlindChase
             m_promptHandler.Shutdown();
             m_commandManager.Shutdown();
             m_characterTileManager.Shutdown();
+            m_controller.Shutdown();
         }
 
     }

@@ -10,5 +10,5 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d1da68044917dc143bbe44875893347e, type: 3}
-  m_Name: OnPlayerAttack
+  m_Name: OnAdvance
   m_EditorClassIdentifier: 

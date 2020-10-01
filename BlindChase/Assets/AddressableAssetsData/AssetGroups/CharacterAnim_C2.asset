@@ -34,17 +34,17 @@ MonoBehaviour:
     m_Address: C2_AnimOverride
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 22100000, guid: a2731a699766a394b8afef362b63669f, type: 2}
-    m_TargetAsset: {fileID: 22100000, guid: a2731a699766a394b8afef362b63669f, type: 2}
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
   - m_GUID: e2fcc62a6b97a7e498b964204772ccb6
-    m_Address: C2_OnAttack
+    m_Address: C2_OnAdvance
     m_ReadOnly: 0
     m_SerializedLabels:
     - Anim_OnAttack
-    m_MainAsset: {fileID: 7400000, guid: e2fcc62a6b97a7e498b964204772ccb6, type: 2}
-    m_TargetAsset: {fileID: 7400000, guid: e2fcc62a6b97a7e498b964204772ccb6, type: 2}
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
   - m_GUID: ea132e6c52daeb14991e0d11401ae861
-    m_Address: C2_Attack_Sprite
+    m_Address: C2_Advance_Sprite
     m_ReadOnly: 0
     m_SerializedLabels: []
     m_MainAsset: {fileID: 0}

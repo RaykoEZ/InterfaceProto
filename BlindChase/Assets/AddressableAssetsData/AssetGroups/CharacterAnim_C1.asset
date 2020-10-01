@@ -18,7 +18,7 @@ MonoBehaviour:
   m_GUID: ad431492a7ffe0a4583632b20f6e987e
   m_SerializeEntries:
   - m_GUID: 0339f375b5fb4774b87c56fdbc9c3574
-    m_Address: C1_OnAttack
+    m_Address: C1_OnAdvance
     m_ReadOnly: 0
     m_SerializedLabels:
     - Anim_OnAttack
@@ -37,7 +37,7 @@ MonoBehaviour:
     m_MainAsset: {fileID: 0}
     m_TargetAsset: {fileID: 0}
   - m_GUID: d0d49b3875fbf7047a6c0e92b1b56374
-    m_Address: C1_Attack_Sprite
+    m_Address: C1_Advance_Sprite
     m_ReadOnly: 0
     m_SerializedLabels: []
     m_MainAsset: {fileID: 0}

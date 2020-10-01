@@ -17,7 +17,10 @@ namespace BlindChase
 
             SkillAttributeId basicMovement = SkillAttributeId.BasicMovement;
             m_skillEffectCollection.Add(basicMovement, new SkillEffect(basicMovement));
-            
+
+            SkillAttributeId autoRecovery = SkillAttributeId.AutoRecovery;
+            m_skillEffectCollection.Add(autoRecovery, new SkillEffect(autoRecovery));
+
             foreach (int skillId in skillIds) 
             {
                 SkillDataCollection skillDataColllection = m_skillDatabase.GetSkill(skillId);
@@ -32,12 +35,12 @@ namespace BlindChase
             characterState.CurrentSP -= cost;
         }
 
-        public EffectResult ActivateSkill(int skillId, int skillLevel, GameContextCollection context, List<Vector3Int> targets, TileId userid) 
+        public EffectResult ActivateSkill(int skillId, int skillLevel, GameContextCollection context, List<Vector3Int> targets, TileId userId) 
         {
             SkillDataCollection skillDataColllection = m_skillDatabase.GetSkill(skillId);
             int validSkillLevel = GetValidSkillLevel(skillDataColllection.ValueCollection.SkillValues.Count, skillLevel);
 
-            CharacterState playerState = context.Characters.MemberDataContainer[userid].PlayerState;
+            CharacterState playerState = context.Characters.MemberDataContainer[userId].PlayerState;
             // Set skill cooldown.
             int cooldown = skillDataColllection.ValueCollection.SkillValues[validSkillLevel].Cooldown;
             // Deduct SP
@@ -46,22 +49,36 @@ namespace BlindChase
 
             SkillDataItem skillData = skillDataColllection.ValueCollection.SkillValues[validSkillLevel];
 
-            EffectResult skillResults = new EffectResult();
+            EffectResult skillResult = new EffectResult();
             GameContextCollection contextCollection = context;
+            List<CharacterState> affectedCharacters = new List<CharacterState>();
 
             foreach (Vector3Int targetCoord in targets) 
             {
-                SkillEffectArgs args = new SkillEffectArgs(contextCollection, targetCoord, userid, skillData);
-                skillResults = ActivateSkill_Internal(skillDataColllection.ValueCollection.AttributeId, args);
+                SkillEffectArgs args = new SkillEffectArgs(contextCollection, targetCoord, userId, skillData);
+                EffectResult newResult = ActivateSkill_Internal(skillDataColllection.ValueCollection.AttributeId, args);
+                // Add all affected characters
+                affectedCharacters.AddRange(newResult.AffectedCharacters);
+                skillResult = newResult;
             }
 
-            return skillResults;
+
+            skillResult.AffectedCharacters = affectedCharacters;
+            return skillResult;
         }
 
-        public EffectResult BasicMovement(GameContextCollection context, Vector3Int targetCoord, TileId userid)
+        public EffectResult BasicMovement(GameContextCollection context, Vector3Int targetCoord, TileId userId)
         {
-            SkillEffectArgs args = new SkillEffectArgs(context, targetCoord, userid, null);
+            SkillEffectArgs args = new SkillEffectArgs(context, targetCoord, userId, null);
             EffectResult result = ActivateSkill_Internal(SkillAttributeId.BasicMovement, args);
+            return result;
+        }
+
+        public EffectResult AutoRecovery(GameContextCollection context, TileId userId)
+        {
+            Vector3Int coord = context.Characters.MemberDataContainer[userId].PlayerState.Position;
+            SkillEffectArgs args = new SkillEffectArgs(context, coord, userId, null);
+            EffectResult result = ActivateSkill_Internal(SkillAttributeId.AutoRecovery, args);
             return result;
         }
 
@@ -72,8 +89,12 @@ namespace BlindChase
 
             if (result.IsSuccessful && targetId != null)
             {
-                CharacterState targetState = result.ResultStates.Characters.MemberDataContainer[targetId].PlayerState;
+                CharacterState targetState = result.ResulContext.Characters.MemberDataContainer[targetId].PlayerState;
                 CheckSkillResult(targetState);
+            }
+            else 
+            { 
+            
             }
 
             return result;

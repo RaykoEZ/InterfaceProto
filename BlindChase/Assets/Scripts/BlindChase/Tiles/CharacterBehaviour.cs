@@ -1,24 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using BlindChase.Events;
 using BlindChase.Animation;
-using TMPro;
 
 namespace BlindChase 
 {
     public class CharacterBehaviour : TileBehaviour
     {
-        // Test display
-        //[SerializeField] TextMeshPro m_idText = default;
-        [SerializeField] AnimatorSetupHelper m_animSetupHelper = default;
-        
+        [SerializeField] AnimatorHelper m_animatorHelper = default;
+
+        List<Action<bool>> m_onAdvanceTriggers = new List<Action<bool>>();
+
         public override void Init(TileId tileId, CharacterData characterData)
         {
             base.Init(tileId, characterData);
-
-            //m_idText.text = $"{m_tileId.FactionId}/{m_tileId.UnitId}";
-
-            m_animSetupHelper.Init(characterData.CharacterId);
+            m_animatorHelper.Init(characterData.CharacterId);
         }
 
         public override void Shutdown()
@@ -34,9 +31,51 @@ namespace BlindChase
         {
         }
 
-        public void OnAttack(EventInfo info)
+        public void OnAdvance(MotionDetail motion, Action onFinish, List<Action<bool>> onAdvanceTriggers = null)
         {
             Debug.Log("Attack!!!");
+            if(onAdvanceTriggers != null) 
+            {
+                m_onAdvanceTriggers.AddRange(onAdvanceTriggers);
+            }
+
+            m_animatorHelper.TriggerAnimation(CommandTypes.ADVANCE, "OnCharacterAdvance", onFinish, motion);
+        }
+
+        public void OnAdvanceAttackFrame(int isLastHit) 
+        {
+            bool isLastHitBool = Convert.ToBoolean(isLastHit);
+            if(m_onAdvanceTriggers.Count == 0) 
+            {
+                return;
+            }
+
+            foreach(Action<bool> trigger in m_onAdvanceTriggers) 
+            {
+                trigger?.Invoke(isLastHitBool);
+            }
+
+            if (isLastHitBool) 
+            {
+                m_onAdvanceTriggers.Clear();
+            }
+        }
+
+        public void OnTakeDamage(MotionDetail motion, Action onFinish, bool isLastHit)
+        {
+            Debug.Log("Owwww");
+            // If we react to take damage for the last time this turn, trigger onFinish callback
+            if (isLastHit) 
+            {
+                // Final take damage animation calls
+                m_animatorHelper.TriggerAnimation("OnTakeDamage", "OnTakeDamage", OnFinished: onFinish, motion: motion);
+            }
+            else 
+            {
+                // Intermediate take damage animation calls
+                m_animatorHelper.TriggerAnimation("OnTakeDamage", "OnTakeDamage");
+            }
+
         }
 
         public void OnSkillActivate(EventInfo info)
@@ -52,29 +91,7 @@ namespace BlindChase
         {
             Debug.Log("Defeated");
         }
-        public void OnTakeDamage(EventInfo info)
-        {
-            Debug.Log("Owwww");
 
-        }
-
-        public virtual void OnPlayerSkillSelect(string rangeId, int targetLimit) 
-        {
-        }
-
-        public virtual void OnRangeTileTrigger(CommandEventInfo eventArg)
-        {
-            Dictionary<string, object> payload = eventArg.Payload;
-            if (payload == null) 
-            {
-                payload = new Dictionary<string, object>();
-            }
-
-            payload.Add("Origin", transform.position);
-            CommandEventInfo overrideArg = new CommandEventInfo(m_tileId, eventArg.CommandType, payload);
-            m_onTileCommand?.Invoke(overrideArg);
-        }
-     
     }
 
 }

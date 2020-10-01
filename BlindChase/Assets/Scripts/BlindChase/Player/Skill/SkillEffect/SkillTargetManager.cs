@@ -40,18 +40,13 @@ namespace BlindChase
             if (m_targets.Contains(target)) 
             {
                 m_targets.Remove(target);
-                return;
             }
-
-            if(m_targets.Count < m_targetLimit) 
+            else if(m_targets.Count < m_targetLimit) 
             {
                 m_targets.Add(target);
             }
 
-            if (IsTargetLimitSatisfied()) 
-            {
-                m_HUD.SkillTargetSatisfied();
-            }
+            m_HUD.SetSkillConfirmation(IsTargetLimitSatisfied());
         }
 
         bool IsTargetLimitSatisfied() 

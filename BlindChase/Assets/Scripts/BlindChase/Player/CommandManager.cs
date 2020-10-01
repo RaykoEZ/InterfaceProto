@@ -16,7 +16,7 @@ namespace BlindChase
             // Initialize all available player commands
             m_playerCommandCollection = new Dictionary<CommandTypes, PlayerCommand>
             {
-                {CommandTypes.MOVE, new MovePlayer(c)},
+                {CommandTypes.ADVANCE, new MovePlayer(c)},
                 {CommandTypes.SKILL_PROMPT, new SkillPrompt(c)},
                 {CommandTypes.SKILL_ACTIVATE, new SkillActivate(c)}
             };
@@ -35,7 +35,7 @@ namespace BlindChase
 
             switch (currentCommand)
             {
-                case CommandTypes.MOVE:
+                case CommandTypes.ADVANCE:
                     {
                         input.Add("Destination", eventArgs.Payload["Destination"]);
                         Vector3 origin = (Vector3)eventArgs.Payload["Origin"];

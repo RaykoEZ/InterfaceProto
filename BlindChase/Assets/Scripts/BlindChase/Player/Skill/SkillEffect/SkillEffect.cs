@@ -6,24 +6,28 @@ using BlindChase.State;
 
 namespace BlindChase
 {
+
     public struct EffectResult
     {
         public bool IsSuccessful;
         public string Message;
-        public GameContextCollection ResultStates;
+        public GameContextCollection ResulContext;
+        public List<CharacterState> AffectedCharacters;
 
-        public void OnSuccess(string message, GameContextCollection result) 
+        public void OnSuccess(string message, GameContextCollection result, List<CharacterState> affected) 
         {
             IsSuccessful = true;
             Message = message;
-            ResultStates = result;   
+            ResulContext = result;
+            AffectedCharacters = affected;
         }
 
         public void OnFail(string message, GameContextCollection result)
         {
             IsSuccessful = false;
             Message = message;
-            ResultStates = result;
+            ResulContext = result;
+            AffectedCharacters = new List<CharacterState>();
         }
     }
 

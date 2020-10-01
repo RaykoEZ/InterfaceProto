@@ -43,8 +43,8 @@ namespace BlindChase
             world.RemoveBoardPiece(o, movingTargetId);
 
             // Moving the tile on the display
-            Vector3 offset = destination - origin;
-            CharacterTileManager.MoveCharacter(movingTargetId, offset);
+            //Vector3 offset = destination - origin;
+            //CharacterManager.MoveCharacter(movingTargetId, offset);
 
             CharacterState state = characters.MemberDataContainer[movingTargetId].PlayerState;
             state.Position = destination;

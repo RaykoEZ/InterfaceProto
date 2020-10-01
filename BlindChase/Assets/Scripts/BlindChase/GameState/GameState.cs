@@ -9,7 +9,7 @@ namespace BlindChase.State
     {
         public event OnGameStateTransition OnGameStateTransition;
         protected Stack<DelayedEffect> m_stateEffects = new Stack<DelayedEffect>();
-        protected Type NextState = typeof(GameState);
+        protected Type NextState = typeof(GameEnd);
 
         public virtual void Init(List<DelayedEffect> startEffects) 
         {
@@ -54,7 +54,6 @@ namespace BlindChase.State
                 return delayedEffects;
             }
 
-            Type gameStateType = GetType();
             // Call all effects in this effect stack.
             for (int i = 0; i < m_stateEffects.Count; ++i)
             {

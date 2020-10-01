@@ -56,14 +56,15 @@ namespace BlindChase
             m_cancelSkill.interactable = true;
         }
 
-        public void SkillTargetSatisfied() 
+        public void SetSkillConfirmation(bool value) 
         {
-            m_confirmSkill.interactable = true;
+            m_confirmSkill.interactable = value;
         }
 
         public void CancelOption()
         {
             ResetSkillButtons(false);
+            m_skillTargetInProgress = false;
             OnRangeCancel?.Invoke();
         }
         public void ConfirmOption()
@@ -110,27 +111,29 @@ namespace BlindChase
                 return;
             }
 
-            // We shutdown the button interactions if it's preview-only.
-            ResetSkillButtons(false);
-            m_movementToggle.interactable = !isPreview;
-
-            foreach (SkillSlot slot in m_skillSlots) 
+            if (!m_skillTargetInProgress) 
             {
-                slot.gameObject.SetActive(false);
+                // We shutdown the button interactions if it's preview-only.
+                ResetSkillButtons(false);
+                m_movementToggle.interactable = !isPreview;
+
+                foreach (SkillSlot slot in m_skillSlots)
+                {
+                    slot.gameObject.SetActive(false);
+                }
+
+                for (int i = 0; i < skillIds.Count; ++i)
+                {
+                    int skillId = skillIds[i];
+                    int skillLevel = skillLevels[i];
+                    int cooldown = skillCooldown[i];
+                    string skillName = skillData[i].Name;
+                    string skillDescription = skillData[i].Text;
+                    Sprite sprite = skillIcons[i];
+                    m_skillSlots[i].gameObject.SetActive(true);
+                    m_skillSlots[i].LoadValues(skillId, skillLevel, cooldown, skillName, skillDescription, sprite, isPreview);
+                }
             }
-            
-            for (int i = 0; i< skillIds.Count; ++i) 
-            {
-                int skillId = skillIds[i];
-                int skillLevel = skillLevels[i];
-                int cooldown = skillCooldown[i];
-                string skillName = skillData[i].Name;
-                string skillDescription = skillData[i].Text;
-                Sprite sprite = skillIcons[i];
-                m_skillSlots[i].gameObject.SetActive(true);
-                m_skillSlots[i].LoadValues(skillId, skillLevel, cooldown, skillName, skillDescription, sprite, isPreview);
-            }           
-
         }
     }
 

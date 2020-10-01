@@ -29,16 +29,4 @@ public class RangeTile : TileBehaviour
         }*/
         #endregion
     }
-
-    public override void OnSelect() 
-    {
-        Dictionary<string, object> payload = new Dictionary<string, object>();
-        payload["Destination"] = transform.position;
-
-        CommandEventInfo info = new CommandEventInfo(
-            m_tileId,
-            m_tileId.CommandType, payload);
-
-        m_onTileCommand?.Invoke(info);
-    }
 }

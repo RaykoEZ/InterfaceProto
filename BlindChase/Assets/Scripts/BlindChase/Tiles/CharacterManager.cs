@@ -1,32 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 using BlindChase.Events;
 
 
 namespace BlindChase 
 {
-    public class CharacterTileManager : TileManager
+    public class CharacterManager : TileManager
     {
-        static Dictionary<TileId, CharacterTileContainer> m_players = new Dictionary<TileId, CharacterTileContainer>();
-        public event OnCharacterActivate OnPlayerSelect = default;
-        TileId m_commandTarget;
+        [SerializeField] Tilemap m_map = default;
+        static Dictionary<TileId, CharacterContainer> m_players = new Dictionary<TileId, CharacterContainer>();
 
-        public override void Init(TurnOrderManager turnOrderManager)
+        public override void Init()
         {
-            turnOrderManager.OnCharacterTurnStart += OnCommandTargetChange;
-        }
-
-        protected void OnCommandTargetChange(TileId id) 
-        {
-            if (m_commandTarget != null)
-            {
-                m_players[m_commandTarget].DisallowPlayerCommand();
-                UnsubscribeToCommand(m_players[m_commandTarget]);
-            }
-
-            m_players[id].AllowPlayerCommand();
-            SubscribeToCommand(m_players[id]);
-            m_commandTarget = id;
         }
 
         public TileBehaviour Player(TileId id)
@@ -41,17 +28,12 @@ namespace BlindChase
             bool isActive = true) 
         {
             GameObject o = m_spawner.SpawnTile(id, objectRef, position, parent, charData, isActive);
-            CharacterTileItem item = new CharacterTileItem { TileObject = o, Behaviour = o.GetComponent<CharacterBehaviour>()};
-            CharacterTileContainer newPlayer = new CharacterTileContainer(item);
+            CharacterItem item = new CharacterItem { TileObject = o, Behaviour = o.GetComponent<CharacterBehaviour>()};
+            CharacterContainer newPlayer = new CharacterContainer(item);
             
             m_players.Add(id, newPlayer);
 
             return o;
-        }
-
-        protected void OnPlayerSelectCharacter(TileId id) 
-        {
-            OnPlayerSelect?.Invoke(id);
         }
 
         public override void DespawnTiles(TileId id)
@@ -61,7 +43,6 @@ namespace BlindChase
                 return;
             }
             
-            UnsubscribeToSelection(m_players[id]);
             m_players[id].DestroyTiles();
             m_players.Remove(id);
         }
@@ -74,7 +55,6 @@ namespace BlindChase
             }
 
             m_players[id].ShowTiles();
-            SubscribeToSelection(m_players[id]);
         }
 
         public override void HideTile(TileId id)
@@ -84,7 +64,6 @@ namespace BlindChase
                 return;
             }
             m_players[id].HideTiles();
-            UnsubscribeToSelection(m_players[id]);
         }
 
         public override void MoveTile(TileId id, Vector3 offset)
@@ -102,21 +81,10 @@ namespace BlindChase
             m_players[id].MoveTiles(offset);
         }
 
-        protected void SubscribeToSelection(TileContainer container)
-        {
-            container.OnPlayerSelect += OnPlayerSelectCharacter;
-        }
-
-        protected void UnsubscribeToSelection(TileContainer container)
-        {
-            container.OnPlayerSelect -= OnPlayerSelectCharacter;
-        }
-
         public override void Shutdown()
         {
             base.Shutdown();
         }
-
 
         public void OnCharacterSkillActivate(EventInfo info) 
         {
@@ -125,19 +93,31 @@ namespace BlindChase
             {
                 return;
             }
-            m_players[id].OnCharacterSkillActivate(info);
+            m_players[id].Player.Behaviour?.OnSkillActivate(info);
 
         }
 
-        public void OnCharacterAttack(EventInfo info)
+        public void OnCharacterAdvance(TileId id, Vector3Int destCoord, Action onFinish, List<Action<bool>> onHit = null)
         {
-            TileId id = info.SourceId;
             if (id == null || !m_players.ContainsKey(id))
             {
                 return;
             }
-            m_players[id].OnCharacterAttack(info);
 
+            Vector3 dest = m_map.GetCellCenterWorld(destCoord);
+            MotionDetail detail = new MotionDetail(dest);
+            m_players[id].Player.Behaviour?.OnAdvance(detail, onFinish, onHit);
+        }
+        public void OnCharacterTakeDamage(TileId id, Vector3Int destCoord, Action onFinish, bool isLastHit)
+        {
+            if (id == null || !m_players.ContainsKey(id))
+            {
+                return;
+            }
+
+            Vector3 dest = m_map.GetCellCenterWorld(destCoord);
+            MotionDetail detail = new MotionDetail(dest);
+            m_players[id].Player.Behaviour?.OnTakeDamage(detail, onFinish, isLastHit);
         }
 
         public void OnCharacterDefeated(EventInfo info)
@@ -147,7 +127,7 @@ namespace BlindChase
             {
                 return;
             }
-            m_players[id].OnCharacterDefeated(info);
+            m_players[id].Player.Behaviour?.OnSelfDefeated(info);
 
         }
 
@@ -158,19 +138,10 @@ namespace BlindChase
             {
                 return;
             }
-            m_players[id].OnLeaderDefeated(info);
+            m_players[id].Player.Behaviour?.OnLeaderDefeated(info);
         }
 
-        public void OnCharacterTakeDamage(EventInfo info)
-        {
-            TileId id = info.SourceId;
-            if (id == null || !m_players.ContainsKey(id))
-            {
-                return;
-            }
 
-            m_players[id].OnCharacterTakeDamage(info);
-        }
 
         public void OnCharacterSelected(EventInfo info)
         {
@@ -180,7 +151,7 @@ namespace BlindChase
                 return;
             }
 
-            m_players[id].SelectCharacter();
+            m_players[id].Player.Behaviour?.OnSelect();
         }
 
         public void OnCharacterUnselected(EventInfo info)
@@ -191,7 +162,7 @@ namespace BlindChase
                 return;
             }
 
-            m_players[id].UnselectCharacter();
+            m_players[id].Player.Behaviour?.OnUnselect();
         }
     }
 

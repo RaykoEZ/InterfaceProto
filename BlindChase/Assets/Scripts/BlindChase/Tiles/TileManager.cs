@@ -11,15 +11,12 @@ namespace BlindChase
 
         Dictionary<TileId, TileContainer> m_displayTiles = new Dictionary<TileId, TileContainer>();
 
-        public event OnPlayerCommand<CommandEventInfo> OnTileCommand = default;
-
-        public virtual void Init(TurnOrderManager turnOrderManager)
+        public virtual void Init()
         {
         }
 
         public virtual void Shutdown() 
         {
-            OnTileCommand = null;
         }
 
         public virtual GameObject SpawnTile(
@@ -49,25 +46,6 @@ namespace BlindChase
             return o;
         }
 
-        protected virtual void OnTileEventTriggered(CommandEventInfo info) 
-        {
-            if (info == null)
-            {
-                return;
-            }
-            OnTileCommand?.Invoke(info);
-        }
-
-        protected virtual void SubscribeToCommand(TileContainer container)
-        {
-            container.OnTileTrigger += OnTileEventTriggered;
-        }
-
-        protected virtual void UnsubscribeToCommand(TileContainer container)
-        {
-            container.OnTileTrigger -= OnTileEventTriggered;
-        }
-
         public bool DoTilesExist(TileId id)
         {
             if (id == null)
@@ -93,8 +71,6 @@ namespace BlindChase
             {
                 return;
             }
-
-            UnsubscribeToCommand(m_displayTiles[id]);
             m_displayTiles[id].DestroyTiles();
             m_displayTiles.Remove(id);
         }
@@ -114,8 +90,6 @@ namespace BlindChase
             if (container != null)
             {
                 container.ShowTiles();
-                SubscribeToCommand(container);
-
             }
         }
 
@@ -130,8 +104,6 @@ namespace BlindChase
             if (container != null)
             {
                 container.HideTiles();
-                UnsubscribeToCommand(container);
-
             }
         }
 

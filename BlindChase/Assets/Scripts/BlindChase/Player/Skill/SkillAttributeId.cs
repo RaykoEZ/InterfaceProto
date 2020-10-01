@@ -36,7 +36,11 @@ namespace BlindChase
         public string EffectName { get; set; }
 
         static readonly SkillAttributeId c_basicMovement = new SkillAttributeId("BasicMovement");
+        static readonly SkillAttributeId c_autoRecovery = new SkillAttributeId("AutoRecovery");
+
         public static SkillAttributeId BasicMovement { get { return c_basicMovement; } }
+        public static SkillAttributeId AutoRecovery { get { return c_autoRecovery; } }
+
 
         public SkillAttributeId(string effectName)
         {
