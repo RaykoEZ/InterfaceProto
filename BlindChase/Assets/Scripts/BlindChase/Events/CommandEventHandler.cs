@@ -1,33 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
-using BlindChase.Events;
+﻿using UnityEngine;
 
-namespace BlindChase
+namespace BlindChase.Events
 {
     public class CommandEventHandler : MonoBehaviour
     {
         public event OnPlayerCommand<CommandEventInfo> OnCommand = default;
 
+        // These should explicitly take CommandEventInfo in the future.
         public void OnPlayerMove(EventInfo info) 
         {
-            CommandEventInfo commandInfo = 
-                new CommandEventInfo(info.SourceId, CommandTypes.ADVANCE, info.Payload);
+            CommandEventInfo commandInfo = info is CommandEventInfo commandEventInfo ?
+               commandEventInfo :
+               new CommandEventInfo(info.SourceId, new Command(CommandTypes.ADVANCE, info.Payload));
 
             OnCommand?.Invoke(commandInfo);
         }
 
         public void OnSkillPrompt(EventInfo info)
         {
-            CommandEventInfo commandInfo =
-                new CommandEventInfo(info.SourceId, CommandTypes.SKILL_PROMPT, info.Payload);
+            CommandEventInfo commandInfo = info is CommandEventInfo commandEventInfo ?
+               commandEventInfo :
+               new CommandEventInfo(info.SourceId, new Command(CommandTypes.SKILL_PROMPT, info.Payload));
+
             OnCommand?.Invoke(commandInfo);
         }
 
         public void OnSkillConfirm(EventInfo info)
         {
-            CommandEventInfo commandInfo =
-                new CommandEventInfo(info.SourceId, CommandTypes.SKILL_ACTIVATE, info.Payload);
+            CommandEventInfo commandInfo = info is CommandEventInfo commandEventInfo ? 
+                commandEventInfo : 
+                new CommandEventInfo(info.SourceId, new Command(CommandTypes.SKILL_ACTIVATE, info.Payload));
+
             OnCommand?.Invoke(commandInfo);
         }
     }

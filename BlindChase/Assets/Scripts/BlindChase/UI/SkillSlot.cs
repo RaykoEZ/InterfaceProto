@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using BlindChase;
+using BlindChase.Events;
 
-namespace BlindChase
+namespace BlindChase.Ui
 {
     public class SkillSlot : MonoBehaviour
     {

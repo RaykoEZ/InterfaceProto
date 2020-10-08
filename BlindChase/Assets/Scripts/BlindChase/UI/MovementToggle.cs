@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using BlindChase.Events;
 
-namespace BlindChase
+namespace BlindChase.Ui
 {
     public class MovementToggle : MonoBehaviour
     {
@@ -41,10 +41,8 @@ namespace BlindChase
 
         public void OnMovementCancelled(EventInfo info) 
         {
-            if (info is CommandEventInfo commandInfo) 
-            {
-                m_toggle.isOn = commandInfo.CommandType != CommandTypes.ADVANCE;
-            }       
+            bool isCancelForMovement = (info is CommandEventInfo commandInfo && commandInfo.Command.CommandType == CommandTypes.ADVANCE);
+            m_toggle.isOn = isCancelForMovement && m_toggle.isOn;
         }
 
     }

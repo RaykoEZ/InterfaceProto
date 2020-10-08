@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using BlindChase;
+using BlindChase.GameManagement;
+using BlindChase.Events;
 
-namespace BlindChase
+namespace BlindChase.Ui
 {
     // This class populates the given character status into the correct display fields.
     public class CharacterHUD : UIBehaviour

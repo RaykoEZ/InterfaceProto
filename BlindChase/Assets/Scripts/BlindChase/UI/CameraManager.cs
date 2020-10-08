@@ -1,9 +1,8 @@
 ﻿using System.Collections;
-using System.Diagnostics;
 using UnityEngine;
-using BlindChase.Events;
+using BlindChase.Utility;
 
-namespace BlindChase
+namespace BlindChase.Ui
 {
     public class CameraManager : MonoBehaviour
     {

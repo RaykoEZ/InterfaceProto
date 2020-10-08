@@ -1713,7 +1713,7 @@ RectTransform:
   m_Children:
   - {fileID: 318491034}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1817,7 +1817,7 @@ RectTransform:
   - {fileID: 237994758}
   - {fileID: 591030781}
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -1970,7 +1970,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &591030781 stripped
 RectTransform:
@@ -2227,7 +2227,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 808719384}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 242165421d3661041b944539ade73429, type: 3}
+  m_Script: {fileID: 11500000, guid: ed57671d4bd110245863b83ad1e6d39e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_rangeDisplay: {fileID: 2020056523}
@@ -2332,7 +2332,7 @@ RectTransform:
   m_LocalScale: {x: 0.6666667, y: 0.6666667, z: 0.6666667}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -2403,37 +2403,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1518292011
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1518292012}
-  m_Layer: 0
-  m_Name: SkillManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1518292012
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1518292011}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.9700012, y: 0.76000977, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1534613097
 GameObject:
@@ -2518,7 +2488,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1534613101
 MonoBehaviour:
@@ -2596,7 +2566,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1968933275
 MonoBehaviour:
@@ -2611,72 +2581,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_eventListeners:
-  - m_eventToListen: {fileID: 11400000, guid: 6e680b7c8e2fa4a45a6d4867a7eac77e, type: 2}
-    m_responses:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1968933273}
-          m_MethodName: OnCharacterSkillActivate
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-  - m_eventToListen: {fileID: 11400000, guid: c2c37984f42261e44b33df33738aa3ae, type: 2}
-    m_responses:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1968933273}
-          m_MethodName: OnLeaderDefeated
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-  - m_eventToListen: {fileID: 11400000, guid: 95039c154d324ea4d96b67ffb44b57e5, type: 2}
-    m_responses:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1968933273}
-          m_MethodName: OnCharacterDefeated
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
   - m_eventToListen: {fileID: 11400000, guid: 9910a3854726cf341982e08ef6da374a, type: 2}
     m_responses:
       m_PersistentCalls:
         m_Calls:
         - m_Target: {fileID: 1968933273}
           m_MethodName: OnCharacterSelected
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-  - m_eventToListen: {fileID: 11400000, guid: befd5eeabda3fb34c8c2c2685daecb09, type: 2}
-    m_responses:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1968933273}
-          m_MethodName: OnCharacterUnselected
           m_Mode: 0
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -2781,7 +2691,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -2819,7 +2729,7 @@ MonoBehaviour:
     type: 3}
   m_previewRangeTile: {fileID: 7131817049847162997, guid: 70683773364c4d24c9187bab5f2b81e7,
     type: 3}
-  m_rangeDsplayMasks: {fileID: 11400000, guid: f90a5b666c1f0a840a8d0d3d94faf83e, type: 2}
+  m_rangeDsplayMasks: {fileID: 11400000, guid: 9f17d9c943f2ab4448018857d40b0c8b, type: 2}
   m_skillTargetManager: {fileID: 2020056522}
   m_HUD: {fileID: 4534060085320391304}
   m_rangeTileManager: {fileID: 2020056524}

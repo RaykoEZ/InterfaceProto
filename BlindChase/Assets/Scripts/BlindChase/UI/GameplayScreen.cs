@@ -1,10 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using BlindChase;
+using BlindChase.GameManagement;
 using BlindChase.Events;
 
-namespace BlindChase
+namespace BlindChase.Ui
 {
     public class GameplayScreen : MonoBehaviour
     {
@@ -14,9 +14,9 @@ namespace BlindChase
         [SerializeField] TileSelectionManager m_tileSelector = default;
         [SerializeField] BCGameEventTrigger OnSkillPrompt = default;
 
-        TileId m_focusedCharacterId;
+        ObjectId m_focusedCharacterId;
         // The character that can execute commands right now.
-        TileId m_activeCharacterId;
+        ObjectId m_activeCharacterId;
         CharacterContext m_characterContext;
 
         public void Init(
@@ -24,7 +24,8 @@ namespace BlindChase
             CharacterContextFactory characterContext)
         {
             // Whenever turn starts, focus onto the active character
-            turnOrder.OnCharacterTurnStart += OnTurnStart;
+            turnOrder.OnTurnStart += OnTurnStart;
+
             // Whenever player selects a character, focus on that character
             m_tileSelector.OnTileSelected += OnTileSelection;
             characterContext.OnContextChanged += OnCharacterContextUpdate;
@@ -39,7 +40,7 @@ namespace BlindChase
             UpdateCharacterStateDisplay(m_activeCharacterId);
         }
 
-        void UpdateCharacterStateDisplay(TileId id) 
+        void UpdateCharacterStateDisplay(ObjectId id) 
         {
             m_focusedCharacterId = id;
             CharacterState state = m_characterContext.MemberDataContainer[id].PlayerState;
@@ -59,7 +60,7 @@ namespace BlindChase
                 sprites.Add(m_skillDatabase.GetSkillIcon(skillId));  
             }
 
-            bool isPreview = id != m_activeCharacterId;
+            bool isPreview = id != m_activeCharacterId || id.IsNPC;
 
             m_HUD.LoadValues(state);
             m_HUD.LoadSkillData(
@@ -72,7 +73,7 @@ namespace BlindChase
                 );
         }
 
-        void ChangeFocusCharacter(TileId id) 
+        void ChangeFocusCharacter(ObjectId id) 
         {
             m_camera.FocusCamera(m_characterContext.MemberDataContainer[id].PlayerTransform.position);
             UpdateCharacterStateDisplay(id);
@@ -87,7 +88,7 @@ namespace BlindChase
             }
         }
 
-        void OnTurnStart(TileId id) 
+        void OnTurnStart(ObjectId id) 
         {
             m_activeCharacterId = id;
             ChangeFocusCharacter(id);
@@ -113,9 +114,8 @@ namespace BlindChase
             payload["SkillId"] = skillId;
             payload["SkillLevel"] = skillLevel;
 
-            CommandEventInfo info = new CommandEventInfo(
+            EventInfo info = new EventInfo(
                 characterData.PlayerState.TileId,
-                CommandTypes.SKILL_PROMPT,
                 payload);
 
             m_camera.FocusCamera(characterData.PlayerTransform.position);

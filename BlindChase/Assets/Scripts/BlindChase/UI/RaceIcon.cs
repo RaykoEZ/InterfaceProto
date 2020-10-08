@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using BlindChase;
 
-namespace BlindChase
+namespace BlindChase.Ui
 {
     public class RaceIcon : MonoBehaviour
     {

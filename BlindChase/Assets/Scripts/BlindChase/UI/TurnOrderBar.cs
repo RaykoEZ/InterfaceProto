@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using BlindChase;
 
-namespace BlindChase
+namespace BlindChase.Ui
 {
     public class CharacterTurnRacer 
     {
@@ -16,8 +16,8 @@ namespace BlindChase
     {
         [SerializeField] float m_dt = default;
 
-        Dictionary<TileId, CharacterTurnRacer> m_raceProgresses = new Dictionary<TileId, CharacterTurnRacer>();
-        public delegate void OnGoalReached(TileId racerId);
+        Dictionary<ObjectId, CharacterTurnRacer> m_raceProgresses = new Dictionary<ObjectId, CharacterTurnRacer>();
+        public delegate void OnGoalReached(ObjectId racerId);
         protected event OnGoalReached OnCharacterGoalReached_Internal = default;
         public event OnGoalReached OnCharacterGoalReached = default;
 
@@ -33,7 +33,7 @@ namespace BlindChase
             OnCharacterGoalReached_Internal -= OnGoalReach;
         }
 
-        void OnGoalReach(TileId id) 
+        void OnGoalReach(ObjectId id) 
         {
             Pause();
             // Reset progress when goal reached.
@@ -41,7 +41,7 @@ namespace BlindChase
             OnCharacterGoalReached?.Invoke(id);
         }
 
-        public void AddParticipant(TileId id, CharacterTurnRacer racer) 
+        public void AddParticipant(ObjectId id, CharacterTurnRacer racer) 
         {
             if (!m_raceProgresses.ContainsKey(id)) 
             {
@@ -49,7 +49,7 @@ namespace BlindChase
             }
         }
 
-        public void RemoveParticipant(TileId id)
+        public void RemoveParticipant(ObjectId id)
         {
             if (m_raceProgresses.ContainsKey(id))
             {
@@ -57,7 +57,7 @@ namespace BlindChase
             }
         }
 
-        public void SetParticipantState(TileId id, CharacterTurnRacer racer)
+        public void SetParticipantState(ObjectId id, CharacterTurnRacer racer)
         {
             if (m_raceProgresses.ContainsKey(id))
             {
@@ -77,14 +77,14 @@ namespace BlindChase
             StartCoroutine(UpdateProgress());
         }
 
-        TileId OnRaceFinish(List<TileId> finishedRacers)
+        ObjectId OnRaceFinish(List<ObjectId> finishedRacers)
         {
             if (finishedRacers.Count == 1) 
             {
                 return finishedRacers[0];
             }
 
-            TileId finishing = finishedRacers[0];
+            ObjectId finishing = finishedRacers[0];
             float maxSpeed = 0f;
 
             for (int i = 0; i < finishedRacers.Count; ++i)
@@ -102,13 +102,13 @@ namespace BlindChase
 
         IEnumerator UpdateProgress() 
         {
-            List<TileId> finishedRacers = new List<TileId>();
+            List<ObjectId> finishedRacers = new List<ObjectId>();
 
             while (!m_raceFinished) 
             {
                 finishedRacers.Clear();
 
-                foreach (TileId id in m_raceProgresses.Keys)
+                foreach (ObjectId id in m_raceProgresses.Keys)
                 {
                     CharacterTurnRacer value = m_raceProgresses[id];
 
@@ -126,7 +126,7 @@ namespace BlindChase
 
                 if (finishedRacers.Count > 0) 
                 {
-                    TileId finishingRacerId = OnRaceFinish(finishedRacers);
+                    ObjectId finishingRacerId = OnRaceFinish(finishedRacers);
                     OnCharacterGoalReached_Internal.Invoke(finishingRacerId);
                 }
 

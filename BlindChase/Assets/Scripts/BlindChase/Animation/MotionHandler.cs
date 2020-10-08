@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace BlindChase
+namespace BlindChase.Animation
 {
     public class MotionDetail 
     {

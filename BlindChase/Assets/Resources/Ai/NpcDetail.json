@@ -1,0 +1,20 @@
+{
+    "Ai_Angry":
+    {
+        "ObjectiveBiases":
+        {
+            "HOSTILITY" : 1.0,
+            "SURVIVAL" : 0.7,
+            "PROTECTION" : 0.3
+        }
+    },
+    "Ai_Survive" :
+    {
+        "ObjectiveBiases":
+        {
+            "HOSTILITY" : 0.7,
+            "SURVIVAL" : 1.0,
+            "PROTECTION" : 0.5
+        }
+    }
+}

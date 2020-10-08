@@ -5,6 +5,7 @@
             "SpawnList" : [
                 {   
                     "CharacterId" : "C2",
+                    "IsNpc" : false,
                     "SpawnLocation" :
                     {
                         "x" : 1,
@@ -15,6 +16,7 @@
                 ,
                 {   
                     "CharacterId" : "C1",
+                    "IsNpc" : false,
                     "SpawnLocation" :
                     {
                         "x" : 2,
@@ -26,10 +28,11 @@
         },
 
         {
-            "FactionId" : "test1",
+            "FactionId" : "Ai_Angry",
             "SpawnList" : [
                 {   
                     "CharacterId" : "C0",
+                    "IsNpc" : true,
                     "SpawnLocation" :
                     {
                         "x" : 0,
@@ -41,6 +44,7 @@
                 ,
                 {   
                     "CharacterId" : "C1",
+                    "IsNpc" : true,
                     "SpawnLocation" :
                     {
                         "x" : 0,

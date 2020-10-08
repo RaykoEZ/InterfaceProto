@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using BlindChase;
 
-namespace BlindChase
+namespace BlindChase.Utility
 {
     public class CoroutineManager : MonoBehaviour
     {

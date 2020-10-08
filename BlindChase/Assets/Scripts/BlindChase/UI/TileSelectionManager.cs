@@ -2,8 +2,9 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using BlindChase.Events;
+using BlindChase.GameManagement;
 
-namespace BlindChase 
+namespace BlindChase.Ui 
 {
 
     public class TileSelectionManager : MonoBehaviour
@@ -15,9 +16,9 @@ namespace BlindChase
 
         public event OnTileSelect OnTileSelected = default;
 
-        static readonly TileId m_highlighterTileId = new TileId(CommandTypes.NONE, "none", "none");
+        static readonly ObjectId m_highlighterTileId = new ObjectId("none", "none");
 
-        WorldStateContext m_worldContext;
+        WorldContext m_worldContext;
         CharacterContext m_characterContext;
         Vector3Int m_lastMouseCoordinate = default;
 
@@ -29,10 +30,10 @@ namespace BlindChase
             m_characterContext = c.Context;
             c.OnContextChanged += OnCharacterUpdate;
 
-            turnOrder.OnCharacterTurnStart += SelectCharacter;
+            turnOrder.OnTurnStart += SelectCharacter;
         }
 
-        void OnWorldUpdate(WorldStateContext world) 
+        void OnWorldUpdate(WorldContext world) 
         {
             m_worldContext = world;
         }
@@ -41,7 +42,7 @@ namespace BlindChase
             m_characterContext = character;
         }
 
-        void SelectCharacter(TileId id)
+        void SelectCharacter(ObjectId id)
         {
             Vector3 pos = m_characterContext.MemberDataContainer[id].PlayerTransform.position;
 
@@ -90,7 +91,7 @@ namespace BlindChase
             Vector3Int gridCoord = m_map.WorldToCell(worldPos);
             Vector3 gridWorldPos = m_map.GetCellCenterWorld(gridCoord);
 
-            TileId occupier = m_worldContext.GetOccupyingTileAt(gridCoord);
+            ObjectId occupier = m_worldContext.GetOccupyingTileAt(gridCoord);
 
             Dictionary<string, object> payload = new Dictionary<string, object> 
             {
