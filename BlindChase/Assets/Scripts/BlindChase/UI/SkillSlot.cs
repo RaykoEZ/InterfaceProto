@@ -23,21 +23,16 @@ namespace BlindChase.Ui
         bool m_isPreview = false;
         bool m_usable = false;
         public void LoadValues(
-            int skillId, 
-            int skillLevel,
-            int skillCooldown,
-            string skillName,
-            string skillDescription,
-            Sprite skillIcon,
+            SkillSlotData slotData,
             bool isPreview = false)
         {
-            m_skillId = skillId;
-            m_skillLevel = skillLevel;
-            m_skillName = skillName;
-            m_skillDescription = skillDescription;
-            m_skillSprite = skillIcon;
+            m_skillId = slotData.SkillId;
+            m_skillLevel = slotData.SkillLevel;
+            m_skillName = slotData.SkillData.Name;
+            m_skillDescription = slotData.SkillData.Text;
+            m_skillSprite = slotData.SkillIcon;
             m_skillIcon.image.sprite = m_skillSprite;
-            m_coolDown = skillCooldown;
+            m_coolDown = slotData.Cooldown;
 
             m_isPreview = isPreview;
             m_usable = m_coolDown == 0;

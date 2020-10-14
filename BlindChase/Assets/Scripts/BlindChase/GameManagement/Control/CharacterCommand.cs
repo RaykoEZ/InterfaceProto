@@ -58,7 +58,7 @@ namespace BlindChase.GameManagement
             base.ExecuteCommand(args, onFinishCallback);
             Dictionary<string, object> arg = args.Arguments;
 
-            if (!arg.ContainsKey("Destination")) 
+            if (arg == null || !arg.ContainsKey("Destination")) 
             {
                 return;
             }

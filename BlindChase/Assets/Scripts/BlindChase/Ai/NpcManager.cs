@@ -8,14 +8,15 @@ namespace BlindChase.Ai
 {
     public class NpcManager
     {
-        public event OnPlayerCommand<CommandStackInfo> OnNPCCommand = default;
+        public event OnPlayerCommand<CommandRequestInfo> OnNPCCommand = default;
 
         NpcDatabase m_npcDatabase = default;
         // One planner for each faction, key: Faction Id
         //HashSet<string> m_npcFactions = new HashSet<string>();
         NpcTaskPlanner m_planner = new NpcTaskPlanner();
 
-        GameContextCollection m_context = new GameContextCollection();
+        CharacterContext m_characterRef;
+        WorldContext m_worldRef;
 
         public void Init(CharacterContextFactory c , WorldStateContextFactory w, SkillManager skillManager) 
         {
@@ -39,7 +40,7 @@ namespace BlindChase.Ai
         public void OnNPCActive(ObjectId id) 
         {
             string faction = id.FactionId;
-            NPCDetail factionNature = m_npcDatabase.GetNpcNature(faction);
+            NpcParameter factionNature = m_npcDatabase.GetNpcNature(faction);
 
             if(factionNature == null) 
             {
@@ -47,21 +48,21 @@ namespace BlindChase.Ai
                 return;
             }
 
-            m_planner.OnActive(id, factionNature, m_context);
+            m_planner.OnActive(id, factionNature, m_characterRef, m_worldRef);
         }
-        void OnNpcAction(CommandStackInfo info)
+        void OnNpcAction(CommandRequestInfo info)
         {
             OnNPCCommand?.Invoke(info);
         }
 
         void UpdateCharacter(CharacterContext character) 
         {
-            m_context.Characters = character;
+            m_characterRef = character;
         }
 
         void UpdateWorld(WorldContext world)
         {
-            m_context.World = world;
+            m_worldRef = world;
         }
     }
 

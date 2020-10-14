@@ -1,17 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using BlindChase;
 
 namespace BlindChase.GameManagement
 {
+    [Serializable]
+    public struct IdLevelPair 
+    {
+        public int Id;
+        public int Level;
+    }
+
     [Serializable]
     public struct CharacterData
     {
         public string CharacterId;
         public string Name;
-        public List<int> SkillIds;
-        public List<int> SkillLevels;
+        // Key: Skill Id, Value: Skill Level
+        public List<IdLevelPair> SkillLevels;
         public int MaxHP;
         public int MaxSP;
         public int BaseDefense;
@@ -19,9 +25,10 @@ namespace BlindChase.GameManagement
         public CharacterClassType ClassType;
     }
 
+    [Serializable]
     public class CharacterState 
     {
-        public ObjectId TileId { get; set; }
+        public ObjectId ObjectId { get; set; }
         public string CharacterId { get; set; }
         public CharacterData Character { get; set; }
         public Vector3Int Position { get; set; }
@@ -36,6 +43,23 @@ namespace BlindChase.GameManagement
 
         public bool IsActive { get; set; }
 
+        // Deep copy
+        public CharacterState(CharacterState state) 
+        {
+            ObjectId = state.ObjectId;
+            CharacterId = state.CharacterId;
+            Character = state.Character;
+            Position = state.Position;
+
+            CurrentHP = state.Character.MaxHP;
+            CurrentSP = state.Character.MaxSP;
+            CurrentDefense = state.Character.BaseDefense;
+            CurrentSpeed = state.Character.BaseSpeed;
+            IsActive = state.IsActive;
+
+            CurrentSkillCooldowns = state.CurrentSkillCooldowns;
+        }
+
         public CharacterState(
             ObjectId id,
             string charId,
@@ -44,7 +68,7 @@ namespace BlindChase.GameManagement
             bool isActive = true
             )
         {
-            TileId = id;
+            ObjectId = id;
             CharacterId = charId;
             Character = charData;
             Position = pos;
@@ -57,13 +81,12 @@ namespace BlindChase.GameManagement
 
             CurrentSkillCooldowns = new Dictionary<int, int>();
 
-            foreach (int skillId in Character.SkillIds) 
+            foreach (IdLevelPair SkillLevel in Character.SkillLevels) 
             {
-                CurrentSkillCooldowns[skillId] = 0;
+                CurrentSkillCooldowns[SkillLevel.Id] = 0;
             }
         }
     }
-
 
     [Serializable]
     public struct PlayerSaveData 

@@ -8,6 +8,7 @@ using BlindChase.Events;
 
 namespace BlindChase.Ui
 {
+
     // This class populates the given character status into the correct display fields.
     public class CharacterHUD : UIBehaviour
     {
@@ -90,12 +91,9 @@ namespace BlindChase.Ui
             m_CharacterSpeed.text = $"Speed: {characterState.CurrentSpeed}";
         }
 
+
         public void LoadSkillData(
-            List<int> skillIds, 
-            List<int> skillLevels,
-            List<int> skillCooldown,
-            List<SkillDataCollection> skillData,
-            List<Sprite> skillIcons,
+            List<SkillSlotData> skillSlotData,
             bool isPreview = false
             ) 
         {
@@ -104,37 +102,27 @@ namespace BlindChase.Ui
                 return;
             }
 
-            if (skillIds.Count > skillLevels.Count ||
-                skillIds.Count > skillData.Count ||
-                skillIds.Count > skillCooldown.Count)
+            // We shutdown the button interactions if it's preview-only.
+            ResetSkillButtons(false);
+            m_movementToggle.interactable = !isPreview;
+
+            foreach (SkillSlot slot in m_skillSlots)
             {
-                Debug.LogError("Not enough skill data provided to skill slots.");
-                return;
+                slot.gameObject.SetActive(false);           
             }
 
-            if (!m_skillTargetInProgress) 
+            for(int i = 0; i < skillSlotData.Count; ++i) 
             {
-                // We shutdown the button interactions if it's preview-only.
-                ResetSkillButtons(false);
-                m_movementToggle.interactable = !isPreview;
-
-                foreach (SkillSlot slot in m_skillSlots)
+                if (i >= m_skillSlots.Count) 
                 {
-                    slot.gameObject.SetActive(false);
+                    break;
                 }
 
-                for (int i = 0; i < skillIds.Count; ++i)
-                {
-                    int skillId = skillIds[i];
-                    int skillLevel = skillLevels[i];
-                    int cooldown = skillCooldown[i];
-                    string skillName = skillData[i].Name;
-                    string skillDescription = skillData[i].Text;
-                    Sprite sprite = skillIcons[i];
-                    m_skillSlots[i].gameObject.SetActive(true);
-                    m_skillSlots[i].LoadValues(skillId, skillLevel, cooldown, skillName, skillDescription, sprite, isPreview);
-                }
+                m_skillSlots[i].gameObject.SetActive(true);
+                m_skillSlots[i].LoadValues(skillSlotData[i], isPreview);
             }
+
+            
         }
     }
 

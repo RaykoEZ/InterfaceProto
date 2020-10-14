@@ -5,9 +5,16 @@ namespace BlindChase.GameManagement
 {
     public class CharacterStateContainer
     {
+        CharacterState m_characterState;
+
         public Transform PlayerTransform { get; private set; }
 
-        public CharacterState PlayerState { get; private set; }
+        public CharacterState PlayerState 
+        { 
+            // Give out a deep copy to prevent premature mutation.
+            get { return new CharacterState(m_characterState); } 
+            private set { m_characterState = value; } 
+        }
 
         public CharacterStateContainer(Transform transform, CharacterState state) 
         {
@@ -19,21 +26,6 @@ namespace BlindChase.GameManagement
     public class CharacterContext : IBCContext
     {
         public Dictionary<ObjectId, CharacterStateContainer> MemberDataContainer { get; private set; }
-
-        public List<CharacterStateContainer> GetFactionData(string faction) 
-        {
-            List<CharacterStateContainer> ret = new List<CharacterStateContainer>();
-
-            foreach(ObjectId id in MemberDataContainer.Keys) 
-            { 
-                if (id.FactionId == faction) 
-                {
-                    ret.Add(MemberDataContainer[id]);
-                }
-            }
-
-            return ret;
-        }
 
         public CharacterContext(Dictionary<ObjectId, CharacterStateContainer> factionData) 
         {

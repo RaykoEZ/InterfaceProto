@@ -3,62 +3,68 @@ using System.Collections.Generic;
 using UnityEngine;
 using BlindChase.GameManagement;
 using BlindChase.Events;
+using BlindChase.Utility;
 
 namespace BlindChase.Ai
 {
+
     public class NpcTaskPlanner
     {
-        public event OnPlayerCommand<CommandStackInfo> OnNPCTaskPlanned = default;
-        SkillManager m_skillManagerRef;
-        RangeMapDatabase m_rangeDsplayMasks = default;
-        NPCDetail m_defaultDetailRef;
+        public event OnPlayerCommand<CommandRequestInfo> OnNPCTaskPlanned = default;
+        DecisionHelper m_decsionHelper = new DecisionHelper();
+        RangeMapDatabase m_rangeMapDatabase = default;
+        RangeMap m_moveRangeRef;
+        NpcParameter m_defaultDetailRef;
         ObjectId m_activeNpcId;
+
+        WorldContext m_worldRef;
+        CharacterContext m_characterRef;
 
         public void Shutdown() 
         {
-            OnNPCTaskPlanned = null;
+            OnNPCTaskPlanned = null;         
         }
 
-        public void Init(SkillManager skillManager) 
+        public virtual void Init(SkillManager skillManager) 
         {
-            m_skillManagerRef = skillManager;
-            m_rangeDsplayMasks = ScriptableObject.CreateInstance<RangeMapDatabase>();
+            m_rangeMapDatabase = ScriptableObject.CreateInstance<RangeMapDatabase>();
+            m_decsionHelper.Init(m_rangeMapDatabase, skillManager);
         }
 
-        public void OnActive(ObjectId activateId, NPCDetail nature, GameContextCollection context) 
+        public virtual void OnActive(ObjectId activateId, NpcParameter nature, CharacterContext c, WorldContext w) 
         {
             m_defaultDetailRef = nature;
             m_activeNpcId = activateId;
-            CommandStackInfo result = EvaluatePriority(context);
-
+            m_characterRef = c;
+            m_worldRef = w;
+            CommandRequestInfo result = Plan();
             OnTaskPlanned(result);
         }
 
-        CommandStackInfo EvaluatePriority(GameContextCollection context)
+        protected virtual CommandRequestInfo Plan()
         {
-            WorldContext world = context.World;
-            CharacterContext characters = context.Characters;
-            CharacterState self = characters.MemberDataContainer[m_activeNpcId].PlayerState;
+            CharacterState self = m_characterRef.MemberDataContainer[m_activeNpcId].PlayerState;
+            m_moveRangeRef = m_rangeMapDatabase.GetClassRangeMap(self.Character.ClassType);
+            GameContextRecord record = new GameContextRecord(m_worldRef, m_characterRef);
+            // Get current goal priority wieghts
+            NpcParameter currentPriorities = NpcParameter.CalculateNewParameter(m_defaultDetailRef, m_moveRangeRef, record, self);
 
-            Stack<Command> commands = new Stack<Command>();
-            Command move = new Command
-            {
-                CommandType = CommandTypes.ADVANCE,
-                CommandArgs = new Dictionary<string, object>()
-            };
+            CommandRequest decision = CommandDecision(currentPriorities, self);
+            CommandRequestInfo result = new CommandRequestInfo(m_activeNpcId, decision);
 
-            // movement test
-            move.CommandArgs["Origin"] = world.WorldMap.GetCellCenterWorld(self.Position);
-            move.CommandArgs["Destination"] = world.WorldMap.GetCellCenterWorld(self.Position + Vector3Int.up);
-
-            commands.Push(move);
-
-            CommandStackInfo result = new CommandStackInfo(m_activeNpcId, commands);          
-            
             return result;
         }
 
-        void OnTaskPlanned(CommandStackInfo info) 
+        // IMPL
+        CommandRequest CommandDecision(
+            NpcParameter priorityDetail,
+            CharacterState npcState) 
+        {
+            GameContextRecord context = new GameContextRecord(m_worldRef, m_characterRef);
+            return m_decsionHelper.MakeDecision(priorityDetail, npcState, m_moveRangeRef, context);
+        }
+
+        void OnTaskPlanned(CommandRequestInfo info) 
         {
             OnNPCTaskPlanned?.Invoke(info);
         }

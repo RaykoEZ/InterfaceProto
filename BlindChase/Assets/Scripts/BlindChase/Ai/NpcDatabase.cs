@@ -8,7 +8,7 @@ namespace BlindChase.Ai
     [CreateAssetMenu(fileName = "NpcDatabase", menuName = "BlindChase/Create collection of NPC data", order = 1)]
     public class NpcDatabase : ScriptableObject
     {
-        Dictionary<string, NPCDetail> m_NpcData = default;
+        Dictionary<string, NpcParameter> m_NpcData = default;
 
         const string c_npcDataRoot = "Ai/NpcDetail";
 
@@ -19,11 +19,11 @@ namespace BlindChase.Ai
         {
             m_enumConverter.AllowIntegerValues = true;
             TextAsset raw = Resources.Load<TextAsset>(c_npcDataRoot);
-            m_NpcData = JsonConvert.DeserializeObject<Dictionary<string, NPCDetail>>(raw.text,
+            m_NpcData = JsonConvert.DeserializeObject<Dictionary<string, NpcParameter>>(raw.text,
             m_enumConverter);
         }
 
-        public NPCDetail GetNpcNature(string factionId)
+        public NpcParameter GetNpcNature(string factionId)
         {
             if (string.IsNullOrWhiteSpace(factionId) || !m_NpcData.ContainsKey(factionId))
             {

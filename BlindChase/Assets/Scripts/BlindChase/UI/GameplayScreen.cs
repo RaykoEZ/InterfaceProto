@@ -44,31 +44,23 @@ namespace BlindChase.Ui
         {
             m_focusedCharacterId = id;
             CharacterState state = m_characterContext.MemberDataContainer[id].PlayerState;
-
-            List<int> skillIds = state.Character.SkillIds;
-            List<int> skillLevels = state.Character.SkillLevels;
-
-            List<int> skillCooldowns = new List<int>();
-            List<SkillDataCollection> skillDataCollection = new List<SkillDataCollection>();
-            List<Sprite> sprites = new List<Sprite>();
-
-            foreach (int skillId in skillIds)
+            List<IdLevelPair> skillLevels = state.Character.SkillLevels;
+            List<SkillSlotData> skillslotData = new List<SkillSlotData>();
+            foreach (IdLevelPair skillLevel in skillLevels)
             {
-                SkillDataCollection skill = m_skillDatabase.GetSkill(skillId);
-                skillDataCollection.Add(skill);
-                skillCooldowns.Add(state.CurrentSkillCooldowns[skillId]);
-                sprites.Add(m_skillDatabase.GetSkillIcon(skillId));  
+                SkillDataCollection skill = SkillManager.GetSkillData(skillLevel.Id);
+                int cooldown = state.CurrentSkillCooldowns[skillLevel.Id];
+                Sprite skillIcon = m_skillDatabase.GetSkillIcon(skillLevel.Id);
+                SkillSlotData slotData = new SkillSlotData(skillLevel.Id, skillLevel.Level, cooldown, skillIcon, skill);
+                skillslotData.Add(slotData);
             }
 
-            bool isPreview = id != m_activeCharacterId || id.IsNPC;
+            bool isPreview = id != m_activeCharacterId || !string.IsNullOrEmpty(id.NPCId);
 
             m_HUD.LoadValues(state);
+
             m_HUD.LoadSkillData(
-                skillIds,
-                skillLevels,
-                skillCooldowns,
-                skillDataCollection,
-                sprites,
+                skillslotData,
                 isPreview
                 );
         }
@@ -115,7 +107,7 @@ namespace BlindChase.Ui
             payload["SkillLevel"] = skillLevel;
 
             EventInfo info = new EventInfo(
-                characterData.PlayerState.TileId,
+                characterData.PlayerState.ObjectId,
                 payload);
 
             m_camera.FocusCamera(characterData.PlayerTransform.position);

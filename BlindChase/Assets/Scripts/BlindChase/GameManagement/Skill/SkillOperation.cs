@@ -8,14 +8,14 @@ namespace BlindChase.GameManagement
         // This contains all possible calls available for a skill effect.
         static partial class SkillOperation
         {
-            static EffectResult OnNoTargetSelected(SkillEffectArgs args) 
+            static CommandResult OnNoTargetSelected() 
             {
-                EffectResult result = new EffectResult();
-                result.OnFail("No Target(s) found.", args.Context);
+                CommandResult result = new CommandResult();
+                result.OnFail("No Target(s) found.");
                 return result;
             }
 
-            public static EffectResult AutoRecovery(SkillEffectArgs args) 
+            public static CommandResult AutoRecovery(SkillEffectArgs args) 
             {
                 // always recover self
                 CharacterState target = args.UserState;
@@ -39,7 +39,7 @@ namespace BlindChase.GameManagement
                     --target.CurrentSkillCooldowns[skillId];
                 }
 
-                EffectResult result = new EffectResult();
+                CommandResult result = new CommandResult();
 
                 List<CharacterState> changeList = new List<CharacterState>{ { target } };
                 result.OnSuccess("Recover SP and cooldown.", args.Context, changeList);
@@ -47,14 +47,14 @@ namespace BlindChase.GameManagement
                 return result;
             }
 
-            public static EffectResult Strike(SkillEffectArgs args) 
+            public static CommandResult Strike(SkillEffectArgs args) 
             {
                 if (args.TargetId == null)
                 {
-                    return OnNoTargetSelected(args);
+                    return OnNoTargetSelected();
                 }
 
-                EffectResult result = new EffectResult();
+                CommandResult result = new CommandResult();
                 CharacterState target = args.TargetState;
 
                 int baseValue = args.SkillData.BaseValue;
@@ -66,18 +66,18 @@ namespace BlindChase.GameManagement
                 return result;
             }
 
-            public static EffectResult FirstAid(SkillEffectArgs args) 
+            public static CommandResult FirstAid(SkillEffectArgs args) 
             {
                 if (args.TargetId == null)
                 {
-                    return OnNoTargetSelected(args);
+                    return OnNoTargetSelected();
                 }
 
-                EffectResult result = new EffectResult();
+                CommandResult result = new CommandResult();
                 CharacterState target = args.TargetState;
                 if (target.CurrentHP >= target.Character.MaxHP) 
                 {
-                    result.OnFail("Target is at full HP.", args.Context);
+                    result.OnFail("Target is at full HP.");
                 }
                 else 
                 {
@@ -90,14 +90,14 @@ namespace BlindChase.GameManagement
                 return result;
             }
 
-            public static EffectResult BasicMovement(SkillEffectArgs args) 
+            public static CommandResult BasicMovement(SkillEffectArgs args) 
             {
                 Vector3Int dest = args.TargetCoord;
                 CharacterState userState = args.UserState;
 
                 ObjectId occupier = args.TargetId;
-                EffectResult result = new EffectResult();
-                GameContextCollection gameContext;
+                CommandResult result = new CommandResult();
+                GameContextRecord gameContext;
                 // If no one is occupying the destination, move as usual
                 // Else, enter combat
                 if (occupier == null) 
@@ -110,26 +110,26 @@ namespace BlindChase.GameManagement
 
                     List<CharacterState> changeList = new List<CharacterState> 
                     { 
-                        {gameContext.Characters.MemberDataContainer[args.UserId].PlayerState}
+                        {gameContext.CharacterRecord.MemberDataContainer[args.UserId].PlayerState}
                     };
 
                     result.OnSuccess($"Moving character to {dest}", gameContext, changeList);
                 }
                 else if(occupier.FactionId != args.UserId.FactionId)
                 {
-                    CharacterState targetState = args.Context.Characters.
+                    CharacterState targetState = args.Context.CharacterRecord.
                         MemberDataContainer[occupier].PlayerState;
 
                     Vector3Int retreatDestination = ActionSimulation.GetClassKnockbackPattern(
                         userState.Character.ClassType, userState.Position, targetState.Position);
 
-                    ObjectId defender = args.Context.World.GetOccupyingTileAt(retreatDestination);
+                    ObjectId defender = args.Context.WorldRecord.GetOccupyingTileAt(retreatDestination);
 
                     // Check for an enemy defender at the would-be knockback location, 
                     // if there is a defender at that position, this skill fails.
                     if (defender != null && defender.FactionId == occupier.FactionId) 
                     {
-                        result.OnFail($"Enemy is reinforced at {dest} by forces at {retreatDestination}.", args.Context);
+                        result.OnFail($"Enemy is reinforced at {dest} by forces at {retreatDestination}.");
                     }
                     // If there is no defender, the skill succeeds.
                     else 
@@ -141,8 +141,8 @@ namespace BlindChase.GameManagement
 
                         List<CharacterState> changeList = new List<CharacterState> 
                         { 
-                            { gameContext.Characters.MemberDataContainer[args.UserId].PlayerState },
-                            { gameContext.Characters.MemberDataContainer[occupier].PlayerState }
+                            { gameContext.CharacterRecord.MemberDataContainer[args.UserId].PlayerState },
+                            { gameContext.CharacterRecord.MemberDataContainer[occupier].PlayerState }
                         };
 
                         result.OnSuccess($"Attacking enemy at {dest}", gameContext, changeList);
@@ -152,8 +152,7 @@ namespace BlindChase.GameManagement
                 // Cannot attack ally occupier, reject this activation.
                 else 
                 {
-                    gameContext = args.Context;
-                    result.OnFail("Cannot attack allied character.", gameContext);
+                    result.OnFail("Cannot attack allied character.");
                 }
 
                 return result;

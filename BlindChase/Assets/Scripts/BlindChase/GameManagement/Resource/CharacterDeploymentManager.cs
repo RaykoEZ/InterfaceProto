@@ -18,7 +18,7 @@ namespace BlindChase.GameManagement
     public struct UnitDeploymentInfo 
     {
         public string CharacterId;
-        public bool IsNpc;
+        public string NpcId;
         public Vector3Int SpawnLocation;
     }
 
@@ -80,7 +80,7 @@ namespace BlindChase.GameManagement
                         info.FactionId, 
                         i.ToString(), 
                         typeId: CommandTypes.NONE, 
-                        isNPC: unitDeploymentInfo.IsNpc);
+                        npcId: unitDeploymentInfo.NpcId);
 
                     worldContext.UpdateBoardState(spawnCoord, id);
 

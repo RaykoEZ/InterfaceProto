@@ -41,7 +41,7 @@ namespace BlindChase.Ui
 
         public void OnMovementCancelled(EventInfo info) 
         {
-            bool isCancelForMovement = (info is CommandEventInfo commandInfo && commandInfo.Command.CommandType == CommandTypes.ADVANCE);
+            bool isCancelForMovement = (info is CommandRequestInfo commandInfo && commandInfo.Command.CommandType == CommandTypes.ADVANCE);
             m_toggle.isOn = isCancelForMovement && m_toggle.isOn;
         }
 

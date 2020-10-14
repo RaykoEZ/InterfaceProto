@@ -58,7 +58,7 @@ namespace BlindChase
             HashSet<int> skillIds = new HashSet<int>();
             foreach (CharacterState characterState in stateList)
             {
-                skillIds.UnionWith(characterState.Character.SkillIds);
+                skillIds.UnionWith(characterState.CurrentSkillCooldowns.Keys);
             }
             // Load all possible skills the deployed characters have into the skill manager.
             m_skillManager = new SkillManager(skillIds);

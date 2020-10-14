@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BlindChase
+namespace BlindChase.GameManagement
 {
     // Skill data for all skill levels
     [Serializable]
@@ -25,11 +25,11 @@ namespace BlindChase
         // The operation id for this skill
         public SkillAttributeId AttributeId { get; set; }
 
-        public List<SkillDataItem> SkillValues { get; set; }
+        public List<SkillParameters> SkillValues { get; set; }
     }
 
     // All values of the skill for a skill level
-    public class SkillDataItem
+    public class SkillParameters
     {        
         // if -1, Skill is AOE
         public int TargetLimit { get; set; }

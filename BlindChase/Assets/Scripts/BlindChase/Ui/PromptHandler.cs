@@ -124,7 +124,7 @@ namespace BlindChase.Ui
             }
 
             Vector3Int offset = m_map.WorldToCell(dest) - m_characterContext.MemberDataContainer[m_currentActiveTileId].PlayerState.Position;
-            bool isSelectionValid = m_currentPromptRange != null && m_currentPromptRange.OffsetsFromOrigin.Contains(offset);
+            bool isSelectionValid = m_currentPromptRange.IsInRange(offset);
 
             tileEventInfo.Payload["Origin"] =
                 m_characterContext.MemberDataContainer[m_currentActiveTileId].PlayerTransform.position;
@@ -138,8 +138,8 @@ namespace BlindChase.Ui
                         // If player selects self, cancel the move prompt.
                         if (isStationary || !isSelectionValid) 
                         {
-                            Command command = new Command(m_currentPrompt);
-                            CommandEventInfo commandCancelled = new CommandEventInfo(m_currentActiveTileId, command);
+                            CommandRequest command = new CommandRequest(m_currentPrompt);
+                            CommandRequestInfo commandCancelled = new CommandRequestInfo(m_currentActiveTileId, command);
                             OnPromptCancel?.TriggerEvent(commandCancelled);
                             return;
                         }
@@ -193,7 +193,7 @@ namespace BlindChase.Ui
             {
                 Vector3Int originCoord = m_map.LocalToCell(origin);
                 // This is for showing/creating range tiles.
-                foreach (Vector3Int p in tileOffsets.OffsetsFromOrigin)
+                foreach (Vector3Int p in tileOffsets?.OffsetsFromOrigin)
                 {
                     Vector3 offsetPos = m_map.GetCellCenterLocal(originCoord + p);
                     m_rangeTileManager.SpawnTile(id, tileRef, offsetPos, parent);
@@ -328,8 +328,8 @@ namespace BlindChase.Ui
         { 
             if(m_currentPrompt != CommandTypes.NONE && m_currentPrompt != newPromptState) 
             {
-                Command command = new Command(m_currentPrompt);
-                CommandEventInfo info = new CommandEventInfo(m_currentActiveTileId, command);
+                CommandRequest command = new CommandRequest(m_currentPrompt);
+                CommandRequestInfo info = new CommandRequestInfo(m_currentActiveTileId, command);
                 OnPromptCancel?.TriggerEvent(info);
             }
 

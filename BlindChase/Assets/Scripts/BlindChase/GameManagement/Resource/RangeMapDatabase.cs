@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using BlindChase.Utility;
@@ -9,6 +10,17 @@ namespace BlindChase.GameManagement
     [CreateAssetMenu(fileName = "RangeTileMapDatabase", menuName = "BlindChase/Create cache for range tile maps", order = 1)]
     public class RangeMapDatabase : ScriptableObject
     {
+        [Serializable]
+        public class RangeMap_Internal
+        {
+            public List<Vector3Int> OffsetsFromOrigin;
+
+            public RangeMap ToExternal() 
+            {
+                return new RangeMap(OffsetsFromOrigin);
+            } 
+        }
+
         [SerializeField] List<RangeMap> m_squareRadiusRangeMaps = new List<RangeMap>();
         
         Dictionary<string, RangeMap> m_skillRangeMaps;
@@ -24,10 +36,24 @@ namespace BlindChase.GameManagement
         {
             m_enumConverter.AllowIntegerValues = true;
             TextAsset file = Resources.Load<TextAsset>(c_classRangeDataRoot);
-            m_characterClassesRangeMaps = JsonConvert.DeserializeObject<Dictionary<CharacterClassType, RangeMap>>(file.text, m_enumConverter);
+
+            Dictionary<CharacterClassType, RangeMap_Internal> internalMoveRange = JsonConvert.DeserializeObject<Dictionary<CharacterClassType, RangeMap_Internal>>(file.text, m_enumConverter);
+            m_characterClassesRangeMaps = ToExternal(internalMoveRange);
+
 
             file = Resources.Load<TextAsset>(c_skillRangeDataRoot);
-            m_skillRangeMaps = JsonConvert.DeserializeObject<Dictionary<string, RangeMap>>(file.text, m_enumConverter);
+            Dictionary<string, RangeMap_Internal> internalSkillRange = JsonConvert.DeserializeObject<Dictionary<string, RangeMap_Internal>>(file.text, m_enumConverter);
+            m_skillRangeMaps = ToExternal(internalSkillRange);
+        }
+
+        internal Dictionary<T, RangeMap> ToExternal<T>(Dictionary<T, RangeMap_Internal> internalCollection) 
+        {
+            Dictionary<T, RangeMap> ret = new Dictionary<T, RangeMap>();
+            foreach (KeyValuePair<T, RangeMap_Internal> kvp in internalCollection)
+            {
+                ret[kvp.Key] = kvp.Value.ToExternal();
+            }
+            return ret;
         }
 
         public RangeMap GetClassRangeMap(CharacterClassType type)

@@ -18,42 +18,29 @@ namespace BlindChase.Events
         }
     }
 
-    public class CommandEventInfo : EventInfo
+    public class CommandRequestInfo : EventInfo
     {
-        public Command Command { get; private set; }
-        public CommandEventInfo(
+        public CommandRequest Command { get; private set; }
+        public CommandRequestInfo(
             ObjectId tileId, 
-            Command command,
-            Action onFinishCallback = null) 
-            : base(tileId, payload: null, onFinishCallback)
+            CommandRequest command,
+            Action onFinishCallback = null,
+            Dictionary<string, object> payload = null) 
+            : base(tileId, payload: payload, onFinishCallback)
         {
             Command = command;
         }
     }
 
-    public struct Command 
+    public struct CommandRequest 
     {
         public CommandTypes CommandType;
         public Dictionary<string, object> CommandArgs;
 
-        public Command(CommandTypes commandType, Dictionary<string, object> args = null) 
+        public CommandRequest(CommandTypes commandType, Dictionary<string, object> args = null) 
         {
             CommandType = commandType;
             CommandArgs = args;
-        }
-    }
-    //
-    public class CommandStackInfo : EventInfo 
-    {
-        public Stack<Command> CommandList { get; private set; }
-
-        public CommandStackInfo(
-        ObjectId tileId,
-        Stack<Command> commands,
-        Action onFinishCallback = null)
-        : base(tileId, payload: null, onFinishCallback)
-        {
-            CommandList = commands;
         }
     }
 

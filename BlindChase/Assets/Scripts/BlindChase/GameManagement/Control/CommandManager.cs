@@ -17,7 +17,7 @@ namespace BlindChase.GameManagement
             ) 
         {
             eventHandler.OnCommand += ExecutePlayerCommand;
-            ai.OnNPCCommand += ExecuteCommands;
+            ai.OnNPCCommand += ExecutePlayerCommand;
 
             // Initialize all available player commands
             m_playerCommandCollection = new Dictionary<CommandTypes, CharacterCommand>
@@ -36,30 +36,7 @@ namespace BlindChase.GameManagement
             }
         }
 
-        void ExecuteCommands(CommandStackInfo eventArgs) 
-        { 
-            if(eventArgs.CommandList.Count == 0) 
-            {
-                return;
-            }
-
-            Command currentCommand = eventArgs.CommandList.Pop();
-            CommandArgs args = new CommandArgs(currentCommand.CommandArgs);
-            PrepareCommand(currentCommand.CommandType, args);
-
-            // Execute next command (Call this method again) when current command finishes.
-            Action onCommandFinish = () => 
-            {
-                if (eventArgs.CommandList.Count > 0) 
-                {
-                    ExecuteCommands(eventArgs);
-                }
-            };
-
-            ExecutCommand_Internal(currentCommand, onCommandFinish);
-        }
-
-        void ExecutePlayerCommand(CommandEventInfo eventArgs) 
+        void ExecutePlayerCommand(CommandRequestInfo eventArgs) 
         {
             CommandTypes currentCommandType = eventArgs.Command.CommandType;
             CommandArgs args = new CommandArgs(eventArgs.Command.CommandArgs);
@@ -83,7 +60,7 @@ namespace BlindChase.GameManagement
             }
         }
 
-        void ExecutCommand_Internal(Command command, Action OnCommandFinish = null)
+        void ExecutCommand_Internal(CommandRequest command, Action OnCommandFinish = null)
         {
             Dictionary<string, object> input = new Dictionary<string, object>();
 

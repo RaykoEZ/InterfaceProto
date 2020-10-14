@@ -33,7 +33,7 @@ namespace BlindChase.GameManagement
 
             foreach (CharacterState participant in participants.Affected) 
             { 
-                if(participant.TileId == participants.InitiateId) 
+                if(participant.ObjectId == participants.InitiateId) 
                 {
                     attacker = participant;
                 }
@@ -41,7 +41,7 @@ namespace BlindChase.GameManagement
                 {
                     Action<bool> onHit = (isLastHit) => 
                     {
-                        m_characterManagerRef.OnCharacterTakeDamage(participant.TileId, participant.Position, OnActionComplete, isLastHit);
+                        m_characterManagerRef.OnCharacterTakeDamage(participant.ObjectId, participant.Position, OnActionComplete, isLastHit);
 
                     };
                     onHitTriggers.Add(onHit);                
@@ -49,7 +49,7 @@ namespace BlindChase.GameManagement
             }
 
             m_characterManagerRef.OnCharacterAdvance(
-                attacker?.TileId, 
+                attacker.ObjectId, 
                 attacker.Position, 
                 OnActionComplete, 
                 onHit: onHitTriggers.Count > 0? onHitTriggers : null);
@@ -67,11 +67,13 @@ namespace BlindChase.GameManagement
             // Get skill animation and trigger user skill animation
             // Add a trigger for calling takedamage when attack animation calls for an OnHit event
 
+            // IMPL
             foreach (CharacterState participant in participants.Affected)
             {
 
             }
-
+            OnActionComplete();
+            OnActionComplete();
         }
 
         void SetupSequence(ActionParticipants participants, Action onFinish) 
@@ -101,7 +103,7 @@ namespace BlindChase.GameManagement
                     // Player defeated anim here
 
                     // Send event for defeat
-                    EventInfo info = new EventInfo(character.TileId);
+                    EventInfo info = new EventInfo(character.ObjectId);
                     OnCharacterDefeat?.Invoke(info);
                 }
             }

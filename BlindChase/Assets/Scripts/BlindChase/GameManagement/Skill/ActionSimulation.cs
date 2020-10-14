@@ -14,10 +14,6 @@ namespace BlindChase.GameManagement
             return targetState;
         }
 
-        public static Vector3Int GetKnockbackPosition(Vector3Int targetPosition, Vector3Int direction, int knockbackScale) 
-        {
-            return targetPosition + knockbackScale * direction;
-        }
 
         public static CharacterState RestoreHP(int baseValue, ref CharacterState targetState)
         {
@@ -28,15 +24,15 @@ namespace BlindChase.GameManagement
             return targetState;
         }
 
-        public static GameContextCollection MoveTo(
-            GameContextCollection context,
-            ObjectId movingTargetId, 
+        public static GameContextRecord MoveTo(
+            GameContextRecord context,
+            ObjectId movingTargetId,
             Vector3Int destination,
             Vector3Int origin)
         {
 
-            CharacterContext characters = context.Characters; 
-            WorldContext world = context.World;
+            CharacterContext characters = context.CharacterRecord; 
+            WorldContext world = context.WorldRecord;
 
             // Moving the tile on the board state
             Vector3Int o = world.WorldMap.LocalToCell(origin);
@@ -51,31 +47,31 @@ namespace BlindChase.GameManagement
 
             characters.MemberDataContainer[movingTargetId] = container;
 
-            GameContextCollection gameContext = new GameContextCollection { World = world, Characters = characters };
+            GameContextRecord gameContext = new GameContextRecord(world, characters);
             return gameContext;
         }
 
-        public static GameContextCollection Combat(
-            GameContextCollection context, 
+        public static GameContextRecord Combat(
+            GameContextRecord context, 
             ObjectId attackerId,
             ObjectId targetId
             )
         {
-            CharacterContext characters = context.Characters;
-            WorldContext world = context.World;
+            CharacterContext characters = context.CharacterRecord;
+            WorldContext world = context.WorldRecord;
 
             CharacterState attacker = characters.MemberDataContainer[attackerId].PlayerState;
             CharacterState target = characters.MemberDataContainer[targetId].PlayerState;
 
             Vector3Int retreatDestination = GetClassKnockbackPattern(attacker.Character.ClassType, attacker.Position, target.Position);
             ObjectId occupier = world.GetOccupyingTileAt(retreatDestination);
-            GameContextCollection gameContext = new GameContextCollection { Characters = characters, World = world };
+            GameContextRecord gameContext = new GameContextRecord(world, characters);
 
             // If the retreating destination has another ally unit to pincer attack(not the attacker):
             if (occupier != null && occupier != attackerId)
             {
                 DefeatTarget(target, world);
-                return MoveTo(gameContext, attacker.TileId, target.Position, attacker.Position);
+                return MoveTo(gameContext, attacker.ObjectId, target.Position, attacker.Position);
             }
             
             // Retreat to the free destination with attacker occupying previous position of retreating character.
@@ -94,7 +90,7 @@ namespace BlindChase.GameManagement
         {
             Debug.Log($"Character: {characterState.Character.Name} Defeated!");
             characterState.IsActive = false;
-            world.RemoveBoardPiece(characterState.Position, characterState.TileId);
+            world.RemoveBoardPiece(characterState.Position, characterState.ObjectId);
         }
 
         public static Vector3Int GetClassKnockbackPattern(CharacterClassType attackerClass, Vector3Int attackerPos, Vector3Int targetPos)
@@ -117,6 +113,11 @@ namespace BlindChase.GameManagement
             }
 
             return knockbackPos;
+        }
+
+        public static Vector3Int GetKnockbackPosition(Vector3Int targetPosition, Vector3Int direction, int knockbackScale)
+        {
+            return targetPosition + knockbackScale * direction;
         }
     } 
 }

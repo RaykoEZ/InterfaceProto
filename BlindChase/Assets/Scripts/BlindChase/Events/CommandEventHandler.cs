@@ -4,32 +4,32 @@ namespace BlindChase.Events
 {
     public class CommandEventHandler : MonoBehaviour
     {
-        public event OnPlayerCommand<CommandEventInfo> OnCommand = default;
+        public event OnPlayerCommand<CommandRequestInfo> OnCommand = default;
 
         // These should explicitly take CommandEventInfo in the future.
         public void OnPlayerMove(EventInfo info) 
         {
-            CommandEventInfo commandInfo = info is CommandEventInfo commandEventInfo ?
+            CommandRequestInfo commandInfo = info is CommandRequestInfo commandEventInfo ?
                commandEventInfo :
-               new CommandEventInfo(info.SourceId, new Command(CommandTypes.ADVANCE, info.Payload));
+               new CommandRequestInfo(info.SourceId, new CommandRequest(CommandTypes.ADVANCE, info.Payload));
 
             OnCommand?.Invoke(commandInfo);
         }
 
         public void OnSkillPrompt(EventInfo info)
         {
-            CommandEventInfo commandInfo = info is CommandEventInfo commandEventInfo ?
+            CommandRequestInfo commandInfo = info is CommandRequestInfo commandEventInfo ?
                commandEventInfo :
-               new CommandEventInfo(info.SourceId, new Command(CommandTypes.SKILL_PROMPT, info.Payload));
+               new CommandRequestInfo(info.SourceId, new CommandRequest(CommandTypes.SKILL_PROMPT, info.Payload));
 
             OnCommand?.Invoke(commandInfo);
         }
 
         public void OnSkillConfirm(EventInfo info)
         {
-            CommandEventInfo commandInfo = info is CommandEventInfo commandEventInfo ? 
+            CommandRequestInfo commandInfo = info is CommandRequestInfo commandEventInfo ? 
                 commandEventInfo : 
-                new CommandEventInfo(info.SourceId, new Command(CommandTypes.SKILL_ACTIVATE, info.Payload));
+                new CommandRequestInfo(info.SourceId, new CommandRequest(CommandTypes.SKILL_ACTIVATE, info.Payload));
 
             OnCommand?.Invoke(commandInfo);
         }
