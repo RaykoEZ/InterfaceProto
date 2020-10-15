@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using BlindChase.Ui;
+using BlindChase.UI;
 
 namespace BlindChase.GameManagement 
 {

@@ -2,7 +2,7 @@
 using UnityEngine;
 using BlindChase.Utility;
 
-namespace BlindChase.Ui
+namespace BlindChase.UI
 {
     public class CameraManager : MonoBehaviour
     {

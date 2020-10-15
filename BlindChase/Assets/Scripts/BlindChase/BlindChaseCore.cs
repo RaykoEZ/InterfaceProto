@@ -5,7 +5,7 @@ using BlindChase.Ai;
 using BlindChase.GameManagement;
 using BlindChase.Events;
 using BlindChase.Utility;
-using BlindChase.Ui;
+using BlindChase.UI;
 using BlindChase.State;
 
 namespace BlindChase

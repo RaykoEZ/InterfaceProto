@@ -6,7 +6,7 @@ using TMPro;
 using BlindChase.GameManagement;
 using BlindChase.Events;
 
-namespace BlindChase.Ui
+namespace BlindChase.UI
 {
 
     // This class populates the given character status into the correct display fields.

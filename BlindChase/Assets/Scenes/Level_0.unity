@@ -2230,7 +2230,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed57671d4bd110245863b83ad1e6d39e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_rangeDisplay: {fileID: 2020056523}
+  m_prompter: {fileID: 2020056523}
   OnCharacterDefeated:
     m_eventToTrigger: {fileID: 11400000, guid: 95039c154d324ea4d96b67ffb44b57e5, type: 2}
   OnLeaderDefeated:
@@ -2710,7 +2710,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06df9d57fd7266644afaacfddb91526a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_HUD: {fileID: 4534060085320391304}
+  m_rangeTileManager: {fileID: 2020056524}
+  m_map: {fileID: 318491036}
 --- !u!114 &2020056523
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2729,10 +2730,7 @@ MonoBehaviour:
     type: 3}
   m_previewRangeTile: {fileID: 7131817049847162997, guid: 70683773364c4d24c9187bab5f2b81e7,
     type: 3}
-  m_rangeDsplayMasks: {fileID: 11400000, guid: 9f17d9c943f2ab4448018857d40b0c8b, type: 2}
-  m_skillTargetManager: {fileID: 2020056522}
   m_HUD: {fileID: 4534060085320391304}
-  m_rangeTileManager: {fileID: 2020056524}
   m_map: {fileID: 318491036}
   OnSkillConfirmed:
     m_eventToTrigger: {fileID: 11400000, guid: 4c072b4e2aad6264bb79b94346baa62b, type: 2}
@@ -2740,6 +2738,8 @@ MonoBehaviour:
     m_eventToTrigger: {fileID: 11400000, guid: 687dcafa716c0a24bb8ee4b5dc4952e3, type: 2}
   OnPromptCancel:
     m_eventToTrigger: {fileID: 11400000, guid: d803049ce9ecc784e9a6db8733b52037, type: 2}
+  m_display: {fileID: 2020056522}
+  m_rangeDsplayMasks: {fileID: 11400000, guid: 9f17d9c943f2ab4448018857d40b0c8b, type: 2}
 --- !u!114 &2020056524
 MonoBehaviour:
   m_ObjectHideFlags: 0

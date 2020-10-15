@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using BlindChase.Events;
 
-namespace BlindChase.Ui
+namespace BlindChase.UI
 {
     public class SkillSlot : MonoBehaviour
     {

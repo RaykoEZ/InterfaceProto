@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using BlindChase.Animation;
 using BlindChase.Events;
-using BlindChase.Ui;
+using BlindChase.UI;
 
 namespace BlindChase.GameManagement 
 {

@@ -4,7 +4,7 @@ using UnityEngine;
 using BlindChase.GameManagement;
 using BlindChase.Events;
 
-namespace BlindChase.Ui
+namespace BlindChase.UI
 {
     public class GameplayScreen : MonoBehaviour
     {

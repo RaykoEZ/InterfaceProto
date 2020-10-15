@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using BlindChase.GameManagement;
 
-namespace BlindChase.Ui
+namespace BlindChase.UI
 {
     public struct SkillSlotData
     {

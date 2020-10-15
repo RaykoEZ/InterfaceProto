@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using BlindChase;
 
-namespace BlindChase.Ui
+namespace BlindChase.UI
 {
     public class CharacterTurnRacer 
     {

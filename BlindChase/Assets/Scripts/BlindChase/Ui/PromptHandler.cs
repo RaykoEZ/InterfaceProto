@@ -5,7 +5,7 @@ using BlindChase.Utility;
 using BlindChase.Events;
 using BlindChase.GameManagement;
 
-namespace BlindChase.Ui 
+namespace BlindChase.UI 
 {
     // Stores and toggles range display maps
     public class PromptHandler : MonoBehaviour
@@ -14,49 +14,139 @@ namespace BlindChase.Ui
         [SerializeField] GameObject m_skillRangeTile = default;
         [SerializeField] GameObject m_previewRangeTile = default;
 
-        [SerializeField] RangeMapDatabase m_rangeDsplayMasks = default;
-        [SerializeField] SkillTargetManager m_skillTargetManager = default;
         [SerializeField] CharacterHUD m_HUD = default;
-        [SerializeField] TileManager m_rangeTileManager = default;
         [SerializeField] Tilemap m_map = default;
-
         [SerializeField] BCGameEventTrigger OnSkillConfirmed = default;
         [SerializeField] BCGameEventTrigger OnPlayerMove = default;
         [SerializeField] BCGameEventTrigger OnPromptCancel = default;
+        [SerializeField] PromptDisplayHelper m_display = default;
+        [SerializeField] RangeMapDatabase m_rangeDsplayMasks = default;
 
         CharacterContext m_characterContext;
         EventInfo m_latestTileEventInfo;
         ObjectId m_currentActiveTileId = default;
+        RangeMap m_currentPromptRange;
+
+        int m_targetLimit = 0;
+        HashSet<Vector3> m_targets = new HashSet<Vector3>();
 
         CommandTypes m_currentPrompt = CommandTypes.NONE;
 
-        RangeMap m_currentPromptRange;
-
         public virtual void Init(CharacterContextFactory c, TurnOrderManager turnOrderManager)
         {
-            m_skillTargetManager.Init();
-            m_HUD.OnRangeCancel += CancelAll;
+            m_display.Init();
+
             turnOrderManager.OnTurnStart += OnActiveTileIdChange;
-            m_skillTargetManager.OnTargetConfirmed += OnSkillTargetsConfirmed;
             m_characterContext = c.Context;
             c.OnContextChanged += OnCharacterContextUpdate;
+
+            m_HUD.OnRangeCancel += CancelAllPrompt;
+            m_HUD.OnRangeCancel += TargetsCancelled;
+            m_HUD.OnRangeConfirm += TargetsConfirmed;
         }
 
         public void Shutdown() 
         {
-            m_skillTargetManager.Shutdown();
-            m_rangeTileManager.Shutdown();
-            m_HUD.OnRangeCancel -= CancelAll;
+            m_display.Shutdown();
+            m_HUD.OnRangeCancel -= CancelAllPrompt;
+            m_HUD.OnRangeCancel -= TargetsCancelled;
+            m_HUD.OnRangeConfirm -= TargetsConfirmed;
         }
+
         void OnActiveTileIdChange(ObjectId id)
         {
             m_currentActiveTileId = id;
         }
 
-        void OnCharacterContextUpdate(CharacterContext context) 
+        void OnCharacterContextUpdate(CharacterContext context)
         {
             m_characterContext = context;
         }
+
+        public void OnTargetSelected(Vector3 target)
+        {
+            // Check if the selected destination is valid for the skill.
+            //IMPL
+
+            if (m_targets.Contains(target))
+            {
+                m_targets.Remove(target);
+            }
+            else if (m_targets.Count < m_targetLimit)
+            {
+                m_targets.Add(target);
+            }
+
+            m_HUD.SetSkillConfirmation(IsTargetLimitSatisfied());
+        }
+
+        public void TargetsConfirmed()
+        {
+            if (m_targets.Count > 0)
+            {
+                OnSkillTargetsConfirmed(m_targets);
+                m_targets.Clear();
+                m_targetLimit = 0;
+            }
+            else
+            {
+                Debug.LogError("Please select your targets.");
+            }
+        }
+        // Used to trigger skill activation when player clicks CONFIRM button and targets are sufficient & valid.
+        public void OnSkillTargetsConfirmed(HashSet<Vector3> targets)
+        {
+            m_latestTileEventInfo.Payload["Target"] = targets;
+            CancelAllPrompt();
+            OnSkillConfirmed?.TriggerEvent(m_latestTileEventInfo);
+        }
+        void TargetsCancelled()
+        {
+            m_targets.Clear();
+        }
+
+        bool IsTargetLimitSatisfied()
+        {
+            return m_targets.Count <= m_targetLimit && m_targets.Count > 0;
+        }
+
+        void ShowPrompt(ObjectId id, GameObject tileToSpawn, RangeMap range, Vector3 worldPos, Transform parent, bool toggle = false)
+        {
+            m_currentPromptRange = range;
+            m_display.ShowRangeMap(id, tileToSpawn, m_currentPromptRange, worldPos, parent, toggle);
+
+        }
+
+        void SetCurrentPromptState(CommandTypes newPromptState)
+        {
+            if (m_currentPrompt != CommandTypes.NONE && m_currentPrompt != newPromptState)
+            {
+                CommandRequest command = new CommandRequest(m_currentPrompt);
+                CommandRequestInfo info = new CommandRequestInfo(m_currentActiveTileId, command);
+                OnPromptCancel?.TriggerEvent(info);
+            }
+
+            m_currentPrompt = newPromptState;
+        }
+
+        void CancelAllPrompt()
+        {
+            SetCurrentPromptState(CommandTypes.NONE);
+            m_display.HideAll();
+        }
+
+        public void OnSkillPrompt(ObjectId id, string skillRangeId, int targetLimit)
+        {
+            m_targetLimit = targetLimit;
+            SetCurrentPromptState(CommandTypes.SKILL_ACTIVATE);
+            Transform parent = m_characterContext.MemberDataContainer[id].PlayerTransform;
+            Vector3 origin = parent.position;
+            RangeMap rangeMap = m_rangeDsplayMasks.GetSkillRangeMap(skillRangeId);
+            ObjectId skillRangeTileId = new ObjectId(id.FactionId, id.UnitId, CommandTypes.SKILL_ACTIVATE);
+
+            ShowPrompt(skillRangeTileId, m_skillRangeTile, rangeMap, origin, parent);
+        }
+
 
         // Handles general user input (range preview and any tile selection prompt made by this handler)
         public void OnPlayerSelect(EventInfo info) 
@@ -67,7 +157,9 @@ namespace BlindChase.Ui
                 Transform parent = m_characterContext.MemberDataContainer[info.SourceId].PlayerTransform;
 
                 ObjectId previewTileId = new ObjectId(info.SourceId.FactionId, info.SourceId.UnitId, m_currentPrompt);
-                ShowRangeMapPreview(previewTileId, state.Character.ClassType, state.Position, parent, true);
+                RangeMap rangeMap = m_rangeDsplayMasks.GetClassRangeMap(state.Character.ClassType);
+
+                ShowPrompt(previewTileId, m_previewRangeTile, rangeMap, parent.position, parent, true);
             }
             else if (m_currentPrompt != CommandTypes.NONE)
             {
@@ -75,7 +167,7 @@ namespace BlindChase.Ui
             }
             else 
             {
-                m_rangeTileManager.HideAll();
+                CancelAllPrompt();
             }
         }
 
@@ -95,17 +187,18 @@ namespace BlindChase.Ui
                     m_currentActiveTileId.UnitId,
                     m_currentPrompt);
 
-                ShowRangeMap(movementRangeTileId, state.Character.ClassType, state.Position, parent, true);
+                RangeMap rangeMap = m_rangeDsplayMasks.GetClassRangeMap(state.Character.ClassType);
+                ShowPrompt(movementRangeTileId, m_moveRangeTile, rangeMap, parent.position, parent, true);
             }
             else 
             {
-                CancelAll();            
+                CancelAllPrompt();            
             }
         }
 
         public void OnPromptFinish(EventInfo info) 
         {
-            m_currentPrompt = CommandTypes.NONE;
+            CancelAllPrompt();
         }
 
         #region Method to handle player inputs from a prompt.
@@ -118,44 +211,50 @@ namespace BlindChase.Ui
             }
 
             Vector3 dest = (Vector3)tileEventInfo?.Payload["Destination"];
-            if(dest == null) 
+            if (dest == null) 
             {
                 return;
             }
 
-            Vector3Int offset = m_map.WorldToCell(dest) - m_characterContext.MemberDataContainer[m_currentActiveTileId].PlayerState.Position;
-            bool isSelectionValid = m_currentPromptRange.IsInRange(offset);
+            Vector3Int origin = m_characterContext.MemberDataContainer[m_currentActiveTileId].PlayerState.Position;
+            Vector3Int destCoord = m_map.WorldToCell(dest);
+            bool isSelectionValid = m_currentPromptRange.IsInRange(origin, destCoord);            
+            if (!isSelectionValid) 
+            {
+                Debug.Log("Selected target not valid.");
+                return;
+            }
 
-            tileEventInfo.Payload["Origin"] =
-                m_characterContext.MemberDataContainer[m_currentActiveTileId].PlayerTransform.position;
+            Vector3 worldPos = m_characterContext.MemberDataContainer[m_currentActiveTileId].PlayerTransform.position;
+            tileEventInfo.Payload["Origin"] = worldPos;
 
             switch (m_currentPrompt)
             {
                 case CommandTypes.ADVANCE:
                     {
-                        CancelAll();
+                        CancelAllPrompt();
+                        Vector3Int offset = m_map.WorldToCell(dest) - origin;
                         bool isStationary = offset == Vector3Int.zero;
                         // If player selects self, cancel the move prompt.
-                        if (isStationary || !isSelectionValid) 
+                        if (isStationary) 
                         {
                             CommandRequest command = new CommandRequest(m_currentPrompt);
                             CommandRequestInfo commandCancelled = new CommandRequestInfo(m_currentActiveTileId, command);
                             OnPromptCancel?.TriggerEvent(commandCancelled);
-                            return;
                         }
-                        OnPlayerMove?.TriggerEvent(tileEventInfo);
-                        SetCurrentPromptState(CommandTypes.NONE);
+                        else 
+                        {
+                            OnPlayerMove?.TriggerEvent(tileEventInfo);
+                            SetCurrentPromptState(CommandTypes.NONE);
+                        }
                         break;
                     }
                 case CommandTypes.SKILL_ACTIVATE:
                     {
-                        if (!isSelectionValid) 
-                        {
-                            Debug.Log("Selected skill target not valid.");
-                            return;
-                        }
-
-                        m_skillTargetManager.ToggleTarget(dest);
+                        //IMPL
+                        ObjectId selectedId = tileEventInfo.SourceId;
+                        AllowedTarget selectionType = TargetingValidation.GetSelectionType(selectedId, m_currentActiveTileId);
+                        OnTargetSelected(dest);
                         m_latestTileEventInfo = tileEventInfo;
                         break;
                     }
@@ -166,183 +265,7 @@ namespace BlindChase.Ui
         }
         #endregion
 
-        #region Methods to cancel prompt state
-        void HidePrompt(ObjectId id) 
-        {
-            m_rangeTileManager.HideTile(id);
-        }
-        public void CancelAll()
-        {
-            SetCurrentPromptState(CommandTypes.NONE);
-            m_rangeTileManager.HideAll();
-        }
-        #endregion
 
-        #region Show method used for spawning range tiles
-        void Show(ObjectId id, RangeMap tileOffsets, Vector3 origin, GameObject tileRef, Transform parent, bool forceOverwrite = false)
-        {
-            bool tilesExist = m_rangeTileManager.DoTilesExist(id);
-
-            if(forceOverwrite && tilesExist) 
-            {
-                m_rangeTileManager.DespawnTiles(id);
-            }
-
-            // If tiles never existed, make new tiles
-            if (!m_rangeTileManager.DoTilesExist(id))
-            {
-                Vector3Int originCoord = m_map.LocalToCell(origin);
-                // This is for showing/creating range tiles.
-                foreach (Vector3Int p in tileOffsets?.OffsetsFromOrigin)
-                {
-                    Vector3 offsetPos = m_map.GetCellCenterLocal(originCoord + p);
-                    m_rangeTileManager.SpawnTile(id, tileRef, offsetPos, parent);
-                }
-            }
-
-            m_rangeTileManager.ShowTile(id);          
-
-        }
-        #endregion
-
-        #region Show/ToggleRangeMap variants:
-
-        public void ShowRangeMap(
-            ObjectId id,
-            CharacterClassType tileClass,
-            Vector3 origin,
-            Transform parent,
-            bool toggle = false)
-        {
-            RangeMap rangeMap = m_rangeDsplayMasks.GetClassRangeMap(tileClass);
-            m_currentPromptRange = rangeMap;
-            if (toggle) 
-            {
-                ToggleDisplay(id,
-                    origin,
-                    rangeMap,
-                    m_moveRangeTile,
-                    parent);
-            }
-            else 
-            {
-                ShowDisplay(id,
-                    origin,
-                    rangeMap,
-                    m_moveRangeTile,
-                    parent);
-            }
-        }
-
-        public void ShowSkillTargetOption(
-            ObjectId id, 
-            string skillRangeId, 
-            Vector3 origin, 
-            int targetLimit, 
-            Transform parent)
-        {
-            SetCurrentPromptState(CommandTypes.SKILL_ACTIVATE);
-
-            RangeMap rangeMap = m_rangeDsplayMasks.GetSkillRangeMap(skillRangeId);
-
-            ObjectId skillRangeTileId = new ObjectId(id.FactionId, id.UnitId, m_currentPrompt);
-            ShowDisplay(skillRangeTileId, origin, rangeMap, m_skillRangeTile, parent, forceNew: true);
-            m_skillTargetManager.SetTargetInfo(targetLimit);
-        }
-
-        public void ShowRangeMapPreview(
-            ObjectId id,
-            CharacterClassType tileClass,
-            Vector3 origin,
-            Transform parent,
-            bool toggle = false)
-        {
-            RangeMap rangeMap = m_rangeDsplayMasks.GetClassRangeMap(tileClass);
-
-            if (toggle)
-            {
-                ToggleDisplay(id,
-                    origin,
-                    rangeMap,
-                    m_previewRangeTile,
-                    parent);
-            }
-            else
-            {
-                ShowDisplay(id,
-                    origin,
-                    rangeMap,
-                    m_previewRangeTile,
-                    parent);
-            }
-        }
-
-        #endregion
-
-        #region Utility for Show/ToggleRangeMap
-        void ShowDisplay(ObjectId id,
-            Vector3 origin,
-            RangeMap rangeMap,
-            GameObject tileRef,
-            Transform parent,
-            bool forceNew = false) 
-        {
-            if (id == null)
-            {
-                return;
-            }
-
-            m_currentPromptRange = rangeMap;
-            m_rangeTileManager.HideAll();
-
-            Show(id, rangeMap, origin, tileRef, parent, forceNew);
-        }
-
-        // true - Display is now active
-        // false - Display is now not active
-        bool ToggleDisplay(
-            ObjectId id, 
-            Vector3 origin, 
-            RangeMap rangeMap,
-            GameObject tileRef,
-            Transform parent) 
-        {
-            if (id == null)
-            {
-                return false;
-            }
-            bool tilesActive = m_rangeTileManager.AreTilesActive(id);
-            if (tilesActive)
-            {
-                HidePrompt(id);
-                return !tilesActive;
-            }
-            m_rangeTileManager.HideAll();
-
-            Show(id, rangeMap, origin, tileRef, parent);
-            return true;
-        }
-        #endregion
-
-        void SetCurrentPromptState(CommandTypes newPromptState) 
-        { 
-            if(m_currentPrompt != CommandTypes.NONE && m_currentPrompt != newPromptState) 
-            {
-                CommandRequest command = new CommandRequest(m_currentPrompt);
-                CommandRequestInfo info = new CommandRequestInfo(m_currentActiveTileId, command);
-                OnPromptCancel?.TriggerEvent(info);
-            }
-
-            m_currentPrompt = newPromptState;
-        }
-
-        // Used to trigger skill activation when player clicks CONFIRM button and targets are sufficient & valid.
-        void OnSkillTargetsConfirmed(HashSet<Vector3> targets) 
-        {
-            m_latestTileEventInfo.Payload["Target"] = targets;
-            CancelAll();
-            OnSkillConfirmed?.TriggerEvent(m_latestTileEventInfo);
-        }
     }
 
 }

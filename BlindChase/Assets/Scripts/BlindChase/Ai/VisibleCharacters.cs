@@ -6,7 +6,7 @@ using BlindChase.Utility;
 namespace BlindChase.Ai
 {
     // Contains all character states detected by Npc
-    public struct VisibleCharacters
+    public class VisibleCharacters
     {
         public List<CharacterState> VisibleAllies { get; private set; }
         public List<CharacterState> VisibleEnemies { get; private set; }

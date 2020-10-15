@@ -7,7 +7,6 @@ using BlindChase.Utility;
 
 namespace BlindChase.Ai
 {
-
     public class NpcTaskPlanner
     {
         public event OnPlayerCommand<CommandRequestInfo> OnNPCTaskPlanned = default;

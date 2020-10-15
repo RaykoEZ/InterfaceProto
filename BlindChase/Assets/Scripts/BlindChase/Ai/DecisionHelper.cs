@@ -31,6 +31,9 @@ namespace BlindChase.Ai
             // Find out the best skills to use/ whether we use any skills
             foreach (IdLevelPair skillLevel in m_targetStateRef.Character.SkillLevels)
             {
+                SkillParameters skillParam = SkillManager.GetSkillParameters(skillLevel.Id, skillLevel.Level);
+                int targetLimit = skillParam.TargetLimit;
+
                 List<Vector3Int> targets = TargetSelection(skillLevel);
                 CommandResult skillResult = TryCommand(skillLevel.Id, skillLevel.Level, m_baseContext, targets, m_targetStateRef.ObjectId);
 
@@ -46,6 +49,7 @@ namespace BlindChase.Ai
             int targetLimit = skillParam.TargetLimit;
             RangeMap range = m_rangeMapDatabaseRef.GetSkillRangeMap(skillRangeId);
             VisibleCharacters targets = VisibleCharacters.GetVisibleCharacters(m_baseContext, m_targetStateRef, range);
+
             // IMPL
             return new List<Vector3Int>();
         }

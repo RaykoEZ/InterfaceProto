@@ -5,6 +5,7 @@
         "Text": "Deal small damage to an adjacent target.",
         "Image": "Test0",
         "MaxSkillLevel": 2,
+        "AllowedTargets" : "Enemy",
         "ValueCollection" : 
         {
             "AttributeId" : 
@@ -55,6 +56,7 @@
         "Text": "Heal small amount of HP to an self.",
         "Image": "Test0",
         "MaxSkillLevel": 3,
+        "AllowedTargets" : "Ally",
         "ValueCollection" :       
         {
             "AttributeId" : 

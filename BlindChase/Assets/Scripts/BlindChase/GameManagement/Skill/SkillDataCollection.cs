@@ -1,8 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace BlindChase.GameManagement
 {
+    // Specify which entities are targetable by this skill.
+    [Flags]
+    [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+    public enum AllowedTarget 
+    { 
+        Position = 1 << 0,
+        Enemy = 1 << 1,
+        Ally = 1 << 2,
+        None = 0,
+        Any = ~None
+    }
+
+
     // Skill data for all skill levels
     [Serializable]
     public struct SkillDataCollection 
@@ -10,9 +24,9 @@ namespace BlindChase.GameManagement
         public string Name { get; set; }
         public string Text { get; set; }
         public string Image { get; set; }
-        public string SkillIcon { get; set; }
-
+        public string SkillIcon { get; set; }      
         public int MaxSkillLevel { get; set; }
+        public AllowedTarget AllowedTargets { get; set; }
 
         // Each item defines the skill definition. 
         public SkillValueCollection ValueCollection { get; set; }

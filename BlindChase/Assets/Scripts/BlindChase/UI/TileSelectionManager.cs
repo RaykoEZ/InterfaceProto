@@ -4,7 +4,7 @@ using UnityEngine.Tilemaps;
 using BlindChase.Events;
 using BlindChase.GameManagement;
 
-namespace BlindChase.Ui 
+namespace BlindChase.UI 
 {
 
     public class TileSelectionManager : MonoBehaviour
@@ -102,6 +102,8 @@ namespace BlindChase.Ui
 
             HighlightTileInternal(gridWorldPos, gridCoord);
         }
+
+
 
     }
 }

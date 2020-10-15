@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using BlindChase.State;
-using BlindChase.Ui;
+using BlindChase.UI;
 using BlindChase.Events;
 
 namespace BlindChase.GameManagement
@@ -112,9 +112,6 @@ namespace BlindChase.GameManagement
                 m_waitingCharacters.ExceptWith(toRemove);
             }
         }
-
-
-
     }
 
 }

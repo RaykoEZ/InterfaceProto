@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using BlindChase;
 
-namespace BlindChase.Ui
+namespace BlindChase.UI
 {
     [RequireComponent(typeof(Animator))]
     public class UIBehaviour : MonoBehaviour

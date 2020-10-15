@@ -4,7 +4,7 @@ using UnityEngine;
 using BlindChase.Ai;
 using BlindChase.Events;
 using BlindChase.State;
-using BlindChase.Ui;
+using BlindChase.UI;
 
 namespace BlindChase.GameManagement
 {
@@ -27,7 +27,7 @@ namespace BlindChase.GameManagement
         public delegate void OnCommandFinished();
         public event OnCommandFinished OnCommandFinish = default;
 
-        [SerializeField] PromptHandler m_rangeDisplay = default;
+        [SerializeField] PromptHandler m_prompter = default;
 
         [SerializeField] BCGameEventTrigger OnCharacterDefeated = default;
         [SerializeField] BCGameEventTrigger OnLeaderDefeated = default;
@@ -128,11 +128,10 @@ namespace BlindChase.GameManagement
             string rangeId = skillData.EffectRange;
             int targetLimit = skillData.TargetLimit;
 
-            Transform parent = m_characterRef.MemberDataContainer[m_currentTargetState.ObjectId].PlayerTransform;
             ObjectId tileId = new ObjectId(
                 m_currentTargetState.ObjectId.FactionId,
                 m_currentTargetState.ObjectId.UnitId);
-            m_rangeDisplay.ShowSkillTargetOption(tileId, rangeId, parent.position, targetLimit, parent);
+            m_prompter.OnSkillPrompt(tileId, rangeId, targetLimit);
         }
 
 
