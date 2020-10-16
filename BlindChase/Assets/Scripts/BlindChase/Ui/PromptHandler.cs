@@ -15,7 +15,6 @@ namespace BlindChase.UI
         [SerializeField] GameObject m_previewRangeTile = default;
 
         [SerializeField] CharacterHUD m_HUD = default;
-        [SerializeField] Tilemap m_map = default;
         [SerializeField] BCGameEventTrigger OnSkillConfirmed = default;
         [SerializeField] BCGameEventTrigger OnPlayerMove = default;
         [SerializeField] BCGameEventTrigger OnPromptCancel = default;
@@ -23,25 +22,30 @@ namespace BlindChase.UI
         [SerializeField] RangeMapDatabase m_rangeDsplayMasks = default;
 
         CharacterContext m_characterContext;
+        WorldContext m_worldContext;
+
         EventInfo m_latestTileEventInfo;
         ObjectId m_currentActiveTileId = default;
         RangeMap m_currentPromptRange;
 
+        int m_currentSkillId = -1;
         int m_targetLimit = 0;
         HashSet<Vector3> m_targets = new HashSet<Vector3>();
 
         CommandTypes m_currentPrompt = CommandTypes.NONE;
 
-        public virtual void Init(CharacterContextFactory c, TurnOrderManager turnOrderManager)
+        public virtual void Init(CharacterContextFactory c, WorldStateContextFactory w, TurnOrderManager turnOrderManager)
         {
             m_display.Init();
 
             turnOrderManager.OnTurnStart += OnActiveTileIdChange;
+
             m_characterContext = c.Context;
             c.OnContextChanged += OnCharacterContextUpdate;
+            m_worldContext = w.Context;
+            w.OnContextChanged += OnWorldContextUpdate;
 
             m_HUD.OnRangeCancel += CancelAllPrompt;
-            m_HUD.OnRangeCancel += TargetsCancelled;
             m_HUD.OnRangeConfirm += TargetsConfirmed;
         }
 
@@ -49,7 +53,6 @@ namespace BlindChase.UI
         {
             m_display.Shutdown();
             m_HUD.OnRangeCancel -= CancelAllPrompt;
-            m_HUD.OnRangeCancel -= TargetsCancelled;
             m_HUD.OnRangeConfirm -= TargetsConfirmed;
         }
 
@@ -62,11 +65,12 @@ namespace BlindChase.UI
         {
             m_characterContext = context;
         }
-
-        public void OnTargetSelected(Vector3 target)
+        void OnWorldContextUpdate(WorldContext context)
         {
-            // Check if the selected destination is valid for the skill.
-            //IMPL
+            m_worldContext = context;
+        }
+        void OnTargetSelected(Vector3 target)
+        {
 
             if (m_targets.Contains(target))
             {
@@ -80,13 +84,12 @@ namespace BlindChase.UI
             m_HUD.SetSkillConfirmation(IsTargetLimitSatisfied());
         }
 
-        public void TargetsConfirmed()
+        void TargetsConfirmed()
         {
             if (m_targets.Count > 0)
             {
                 OnSkillTargetsConfirmed(m_targets);
-                m_targets.Clear();
-                m_targetLimit = 0;
+                CancelAllPrompt();
             }
             else
             {
@@ -94,15 +97,10 @@ namespace BlindChase.UI
             }
         }
         // Used to trigger skill activation when player clicks CONFIRM button and targets are sufficient & valid.
-        public void OnSkillTargetsConfirmed(HashSet<Vector3> targets)
+        void OnSkillTargetsConfirmed(HashSet<Vector3> targets)
         {
             m_latestTileEventInfo.Payload["Target"] = targets;
-            CancelAllPrompt();
             OnSkillConfirmed?.TriggerEvent(m_latestTileEventInfo);
-        }
-        void TargetsCancelled()
-        {
-            m_targets.Clear();
         }
 
         bool IsTargetLimitSatisfied()
@@ -132,13 +130,17 @@ namespace BlindChase.UI
         void CancelAllPrompt()
         {
             SetCurrentPromptState(CommandTypes.NONE);
+            m_targetLimit = 0;
+            m_currentSkillId = -1;
+            m_targets.Clear();
             m_display.HideAll();
         }
 
-        public void OnSkillPrompt(ObjectId id, string skillRangeId, int targetLimit)
+        public void OnSkillPrompt(ObjectId id, int skillId, string skillRangeId, int targetLimit)
         {
-            m_targetLimit = targetLimit;
             SetCurrentPromptState(CommandTypes.SKILL_ACTIVATE);
+            m_currentSkillId = skillId;
+            m_targetLimit = targetLimit;
             Transform parent = m_characterContext.MemberDataContainer[id].PlayerTransform;
             Vector3 origin = parent.position;
             RangeMap rangeMap = m_rangeDsplayMasks.GetSkillRangeMap(skillRangeId);
@@ -217,7 +219,7 @@ namespace BlindChase.UI
             }
 
             Vector3Int origin = m_characterContext.MemberDataContainer[m_currentActiveTileId].PlayerState.Position;
-            Vector3Int destCoord = m_map.WorldToCell(dest);
+            Vector3Int destCoord = m_worldContext.WorldMap.WorldToCell(dest);
             bool isSelectionValid = m_currentPromptRange.IsInRange(origin, destCoord);            
             if (!isSelectionValid) 
             {
@@ -228,41 +230,62 @@ namespace BlindChase.UI
             Vector3 worldPos = m_characterContext.MemberDataContainer[m_currentActiveTileId].PlayerTransform.position;
             tileEventInfo.Payload["Origin"] = worldPos;
 
+            HandleInput(tileEventInfo, dest);
+        }
+
+        void HandleInput(EventInfo info, Vector3 targetPos) 
+        {
             switch (m_currentPrompt)
             {
                 case CommandTypes.ADVANCE:
                     {
                         CancelAllPrompt();
-                        Vector3Int offset = m_map.WorldToCell(dest) - origin;
-                        bool isStationary = offset == Vector3Int.zero;
+                        Vector3Int targetCoord = m_worldContext.WorldMap.WorldToCell(targetPos);
+                        GameContextRecord context = new GameContextRecord(m_worldContext, m_characterContext);
+                        bool isSelectionValid = TargetingValidation.IsDestinationValid(m_currentActiveTileId, targetCoord, context);
                         // If player selects self, cancel the move prompt.
-                        if (isStationary) 
+                        if (isSelectionValid)
                         {
+                            OnPlayerMove?.TriggerEvent(info);
+                            SetCurrentPromptState(CommandTypes.NONE);
+                        }
+                        else
+                        {
+                            Debug.LogWarning("Cannot advance to this location, detected in PromptHandler.");
                             CommandRequest command = new CommandRequest(m_currentPrompt);
                             CommandRequestInfo commandCancelled = new CommandRequestInfo(m_currentActiveTileId, command);
                             OnPromptCancel?.TriggerEvent(commandCancelled);
-                        }
-                        else 
-                        {
-                            OnPlayerMove?.TriggerEvent(tileEventInfo);
-                            SetCurrentPromptState(CommandTypes.NONE);
                         }
                         break;
                     }
                 case CommandTypes.SKILL_ACTIVATE:
                     {
+                        if(m_currentSkillId < 0) 
+                        {
+                            Debug.LogError("SkillId not valid, detected in PromptHandler.");
+                            return;
+                        }
+
+                        // Check if the selected destination is valid for the skill.
                         //IMPL
-                        ObjectId selectedId = tileEventInfo.SourceId;
+                        ObjectId selectedId = info.SourceId;
                         AllowedTarget selectionType = TargetingValidation.GetSelectionType(selectedId, m_currentActiveTileId);
-                        OnTargetSelected(dest);
-                        m_latestTileEventInfo = tileEventInfo;
+                        bool isSelectionValid = TargetingValidation.IsSkillTargetSelectionValid(m_currentSkillId, selectionType);
+                        if (!isSelectionValid) 
+                        {
+                            Debug.LogWarning($"Target selection not valid for Skill [{m_currentSkillId}], detected in PromptHandler.");
+                            return;
+                        }
+
+                        OnTargetSelected(targetPos);
+                        m_latestTileEventInfo = info;
                         break;
                     }
                 default:
                     break;
             }
-
         }
+
         #endregion
 
 

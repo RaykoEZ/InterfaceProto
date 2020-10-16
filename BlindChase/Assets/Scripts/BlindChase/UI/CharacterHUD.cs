@@ -63,13 +63,13 @@ namespace BlindChase.UI
             m_confirmSkill.interactable = value;
         }
 
-        public void CancelOption()
+        public void CancelSkillOption()
         {
             ResetSkillButtons(false);
             m_skillTargetInProgress = false;
             OnRangeCancel?.Invoke();
         }
-        public void ConfirmOption()
+        public void ConfirmSkillOption()
         {
             ResetSkillButtons(false);
             m_skillTargetInProgress = false;
@@ -82,7 +82,7 @@ namespace BlindChase.UI
             m_cancelSkill.interactable = value;
         }
 
-        public void LoadValues(CharacterState characterState)
+        public void LoadCharacterInfo(CharacterState characterState)
         {
             m_characterName.text = characterState.Character.Name;
             m_characterHP.text = $"HP: {characterState.CurrentHP} / {characterState.Character.MaxHP}";

@@ -15,7 +15,6 @@ namespace BlindChase.Ai
         RangeMap m_moveRangeRef;
         NpcParameter m_defaultDetailRef;
         ObjectId m_activeNpcId;
-
         WorldContext m_worldRef;
         CharacterContext m_characterRef;
 
@@ -24,10 +23,10 @@ namespace BlindChase.Ai
             OnNPCTaskPlanned = null;         
         }
 
-        public virtual void Init(SkillManager skillManager) 
+        public virtual void Init() 
         {
             m_rangeMapDatabase = ScriptableObject.CreateInstance<RangeMapDatabase>();
-            m_decsionHelper.Init(m_rangeMapDatabase, skillManager);
+            m_decsionHelper.Init(m_rangeMapDatabase);
         }
 
         public virtual void OnActive(ObjectId activateId, NpcParameter nature, CharacterContext c, WorldContext w) 

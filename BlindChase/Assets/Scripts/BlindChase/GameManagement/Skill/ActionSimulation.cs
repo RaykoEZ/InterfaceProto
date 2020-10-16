@@ -1,28 +1,70 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace BlindChase.GameManagement
 {
     // Used to obtain results for character actions without directly modifying current game state.
     public static class ActionSimulation
     {
-        public static CharacterState DealDamage(int baseValue, ref CharacterState targetState)
+        public static GameContextRecord DealDamage(ObjectId targetd, int baseValue, GameContextRecord context)
         {
+            CharacterContext characters = context.CharacterRecord;
+            WorldContext world = context.WorldRecord;
+
+            CharacterState state = characters.MemberDataContainer[targetd].PlayerState;
+
             Debug.Log("Damage");
-            int netDamage = Mathf.Max(baseValue - targetState.CurrentDefense, 0);
-            targetState.CurrentHP -= netDamage;
+            int netDamage = Mathf.Max(baseValue - state.CurrentDefense, 0);
+            state.CurrentHP -= netDamage;
 
-            return targetState;
+            GameContextRecord newContext = new GameContextRecord(world, characters);
+            return newContext;
         }
 
-
-        public static CharacterState RestoreHP(int baseValue, ref CharacterState targetState)
+        public static GameContextRecord RestoreHP(ObjectId targetd, int baseValue, GameContextRecord context)
         {
+            CharacterContext characters = context.CharacterRecord;
+            WorldContext world = context.WorldRecord;
             Debug.Log($"Healing for {baseValue} HP.");
+            CharacterState state = characters.MemberDataContainer[targetd].PlayerState;
 
-            targetState.CurrentHP = Mathf.Min(targetState.CurrentHP + baseValue, targetState.Character.MaxHP);
+            state.CurrentHP = Mathf.Min(state.CurrentHP + baseValue, state.Character.MaxHP);
+            GameContextRecord newContext = new GameContextRecord(world, characters);
 
-            return targetState;
+            return newContext;
         }
+
+        public static GameContextRecord RestoreSP(ObjectId targetd, int baseValue, GameContextRecord context)
+        {
+            CharacterContext characters = context.CharacterRecord;
+            WorldContext world = context.WorldRecord;
+            Debug.Log($"Recover {baseValue} SP.");
+            CharacterState state = characters.MemberDataContainer[targetd].PlayerState;
+
+            state.CurrentSP = Mathf.Min(state.CurrentSP + baseValue, state.Character.MaxSP);
+            GameContextRecord newContext = new GameContextRecord(world, characters);
+
+            return newContext;
+        }
+
+        public static GameContextRecord SkillCDReduction(ObjectId targetd, int baseValue, List<int> skillIds, GameContextRecord context) 
+        {
+            CharacterContext characters = context.CharacterRecord;
+            WorldContext world = context.WorldRecord;
+            Debug.Log($"Reduce {baseValue} CD.");
+            CharacterState state = characters.MemberDataContainer[targetd].PlayerState;
+
+
+            foreach (int id in skillIds) 
+            {
+                int cd = state.CurrentSkillCooldowns[id];
+                state.CurrentSkillCooldowns[id] = Mathf.Max(0, cd - baseValue);
+            }
+
+            GameContextRecord newContext = new GameContextRecord(world, characters);
+            return newContext;
+        }
+
 
         public static GameContextRecord MoveTo(
             GameContextRecord context,

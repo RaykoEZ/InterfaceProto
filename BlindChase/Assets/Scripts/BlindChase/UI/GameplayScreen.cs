@@ -57,7 +57,7 @@ namespace BlindChase.UI
 
             bool isPreview = id != m_activeCharacterId || !string.IsNullOrEmpty(id.NPCId);
 
-            m_HUD.LoadValues(state);
+            m_HUD.LoadCharacterInfo(state);
 
             m_HUD.LoadSkillData(
                 skillslotData,

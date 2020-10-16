@@ -9,14 +9,12 @@ namespace BlindChase.Ai
 {
     public class DecisionHelper 
     {
-        SkillManager m_skillManagerRef;
         CharacterState m_targetStateRef;
         RangeMapDatabase m_rangeMapDatabaseRef = default;
         GameContextRecord m_baseContext;
-        public void Init(RangeMapDatabase rangeMapDatabase, SkillManager skillManager) 
+        public void Init(RangeMapDatabase rangeMapDatabase) 
         {
             m_rangeMapDatabaseRef = rangeMapDatabase;
-            m_skillManagerRef = skillManager;
         }
 
         public virtual CommandRequest MakeDecision(
@@ -36,7 +34,6 @@ namespace BlindChase.Ai
 
                 List<Vector3Int> targets = TargetSelection(skillLevel);
                 CommandResult skillResult = TryCommand(skillLevel.Id, skillLevel.Level, m_baseContext, targets, m_targetStateRef.ObjectId);
-
             }
 
             return new CommandRequest();
@@ -57,7 +54,7 @@ namespace BlindChase.Ai
 
         CommandResult TryCommand(int skillId, int skillLevel, GameContextRecord context, List<Vector3Int> targets, ObjectId userId) 
         {
-            CommandResult result = m_skillManagerRef.ActivateSkill(skillId, skillLevel, context, targets, userId);
+            CommandResult result = SkillManager.ActivateSkill(skillId, skillLevel, context, targets, userId);
             return result;
         }
         // IMPL

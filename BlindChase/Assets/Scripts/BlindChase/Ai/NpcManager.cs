@@ -18,14 +18,14 @@ namespace BlindChase.Ai
         CharacterContext m_characterRef;
         WorldContext m_worldRef;
 
-        public void Init(CharacterContextFactory c , WorldStateContextFactory w, SkillManager skillManager) 
+        public void Init(CharacterContextFactory c , WorldStateContextFactory w) 
         {
             m_npcDatabase = ScriptableObject.CreateInstance<NpcDatabase>();
 
             c.OnContextChanged += UpdateCharacter;
             w.OnContextChanged += UpdateWorld;
             m_planner.OnNPCTaskPlanned += OnNpcAction;
-            m_planner.Init(skillManager);
+            m_planner.Init();
 
             UpdateCharacter(c.Context);
             UpdateWorld(w.Context);

@@ -9,7 +9,7 @@ namespace BlindChase.GameManagement
         static SkillDatabase m_skillDatabase = default;
         static Dictionary<SkillAttributeId, SkillEffect> m_skillEffectCollection = new Dictionary<SkillAttributeId, SkillEffect>();
 
-        public SkillManager(HashSet<int> skillIds) 
+        public void Init(HashSet<int> skillIds) 
         {
             m_skillDatabase = ScriptableObject.CreateInstance<SkillDatabase>();
 
@@ -27,13 +27,7 @@ namespace BlindChase.GameManagement
             }
         }
 
-        void OnSPConsumption(CharacterState characterState, int skillId, int cooldown, int cost) 
-        {
-            characterState.CurrentSkillCooldowns[skillId] = cooldown;
-            characterState.CurrentSP -= cost;
-        }
-
-        public CommandResult ActivateSkill(int skillId, int skillLevel, GameContextRecord context, List<Vector3Int> targets, ObjectId userId) 
+        public static CommandResult ActivateSkill(int skillId, int skillLevel, GameContextRecord context, List<Vector3Int> targets, ObjectId userId) 
         {
             SkillDataCollection skillDataColllection = m_skillDatabase.GetSkill(skillId);
             int validSkillLevel = GetValidSkillLevel(skillDataColllection.ValueCollection.SkillValues.Count, skillLevel);
@@ -58,13 +52,29 @@ namespace BlindChase.GameManagement
                 // Add all affected characters
                 affectedCharacters.AddRange(newResult.AffectedCharacters);
                 skillResult = newResult;
+
             }
 
             skillResult.AffectedCharacters = affectedCharacters;
             return skillResult;
         }
 
-        public bool CheckSkillPreconditions(CharacterState userState, int skillId, int cost, out string message) 
+        public static CommandResult BasicMovement(GameContextRecord context, Vector3Int targetCoord, ObjectId userId)
+        {
+            SkillEffectArgs args = new SkillEffectArgs(context, targetCoord, userId, null);
+            CommandResult result = ActivateSkill_Internal(SkillAttributeId.BasicMovement, args);
+            return result;
+        }
+
+        public static CommandResult AutoRecovery(GameContextRecord context, ObjectId userId)
+        {
+            Vector3Int coord = context.CharacterRecord.MemberDataContainer[userId].PlayerState.Position;
+            SkillEffectArgs args = new SkillEffectArgs(context, coord, userId, null);
+            CommandResult result = ActivateSkill_Internal(SkillAttributeId.AutoRecovery, args);
+            return result;
+        }
+
+        public static bool CheckSkillPreconditions(CharacterState userState, int skillId, int cost, out string message) 
         {
             message = "";
             if (!userState.CurrentSkillCooldowns.ContainsKey(skillId))
@@ -92,22 +102,13 @@ namespace BlindChase.GameManagement
             return true;
         }
 
-        public CommandResult BasicMovement(GameContextRecord context, Vector3Int targetCoord, ObjectId userId)
+        static void OnSPConsumption(CharacterState characterState, int skillId, int cooldown, int cost)
         {
-            SkillEffectArgs args = new SkillEffectArgs(context, targetCoord, userId, null);
-            CommandResult result = ActivateSkill_Internal(SkillAttributeId.BasicMovement, args);
-            return result;
+            characterState.CurrentSkillCooldowns[skillId] = cooldown;
+            characterState.CurrentSP -= cost;
         }
 
-        public CommandResult AutoRecovery(GameContextRecord context, ObjectId userId)
-        {
-            Vector3Int coord = context.CharacterRecord.MemberDataContainer[userId].PlayerState.Position;
-            SkillEffectArgs args = new SkillEffectArgs(context, coord, userId, null);
-            CommandResult result = ActivateSkill_Internal(SkillAttributeId.AutoRecovery, args);
-            return result;
-        }
-
-        CommandResult ActivateSkill_Internal(SkillAttributeId effectId, SkillEffectArgs arg)  
+        static CommandResult ActivateSkill_Internal(SkillAttributeId effectId, SkillEffectArgs arg)
         {
             CommandResult result = m_skillEffectCollection[effectId].Activate(arg);
             return result;

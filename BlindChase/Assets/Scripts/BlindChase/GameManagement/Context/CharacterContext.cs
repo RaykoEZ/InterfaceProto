@@ -5,16 +5,10 @@ namespace BlindChase.GameManagement
 {
     public class CharacterStateContainer
     {
-        CharacterState m_characterState;
-
         public Transform PlayerTransform { get; private set; }
 
-        public CharacterState PlayerState 
-        { 
-            // Give out a deep copy to prevent premature mutation.
-            get { return new CharacterState(m_characterState); } 
-            private set { m_characterState = value; } 
-        }
+        public CharacterState PlayerState { get; private set; } 
+        
 
         public CharacterStateContainer(Transform transform, CharacterState state) 
         {
