@@ -27,35 +27,41 @@ namespace BlindChase.GameManagement
             }
         }
 
+        // For multiple-target skills
         public static CommandResult ActivateSkill(int skillId, int skillLevel, GameContextRecord context, List<Vector3Int> targets, ObjectId userId) 
         {
             SkillDataCollection skillDataColllection = m_skillDatabase.GetSkill(skillId);
             int validSkillLevel = GetValidSkillLevel(skillDataColllection.ValueCollection.SkillValues.Count, skillLevel);
-
             CharacterState userState = context.CharacterRecord.MemberDataContainer[userId].PlayerState;
-            // Set skill cooldown.
-            int cooldown = skillDataColllection.ValueCollection.SkillValues[validSkillLevel].Cooldown;
-            // Deduct SP
-            int skillCost = skillDataColllection.ValueCollection.SkillValues[validSkillLevel].SkillCost;
-
-            OnSPConsumption(userState, skillId, cooldown, skillCost);
+            OnSPConsumption(skillId, validSkillLevel, skillDataColllection, userState);
 
             SkillParameters skillData = skillDataColllection.ValueCollection.SkillValues[validSkillLevel];
-            GameContextRecord contextCollection = context;
             List<CharacterState> affectedCharacters = new List<CharacterState>();
             CommandResult skillResult = new CommandResult();
-
             foreach (Vector3Int targetCoord in targets) 
             {
-                SkillEffectArgs args = new SkillEffectArgs(contextCollection, targetCoord, userId, skillData);
+                SkillEffectArgs args = new SkillEffectArgs(context, targetCoord, userId, skillData);
                 CommandResult newResult = ActivateSkill_Internal(skillDataColllection.ValueCollection.AttributeId, args);
                 // Add all affected characters
                 affectedCharacters.AddRange(newResult.AffectedCharacters);
                 skillResult = newResult;
-
             }
 
             skillResult.AffectedCharacters = affectedCharacters;
+            return skillResult;
+        }
+
+        // Single target skill
+        public static CommandResult ActivateSkill(int skillId, int skillLevel, GameContextRecord context, Vector3Int target, ObjectId userId)
+        {
+            SkillDataCollection skillDataColllection = m_skillDatabase.GetSkill(skillId);
+            int validSkillLevel = GetValidSkillLevel(skillDataColllection.ValueCollection.SkillValues.Count, skillLevel);
+            CharacterState userState = context.CharacterRecord.MemberDataContainer[userId].PlayerState;
+            OnSPConsumption(skillId, validSkillLevel, skillDataColllection, userState);
+
+            SkillParameters skillData = skillDataColllection.ValueCollection.SkillValues[validSkillLevel];
+            SkillEffectArgs args = new SkillEffectArgs(context, target, userId, skillData);
+            CommandResult skillResult = ActivateSkill_Internal(skillDataColllection.ValueCollection.AttributeId, args);        
             return skillResult;
         }
 
@@ -102,10 +108,15 @@ namespace BlindChase.GameManagement
             return true;
         }
 
-        static void OnSPConsumption(CharacterState characterState, int skillId, int cooldown, int cost)
+        static void OnSPConsumption(int skillId, int skillLevel, SkillDataCollection skillDataColllection, CharacterState userState)
         {
-            characterState.CurrentSkillCooldowns[skillId] = cooldown;
-            characterState.CurrentSP -= cost;
+            // Set skill cooldown.
+            int cooldown = skillDataColllection.ValueCollection.SkillValues[skillLevel].Cooldown;
+            // Deduct SP
+            int skillCost = skillDataColllection.ValueCollection.SkillValues[skillLevel].SkillCost;
+
+            userState.CurrentSkillCooldowns[skillId] = cooldown;
+            userState.CurrentSP -= skillCost;
         }
 
         static CommandResult ActivateSkill_Internal(SkillAttributeId effectId, SkillEffectArgs arg)

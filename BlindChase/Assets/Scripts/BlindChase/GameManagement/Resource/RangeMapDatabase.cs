@@ -16,13 +16,24 @@ namespace BlindChase.GameManagement
         {
             public List<Vector3Int> OffsetsFromOrigin = default;
 
+            [JsonConstructor]
+            public RangeMap_Internal(List<Vector3Int> offsets)
+            {
+                OffsetsFromOrigin = offsets;
+            }
+
+            public RangeMap_Internal(RangeMap map) 
+            {
+                OffsetsFromOrigin = new List<Vector3Int>(map.OffsetsFromOrigin);
+            }
+
             public RangeMap ToExternal() 
             {
                 return new RangeMap(OffsetsFromOrigin);
             } 
         }
 
-        [SerializeField] List<RangeMap> m_squareRadiusRangeMaps = new List<RangeMap>();
+        [SerializeField] List<RangeMap_Internal> m_squareRadiusRangeMaps = new List<RangeMap_Internal>();
         
         Dictionary<string, RangeMap> m_skillRangeMaps;
         Dictionary<CharacterClassType, RangeMap> m_characterClassesRangeMaps;
@@ -83,7 +94,7 @@ namespace BlindChase.GameManagement
                 return null;
             }
 
-            return m_squareRadiusRangeMaps[range];
+            return m_squareRadiusRangeMaps[range].ToExternal();
 
         }
 
@@ -92,7 +103,7 @@ namespace BlindChase.GameManagement
             m_squareRadiusRangeMaps.Clear();
             for (int i = 0; i< maxRange + 1; ++i) 
             {
-                RangeMap mask = NeighbourhoodUtil.GetNeighbourRangeMap(i);
+                RangeMap_Internal mask = new RangeMap_Internal(NeighbourhoodUtil.GetNeighbourRangeMap(i));
                 m_squareRadiusRangeMaps.Add(mask);
             }
         }

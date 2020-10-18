@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using BlindChase;
 
 namespace BlindChase.Utility
 {

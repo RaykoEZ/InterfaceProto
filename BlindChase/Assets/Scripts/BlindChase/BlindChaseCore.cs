@@ -22,6 +22,7 @@ namespace BlindChase
         [SerializeField] CharacterManager m_characterTileManager = default;
         [SerializeField] CommandEventHandler m_commandEventHandler = default;
         [SerializeField] TurnOrderManager m_turnOrderManager = default;
+        [SerializeField] RangeMapDatabase m_rangeDatabase = default;
 
         WorldStateContextFactory m_worldStateContextFactory = new WorldStateContextFactory();
         CharacterContextFactory m_characterContextFactory = new CharacterContextFactory();
@@ -63,7 +64,7 @@ namespace BlindChase
             // Load all possible skills the deployed characters have into the skill manager.
             m_skillManager.Init(skillIds);
 
-            m_npcManager.Init(m_characterContextFactory, m_worldStateContextFactory);
+            m_npcManager.Init(m_characterContextFactory, m_worldStateContextFactory, m_rangeDatabase);
 
             m_tileSelector.Init(m_worldStateContextFactory, m_characterContextFactory, m_turnOrderManager);
             m_gameplayScreen.Init(m_turnOrderManager, m_characterContextFactory);

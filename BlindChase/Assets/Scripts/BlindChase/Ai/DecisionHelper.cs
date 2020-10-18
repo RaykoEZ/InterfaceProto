@@ -9,71 +9,134 @@ namespace BlindChase.Ai
 {
     public class DecisionHelper 
     {
-        CharacterState m_targetStateRef;
-        RangeMapDatabase m_rangeMapDatabaseRef = default;
+        CharacterState m_controllingStateRef;
         GameContextRecord m_baseContext;
-        public void Init(RangeMapDatabase rangeMapDatabase) 
+        RangeMap m_movementRangeRef;
+        RangeMap m_visionRangeRef;
+
+        Dictionary<int, RangeMap> m_skillRangesRef;
+
+        public void Setup(
+            RangeMap movementRange,
+            RangeMap vision, 
+            Dictionary<int, RangeMap> skillRange, 
+            CharacterState npcState, 
+            GameContextRecord record) 
         {
-            m_rangeMapDatabaseRef = rangeMapDatabase;
+            m_movementRangeRef = movementRange;
+            m_visionRangeRef = vision;
+            m_skillRangesRef = skillRange;
+            m_controllingStateRef = npcState;
+            m_baseContext = record;
         }
 
-        public virtual CommandRequest MakeDecision(
-            NpcParameter priorityDetail,
-            CharacterState npcState,
-            RangeMap movementRange,
-            GameContextRecord context) 
+        public virtual CommandRequest MakeDecision(NpcParameter priorityDetail) 
         {
-            m_targetStateRef = npcState;
-            m_baseContext = context;
-            List<NpcCommandResult> skillResults = new List<NpcCommandResult>();
-            // Find out the best skills to use/ whether we use any skills
-            foreach (IdLevelPair skillLevel in m_targetStateRef.Character.SkillLevels)
+            WorldContext world = m_baseContext.WorldRecord;
+            List<CommandResult> possibleSkills = GetSkillOptions(priorityDetail, world);
+
+            CommandRequest bestCommand = AssessCommandOptions(priorityDetail, possibleSkills);
+            return bestCommand;
+        }
+
+        List<CommandResult> GetSkillOptions(NpcParameter priorityDetail, WorldContext world) 
+        {
+            List<CommandResult> possibleResults = new List<CommandResult>();
+
+            foreach (IdLevelPair skillLevel in m_controllingStateRef.Character.SkillLevels)
             {
                 SkillParameters skillParam = SkillManager.GetSkillParameters(skillLevel.Id, skillLevel.Level);
-                int targetLimit = skillParam.TargetLimit;
+                bool preConditionsMet = SkillManager.CheckSkillPreconditions(m_controllingStateRef, skillLevel.Id, skillParam.SkillCost, out string message);
+                if (preConditionsMet)
+                {
+                    List<Vector3Int> possibleTargets = GetSkillTargets(skillLevel.Id, m_skillRangesRef[skillLevel.Id], world);
+                    int targetLimit = skillParam.TargetLimit;
 
-                List<Vector3Int> targets = TargetSelection(skillLevel);
-                CommandResult skillResult = TryCommand(skillLevel.Id, skillLevel.Level, m_baseContext, targets, m_targetStateRef.ObjectId);
+                    CommandResult result = TryCommand(
+                        priorityDetail,
+                        skillLevel,
+                        targetLimit,
+                        m_baseContext,
+                        possibleTargets,
+                        m_controllingStateRef.ObjectId);
+
+                    possibleResults.Add(result);
+                }
             }
 
-            return new CommandRequest();
+            return possibleResults;
         }
 
-        List<Vector3Int> TargetSelection(IdLevelPair skillLevel) 
-        {
-            SkillParameters skillParam = SkillManager.GetSkillParameters(skillLevel.Id, skillLevel.Level);
-            string skillRangeId = skillParam.EffectRange;
-            int targetLimit = skillParam.TargetLimit;
-            RangeMap range = m_rangeMapDatabaseRef.GetSkillRangeMap(skillRangeId);
-            VisibleCharacters targets = VisibleCharacters.GetVisibleCharacters(m_baseContext, m_targetStateRef, range);
 
-            // IMPL
-            return new List<Vector3Int>();
+        // Get all valid targets for a command.
+        List<Vector3Int> GetSkillTargets(int skillId, RangeMap range, WorldContext world) 
+        {
+            List<Vector3Int> allTargets = range.ApplyRangeOffsets(m_controllingStateRef.Position);
+            List<Vector3Int> toRemove = new List<Vector3Int>();
+            // Check and remove any invalid targets.
+            foreach (Vector3Int targetPos in allTargets) 
+            {
+                ObjectId target = world.GetOccupyingTileAt(targetPos);
+                AllowedTarget targetRule = TargetingValidation.GetSelectionType(target, m_controllingStateRef.ObjectId);
+                bool isValid = TargetingValidation.IsSkillTargetSelectionValid(skillId, targetRule);
+                if (!isValid) 
+                {
+                    toRemove.Add(targetPos);
+                }
+            }
+
+            foreach(Vector3Int removeThis in toRemove) 
+            {
+                allTargets.Remove(removeThis);
+            }
+            
+            return allTargets;
         }
-        // IMPL
 
-        CommandResult TryCommand(int skillId, int skillLevel, GameContextRecord context, List<Vector3Int> targets, ObjectId userId) 
+        // Get all possible results of using a command and return the best one.
+        CommandResult TryCommand(NpcParameter priorityDetail, IdLevelPair kvp, int targetLimit, GameContextRecord context, List<Vector3Int> targets, ObjectId userId) 
         {
-            CommandResult result = SkillManager.ActivateSkill(skillId, skillLevel, context, targets, userId);
+            CommandResult result;
+            if (targetLimit > 1) 
+            {
+                result = SkillManager.ActivateSkill(kvp.Id, kvp.Level, context, targets, userId);
+            }
+            else 
+            {
+                List<CommandResult> allResults = new List<CommandResult>(targets.Count);
+                foreach(Vector3Int target in targets) 
+                {
+                    CommandResult triedResult = SkillManager.ActivateSkill(kvp.Id, kvp.Level, context, target, userId);
+                    allResults.Add(triedResult);
+                }
+
+                result = AssessResults(priorityDetail, allResults);
+            }
+
             return result;
         }
-        // IMPL
 
-        CommandResult AssessTargetOptions(NpcParameter priorityDetail, List<CommandResult> results)
+        // Assess each possible results in a command's options, and pick the best one.
+        CommandResult AssessResults(NpcParameter priorityDetail, List<CommandResult> results)
         {
+            List<NpcParameter> newParamCollection = new List<NpcParameter>(results.Count);
+            foreach(CommandResult option in results)
+            {
+                CharacterState newState = option.ResulContext.CharacterRecord.MemberDataContainer[m_controllingStateRef.ObjectId].PlayerState;
+                NpcParameter newParam = NpcParameter.CalculateNewParameter(priorityDetail, m_visionRangeRef, option.ResulContext, newState);
+                newParamCollection.Add(newParam);
+            }
+
+
+
             return new CommandResult();
         }
-        // IMPL
 
-        CommandRequest AssessCommand(NpcParameter npcParam, List<NpcCommandResult> results) 
+        // Assess each command's best result, and pick the best.
+        CommandRequest AssessCommandOptions(NpcParameter priorityDetail, List<CommandResult> results)
         {
-
             return new CommandRequest();
         }
-
-        
 
     }
 }
-
-

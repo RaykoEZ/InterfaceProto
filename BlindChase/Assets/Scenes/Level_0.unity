@@ -2190,6 +2190,7 @@ MonoBehaviour:
   m_characterTileManager: {fileID: 1968933273}
   m_commandEventHandler: {fileID: 563746927}
   m_turnOrderManager: {fileID: 4355254675385128722}
+  m_rangeDatabase: {fileID: 11400000, guid: 9f17d9c943f2ab4448018857d40b0c8b, type: 2}
 --- !u!114 &808719387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2239,8 +2240,6 @@ MonoBehaviour:
     m_eventToTrigger: {fileID: 11400000, guid: 71508a6f75a3b244f9eaf2d3484f41e6, type: 2}
   OnSkillActivated:
     m_eventToTrigger: {fileID: 11400000, guid: 6e680b7c8e2fa4a45a6d4867a7eac77e, type: 2}
-  OnCommandFail:
-    m_eventToTrigger: {fileID: 11400000, guid: 81eebfa6c334dcf42bff72bb1263d6c4, type: 2}
 --- !u!1 &951375799
 GameObject:
   m_ObjectHideFlags: 0
@@ -2731,7 +2730,6 @@ MonoBehaviour:
   m_previewRangeTile: {fileID: 7131817049847162997, guid: 70683773364c4d24c9187bab5f2b81e7,
     type: 3}
   m_HUD: {fileID: 4534060085320391304}
-  m_map: {fileID: 318491036}
   OnSkillConfirmed:
     m_eventToTrigger: {fileID: 11400000, guid: 4c072b4e2aad6264bb79b94346baa62b, type: 2}
   OnPlayerMove:
