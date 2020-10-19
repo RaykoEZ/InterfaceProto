@@ -2,13 +2,13 @@
 
 namespace BlindChase.GameManagement
 {
-    public struct CommandResult
+    public struct SimulationResult
     {
         public string Message;
         public GameContextRecord ResulContext;
         public List<CharacterState> AffectedCharacters;
 
-        public CommandResult(string message, GameContextRecord result, List<CharacterState> affected) 
+        public SimulationResult(string message, GameContextRecord result, List<CharacterState> affected) 
         {
             Message = message;
             ResulContext = result;

@@ -40,7 +40,7 @@ namespace BlindChase.Ai
         public void OnNPCActive(ObjectId id) 
         {
             string faction = id.FactionId;
-            NpcParameter factionNature = m_npcDatabase.GetNpcNature(faction);
+            DecisionParameter factionNature = m_npcDatabase.GetNpcNature(faction);
 
             if(factionNature == null) 
             {

@@ -24,7 +24,7 @@ namespace BlindChase.GameManagement
         Stack<DelayedEffect> m_onTurnStartEffects { get; set; } = new Stack<DelayedEffect>();
         Stack<DelayedEffect> m_onTurnEndEffects { get; set; } = new Stack<DelayedEffect>();
 
-        public delegate void OnEffectActivated(CommandResult effectResult);
+        public delegate void OnEffectActivated(SimulationResult effectResult);
 
         public event OnEffectActivated OnDelayedEffectActivate = default;
 
@@ -54,7 +54,7 @@ namespace BlindChase.GameManagement
 
                 if (delayedEffect.Delay < 0)
                 {
-                    CommandResult result = delayedEffect.Effect.Activate(delayedEffect.Args);
+                    SimulationResult result = delayedEffect.Effect.Activate(delayedEffect.Args);
                     OnDelayedEffectActivate?.Invoke(result);
                     effectStack.Pop();
                 }

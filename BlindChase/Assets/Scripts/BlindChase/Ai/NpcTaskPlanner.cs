@@ -14,7 +14,7 @@ namespace BlindChase.Ai
         RangeMapDatabase m_rangeMapDatabaseRef = default;
         RangeMap m_moveRangeRef;
         RangeMap m_visionRangeRef;
-        NpcParameter m_defaultDetailRef;
+        DecisionParameter m_defaultDetailRef;
         ObjectId m_activeNpcId;
         WorldContext m_worldRef;
         CharacterContext m_characterRef;
@@ -29,7 +29,7 @@ namespace BlindChase.Ai
             m_rangeMapDatabaseRef = rangeDatatbaseRef;
         }
 
-        public virtual void OnActive(ObjectId activateId, NpcParameter nature, CharacterContext c, WorldContext w) 
+        public virtual void OnActive(ObjectId activateId, DecisionParameter nature, CharacterContext c, WorldContext w) 
         {
             m_defaultDetailRef = nature;
             m_activeNpcId = activateId;
@@ -58,8 +58,9 @@ namespace BlindChase.Ai
         protected virtual CommandRequestInfo Plan(CharacterState self, GameContextRecord record)
         {
             // Get current goal priority wieghts
-            NpcParameter currentPriorities = NpcParameter.CalculateNewParameter(m_defaultDetailRef, m_visionRangeRef, record, self);
+            DecisionParameter currentPriorities = DecisionParameter.CalculateNewParameter(m_defaultDetailRef, m_visionRangeRef,m_moveRangeRef, record, self);
             CommandRequest decision = CommandDecision(currentPriorities);
+
             CommandRequestInfo result = new CommandRequestInfo(m_activeNpcId, decision);
 
             return result;
@@ -67,9 +68,10 @@ namespace BlindChase.Ai
 
         // IMPL
         CommandRequest CommandDecision(
-            NpcParameter priorityDetail) 
+            DecisionParameter priorityDetail) 
         {
-            return m_decsionHelper.MakeDecision(priorityDetail);
+            CommandRequest desicion = m_decsionHelper.MakeDecision(priorityDetail);
+            return desicion;
         }
 
         void OnTaskPlanned(CommandRequestInfo info) 

@@ -6,7 +6,7 @@ namespace BlindChase.GameManagement
 {
     public partial class SkillEffect
     {
-        protected Func<SkillEffectArgs, CommandResult> m_effectMethod { get; set; }
+        protected Func<SkillEffectArgs, SimulationResult> m_effectMethod { get; set; }
 
         public SkillEffect(SkillAttributeId id)
         {
@@ -14,13 +14,13 @@ namespace BlindChase.GameManagement
             // Using reflection to store a delegate of the defined utility method.
             MethodInfo methodInfo = utility.GetMethod(id.EffectName);
             m_effectMethod = 
-                (Func<SkillEffectArgs, CommandResult>) 
-                methodInfo?.CreateDelegate(typeof(Func<SkillEffectArgs, CommandResult>));    
+                (Func<SkillEffectArgs, SimulationResult>) 
+                methodInfo?.CreateDelegate(typeof(Func<SkillEffectArgs, SimulationResult>));    
         }
 
-        public virtual CommandResult Activate(SkillEffectArgs skillValues) 
+        public virtual SimulationResult Activate(SkillEffectArgs skillValues) 
         {
-            CommandResult result = m_effectMethod(skillValues);
+            SimulationResult result = m_effectMethod(skillValues);
 
             return result;
         }

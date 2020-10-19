@@ -28,20 +28,20 @@ namespace BlindChase.GameManagement
         }
 
         // For multiple-target skills
-        public static CommandResult ActivateSkill(int skillId, int skillLevel, GameContextRecord context, List<Vector3Int> targets, ObjectId userId) 
+        public static SimulationResult ActivateSkill(int skillId, int skillLevel, GameContextRecord context, List<Vector3Int> targets, ObjectId userId) 
         {
             SkillDataCollection skillDataColllection = m_skillDatabase.GetSkill(skillId);
             int validSkillLevel = GetValidSkillLevel(skillDataColllection.ValueCollection.SkillValues.Count, skillLevel);
             CharacterState userState = context.CharacterRecord.MemberDataContainer[userId].PlayerState;
-            OnSPConsumption(skillId, validSkillLevel, skillDataColllection, userState);
+            OnSPConsumption(skillDataColllection, skillId, validSkillLevel, userState);
 
             SkillParameters skillData = skillDataColllection.ValueCollection.SkillValues[validSkillLevel];
             List<CharacterState> affectedCharacters = new List<CharacterState>();
-            CommandResult skillResult = new CommandResult();
+            SimulationResult skillResult = new SimulationResult();
             foreach (Vector3Int targetCoord in targets) 
             {
                 SkillEffectArgs args = new SkillEffectArgs(context, targetCoord, userId, skillData);
-                CommandResult newResult = ActivateSkill_Internal(skillDataColllection.ValueCollection.AttributeId, args);
+                SimulationResult newResult = ActivateSkill_Internal(skillDataColllection.ValueCollection.AttributeId, args);
                 // Add all affected characters
                 affectedCharacters.AddRange(newResult.AffectedCharacters);
                 skillResult = newResult;
@@ -52,31 +52,31 @@ namespace BlindChase.GameManagement
         }
 
         // Single target skill
-        public static CommandResult ActivateSkill(int skillId, int skillLevel, GameContextRecord context, Vector3Int target, ObjectId userId)
+        public static SimulationResult ActivateSkill(int skillId, int skillLevel, GameContextRecord context, Vector3Int target, ObjectId userId)
         {
             SkillDataCollection skillDataColllection = m_skillDatabase.GetSkill(skillId);
             int validSkillLevel = GetValidSkillLevel(skillDataColllection.ValueCollection.SkillValues.Count, skillLevel);
             CharacterState userState = context.CharacterRecord.MemberDataContainer[userId].PlayerState;
-            OnSPConsumption(skillId, validSkillLevel, skillDataColllection, userState);
+            OnSPConsumption(skillDataColllection, skillId, validSkillLevel, userState);
 
             SkillParameters skillData = skillDataColllection.ValueCollection.SkillValues[validSkillLevel];
             SkillEffectArgs args = new SkillEffectArgs(context, target, userId, skillData);
-            CommandResult skillResult = ActivateSkill_Internal(skillDataColllection.ValueCollection.AttributeId, args);        
+            SimulationResult skillResult = ActivateSkill_Internal(skillDataColllection.ValueCollection.AttributeId, args);        
             return skillResult;
         }
 
-        public static CommandResult BasicMovement(GameContextRecord context, Vector3Int targetCoord, ObjectId userId)
+        public static SimulationResult BasicMovement(GameContextRecord context, Vector3Int targetCoord, ObjectId userId)
         {
             SkillEffectArgs args = new SkillEffectArgs(context, targetCoord, userId, null);
-            CommandResult result = ActivateSkill_Internal(SkillAttributeId.BasicMovement, args);
+            SimulationResult result = ActivateSkill_Internal(SkillAttributeId.BasicMovement, args);
             return result;
         }
 
-        public static CommandResult AutoRecovery(GameContextRecord context, ObjectId userId)
+        public static SimulationResult AutoRecovery(GameContextRecord context, ObjectId userId)
         {
             Vector3Int coord = context.CharacterRecord.MemberDataContainer[userId].PlayerState.Position;
             SkillEffectArgs args = new SkillEffectArgs(context, coord, userId, null);
-            CommandResult result = ActivateSkill_Internal(SkillAttributeId.AutoRecovery, args);
+            SimulationResult result = ActivateSkill_Internal(SkillAttributeId.AutoRecovery, args);
             return result;
         }
 
@@ -108,7 +108,7 @@ namespace BlindChase.GameManagement
             return true;
         }
 
-        static void OnSPConsumption(int skillId, int skillLevel, SkillDataCollection skillDataColllection, CharacterState userState)
+        static void OnSPConsumption(in SkillDataCollection skillDataColllection, int skillId, int skillLevel, CharacterState userState)
         {
             // Set skill cooldown.
             int cooldown = skillDataColllection.ValueCollection.SkillValues[skillLevel].Cooldown;
@@ -119,9 +119,9 @@ namespace BlindChase.GameManagement
             userState.CurrentSP -= skillCost;
         }
 
-        static CommandResult ActivateSkill_Internal(SkillAttributeId effectId, SkillEffectArgs arg)
+        static SimulationResult ActivateSkill_Internal(SkillAttributeId effectId, SkillEffectArgs arg)
         {
-            CommandResult result = m_skillEffectCollection[effectId].Activate(arg);
+            SimulationResult result = m_skillEffectCollection[effectId].Activate(arg);
             return result;
         }
 

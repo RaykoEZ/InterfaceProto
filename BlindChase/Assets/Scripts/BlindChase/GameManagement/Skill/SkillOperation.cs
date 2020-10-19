@@ -8,7 +8,7 @@ namespace BlindChase.GameManagement
         // This contains all possible calls available for a skill effect.
         static partial class SkillOperation
         {
-            public static CommandResult AutoRecovery(SkillEffectArgs args) 
+            public static SimulationResult AutoRecovery(SkillEffectArgs args) 
             {
                 // always recover self
                 ObjectId target = args.TargetId;
@@ -18,12 +18,12 @@ namespace BlindChase.GameManagement
 
                 CharacterState newState = newContext.CharacterRecord.MemberDataContainer[target].PlayerState;
                 List<CharacterState> changeList = new List<CharacterState>{ { newState } };
-                CommandResult result = new CommandResult("Recover SP and cooldown.", newContext, changeList);
+                SimulationResult result = new SimulationResult("Recover SP and cooldown.", newContext, changeList);
 
                 return result;
             }
 
-            public static CommandResult Strike(SkillEffectArgs args) 
+            public static SimulationResult Strike(SkillEffectArgs args) 
             {
                 ObjectId target = args.TargetId;
                 int baseValue = args.SkillData.BaseValue;
@@ -31,11 +31,11 @@ namespace BlindChase.GameManagement
 
                 CharacterState newState = newContext.CharacterRecord.MemberDataContainer[target].PlayerState;
                 List<CharacterState> changeList = new List<CharacterState> { { args.UserState }, { newState } };
-                CommandResult result = new CommandResult("Strike Activated", newContext, changeList);       
+                SimulationResult result = new SimulationResult("Strike Activated", newContext, changeList);       
                 return result;
             }
 
-            public static CommandResult FirstAid(SkillEffectArgs args) 
+            public static SimulationResult FirstAid(SkillEffectArgs args) 
             {
                 ObjectId target = args.TargetId;
                 int baseValue = args.SkillData.BaseValue;
@@ -45,11 +45,11 @@ namespace BlindChase.GameManagement
                 List<CharacterState> changeList = new List<CharacterState> { { args.UserState }, { newState } };
                 CharacterState oldTarget = args.TargetState;
                 string message = oldTarget.CurrentHP >= oldTarget.Character.MaxHP ? "Target is at full HP." : "First Aid activated";
-                CommandResult result = new CommandResult(message, newContext, changeList);
+                SimulationResult result = new SimulationResult(message, newContext, changeList);
                 return result;
             }
 
-            public static CommandResult BasicMovement(SkillEffectArgs args) 
+            public static SimulationResult BasicMovement(SkillEffectArgs args) 
             {
                 CharacterState userState = args.UserState;
 
@@ -85,7 +85,7 @@ namespace BlindChase.GameManagement
                     changeList.Add(c.MemberDataContainer[occupier].PlayerState);
                 }
 
-                CommandResult result = new CommandResult(message, gameContext, changeList);
+                SimulationResult result = new SimulationResult(message, gameContext, changeList);
                 return result;
             }
         }

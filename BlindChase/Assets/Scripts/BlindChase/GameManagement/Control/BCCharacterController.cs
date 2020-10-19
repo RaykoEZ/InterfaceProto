@@ -78,7 +78,7 @@ namespace BlindChase.GameManagement
         {
             Vector3Int targetCoord = m_worldRef.WorldMap.WorldToCell(destination);
             GameContextRecord context = new GameContextRecord(m_worldRef, m_characterRef);
-            CommandResult result = SkillManager.BasicMovement(context, targetCoord, m_currentTargetState.ObjectId);
+            SimulationResult result = SkillManager.BasicMovement(context, targetCoord, m_currentTargetState.ObjectId);
             Debug.Log(result.Message);
             HandleResult(m_currentTargetState.ObjectId, result, OnAdvancing, m_actionSequencer.OnCharacterAdvance, endTurn: true);
         }
@@ -95,7 +95,7 @@ namespace BlindChase.GameManagement
             Vector3Int userCoord = m_worldRef.WorldMap.WorldToCell(userPos);
             ObjectId userId = m_worldRef.GetOccupyingTileAt(userCoord);
             GameContextRecord context = new GameContextRecord(m_worldRef, m_characterRef);
-            CommandResult result = SkillManager.ActivateSkill(skillId, skillLevel, context, targetCoords, userId);
+            SimulationResult result = SkillManager.ActivateSkill(skillId, skillLevel, context, targetCoords, userId);
             Debug.Log(result.Message);
 
             Dictionary<string, object> payload = new Dictionary<string, object>
@@ -133,7 +133,7 @@ namespace BlindChase.GameManagement
         // Triggers events after player actions' results are calculated.
         void HandleResult(
             ObjectId id, 
-            CommandResult result, 
+            SimulationResult result, 
             Action<EventInfo> onSuccessGameEventTrigger, 
             Action<ActionParticipants, Action, Dictionary<string,object>> actionSequenceResolver,
             bool endTurn = false, 
@@ -202,7 +202,7 @@ namespace BlindChase.GameManagement
         {
             m_currentTargetState = m_characterRef.MemberDataContainer[tileId].PlayerState;
             GameContextRecord context = new GameContextRecord(m_worldRef, m_characterRef);
-            CommandResult result = SkillManager.AutoRecovery(context, m_currentTargetState.ObjectId);
+            SimulationResult result = SkillManager.AutoRecovery(context, m_currentTargetState.ObjectId);
 
             m_characterContextFactoryRef.Update(result.ResulContext.CharacterRecord);
 
@@ -224,7 +224,7 @@ namespace BlindChase.GameManagement
             m_worldRef = world;
         }
 
-        void OnDelayedEffectActivate(CommandResult effectResult) 
+        void OnDelayedEffectActivate(SimulationResult effectResult) 
         {
             Debug.LogWarning(" Delayed Effects Not implemented YET!!!!!!!!!!");
         }
