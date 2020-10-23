@@ -24,7 +24,7 @@ namespace BlindChase.GameManagement
         Stack<DelayedEffect> m_onTurnStartEffects { get; set; } = new Stack<DelayedEffect>();
         Stack<DelayedEffect> m_onTurnEndEffects { get; set; } = new Stack<DelayedEffect>();
 
-        public delegate void OnEffectActivated(SimulationResult effectResult);
+        public delegate void OnEffectActivated(in SimulationResult effectResult);
 
         public event OnEffectActivated OnDelayedEffectActivate = default;
 

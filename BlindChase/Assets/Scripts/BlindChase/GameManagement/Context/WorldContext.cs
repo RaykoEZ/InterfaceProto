@@ -5,17 +5,17 @@ using UnityEngine.Tilemaps;
 namespace BlindChase.GameManagement
 {
     [SerializeField]
-    public class BoardState 
+    public struct BoardState 
     { 
         public Dictionary<Vector3Int, ObjectId> BoardOccupiers { get; set; }
 
-        public BoardState() 
+        public BoardState(Dictionary<Vector3Int, ObjectId> board) 
         {
-            BoardOccupiers = new Dictionary<Vector3Int, ObjectId>();
+            BoardOccupiers = board;
         }
     }
 
-    public class WorldContext : IBCContext
+    public struct WorldContext : IBCContext
     {
         public Tilemap WorldMap { get; private set; }
 
@@ -34,17 +34,13 @@ namespace BlindChase.GameManagement
         public WorldContext(Tilemap map)
         {
             WorldMap = map;
-            m_boardState = new BoardState();
+            m_boardState = new BoardState( new Dictionary<Vector3Int, ObjectId>());
         }
 
         public WorldContext(WorldContext w) 
         {
             WorldMap = w.WorldMap;
-            if(m_boardState == null) 
-            {
-                m_boardState = w.m_boardState;
-                return;
-            }
+            m_boardState = new BoardState(new Dictionary<Vector3Int, ObjectId>());
 
             foreach(Vector3Int pos in w.m_boardState.BoardOccupiers.Keys) 
             {

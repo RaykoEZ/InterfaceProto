@@ -21,14 +21,12 @@ namespace BlindChase.GameManagement
         WorldStateContextFactory m_worldContextFactoryRef;
         CharacterContextFactory m_characterContextFactoryRef;
         TurnProgressManager m_gameStateManagerRef;
-        SkillManager m_skillManagerRef;
         NpcManager m_npcManagerRef;
 
         public delegate void OnCommandFinished();
         public event OnCommandFinished OnCommandFinish = default;
 
         [SerializeField] PromptHandler m_prompter = default;
-
         [SerializeField] BCGameEventTrigger OnCharacterDefeated = default;
         [SerializeField] BCGameEventTrigger OnLeaderDefeated = default;
         [SerializeField] BCGameEventTrigger OnCharacterAdvance = default;
@@ -74,28 +72,31 @@ namespace BlindChase.GameManagement
             m_gameStateManagerRef.OnTurnEnd -= OnTurnEnd;
         }
 
-        public void AdvancePlayer(Vector3 destination)
+        public void AdvancePlayer(Vector3Int destination)
         {
-            Vector3Int targetCoord = m_worldRef.WorldMap.WorldToCell(destination);
             GameContextRecord context = new GameContextRecord(m_worldRef, m_characterRef);
-            SimulationResult result = SkillManager.BasicMovement(context, targetCoord, m_currentTargetState.ObjectId);
+            SimulationResult result = SkillManager.BasicMovement(context, destination, m_currentTargetState.ObjectId);
             Debug.Log(result.Message);
             HandleResult(m_currentTargetState.ObjectId, result, OnAdvancing, m_actionSequencer.OnCharacterAdvance, endTurn: true);
         }
 
-        public void ActivateSkill(int skillId, int skillLevel, HashSet<Vector3> targetPos, Vector3 userPos)
+        public void ActivateSkill(int skillId, int skillLevel, HashSet<Vector3Int> targetCoord, Vector3Int userPos)
         {
-            List<Vector3Int> targetCoords = new List<Vector3Int>();
-            foreach (Vector3 pos in targetPos)
+            SkillParameters skillData = SkillManager.GetSkillParameters(skillId, skillLevel);
+            int cost = skillData.SkillCost;
+            //Player cannot use this skill, return.
+            if (!SkillManager.CheckSkillPreconditions(m_currentTargetState, skillId, cost, out string message))
             {
-                Vector3Int coord = m_worldRef.WorldMap.WorldToCell(pos);
-                targetCoords.Add(coord);
+                Debug.Log(message);
+                return;
             }
 
-            Vector3Int userCoord = m_worldRef.WorldMap.WorldToCell(userPos);
-            ObjectId userId = m_worldRef.GetOccupyingTileAt(userCoord);
+            ObjectId userId = m_worldRef.GetOccupyingTileAt(userPos);
             GameContextRecord context = new GameContextRecord(m_worldRef, m_characterRef);
-            SimulationResult result = SkillManager.ActivateSkill(skillId, skillLevel, context, targetCoords, userId);
+            SkillActivationInput input = new SkillActivationInput(skillId, skillLevel, userId, context);
+            List<Vector3Int> targetCoords = new List<Vector3Int>(targetCoord);
+
+            SimulationResult result = SkillManager.ActivateSkill(input, targetCoords);
             Debug.Log(result.Message);
 
             Dictionary<string, object> payload = new Dictionary<string, object>
@@ -164,8 +165,12 @@ namespace BlindChase.GameManagement
 
         #region Event handles
 
-        void UpdateGame(GameContextRecord context) 
+        void UpdateGame(in GameContextRecord context) 
         {
+            m_characterRef = context.CharacterRecord;
+            m_worldRef = context.WorldRecord;
+            m_currentTargetState = m_characterRef.MemberDataContainer[m_currentTargetState.ObjectId].PlayerState;
+
             m_characterContextFactoryRef.Update(context.CharacterRecord);
             m_worldContextFactoryRef.Update(context.WorldRecord);
         }
@@ -203,14 +208,13 @@ namespace BlindChase.GameManagement
             m_currentTargetState = m_characterRef.MemberDataContainer[tileId].PlayerState;
             GameContextRecord context = new GameContextRecord(m_worldRef, m_characterRef);
             SimulationResult result = SkillManager.AutoRecovery(context, m_currentTargetState.ObjectId);
-
-            m_characterContextFactoryRef.Update(result.ResulContext.CharacterRecord);
-
+            UpdateGame(result.ResulContext);
             m_delayedEffects.OnTurnStartEffects();
 
             if (!string.IsNullOrEmpty(tileId.NPCId)) 
             {
-                m_npcManagerRef.OnNPCActive(tileId);
+                GameContextRecord contextCopy = new GameContextRecord(result.ResulContext);
+                m_npcManagerRef.OnNPCActive(tileId, contextCopy);
             }
         }
 
@@ -219,17 +223,17 @@ namespace BlindChase.GameManagement
             m_delayedEffects.OnTurnEndEffects();
         }
 
-        void OnWorldUpdate(WorldContext world)
+        void OnWorldUpdate(in WorldContext world)
         {
             m_worldRef = world;
         }
 
-        void OnDelayedEffectActivate(SimulationResult effectResult) 
+        void OnDelayedEffectActivate(in SimulationResult effectResult) 
         {
             Debug.LogWarning(" Delayed Effects Not implemented YET!!!!!!!!!!");
         }
 
-        void OnCharacterContextUpdate(CharacterContext newContext)
+        void OnCharacterContextUpdate(in CharacterContext newContext)
         {
             m_characterRef = newContext;
         }

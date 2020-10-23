@@ -6,7 +6,7 @@ namespace BlindChase.GameManagement
     // Used to obtain results for character actions without directly modifying current game state.
     public static class ActionSimulation
     {
-        public static GameContextRecord DealDamage(ObjectId targetd, int baseValue, GameContextRecord context)
+        public static GameContextRecord DealDamage(GameContextRecord context, ObjectId targetd, int baseValue)
         {
             CharacterContext characters = context.CharacterRecord;
             WorldContext world = context.WorldRecord;
@@ -21,11 +21,11 @@ namespace BlindChase.GameManagement
             return newContext;
         }
 
-        public static GameContextRecord RestoreHP(ObjectId targetd, int baseValue, GameContextRecord context)
+        public static GameContextRecord RestoreHP(GameContextRecord context, ObjectId targetd, int baseValue)
         {
             CharacterContext characters = context.CharacterRecord;
             WorldContext world = context.WorldRecord;
-            Debug.Log($"Healing for {baseValue} HP.");
+            Debug.Log($"Healing for {baseValue} HP for {targetd.FactionId} {targetd.UnitId} {targetd.NPCId}.");
             CharacterState state = characters.MemberDataContainer[targetd].PlayerState;
 
             state.CurrentHP = Mathf.Min(state.CurrentHP + baseValue, state.Character.MaxHP);
@@ -34,11 +34,11 @@ namespace BlindChase.GameManagement
             return newContext;
         }
 
-        public static GameContextRecord RestoreSP(ObjectId targetd, int baseValue, GameContextRecord context)
+        public static GameContextRecord RestoreSP(GameContextRecord context, ObjectId targetd, int baseValue)
         {
             CharacterContext characters = context.CharacterRecord;
             WorldContext world = context.WorldRecord;
-            Debug.Log($"Recover {baseValue} SP.");
+            Debug.Log($"Recover {baseValue} SP for {targetd.FactionId} {targetd.UnitId} {targetd.NPCId}.");
             CharacterState state = characters.MemberDataContainer[targetd].PlayerState;
 
             state.CurrentSP = Mathf.Min(state.CurrentSP + baseValue, state.Character.MaxSP);
@@ -47,11 +47,11 @@ namespace BlindChase.GameManagement
             return newContext;
         }
 
-        public static GameContextRecord SkillCDReduction(ObjectId targetd, int baseValue, List<int> skillIds, GameContextRecord context) 
+        public static GameContextRecord SkillCDReduction(GameContextRecord context, ObjectId targetd, int baseValue, List<int> skillIds) 
         {
             CharacterContext characters = context.CharacterRecord;
             WorldContext world = context.WorldRecord;
-            Debug.Log($"Reduce {baseValue} CD.");
+            Debug.Log($"Reduce {baseValue} CD for {targetd.FactionId} {targetd.UnitId} {targetd.NPCId}.");
             CharacterState state = characters.MemberDataContainer[targetd].PlayerState;
 
 
@@ -72,7 +72,6 @@ namespace BlindChase.GameManagement
             Vector3Int destination,
             Vector3Int origin)
         {
-
             CharacterContext characters = context.CharacterRecord; 
             WorldContext world = context.WorldRecord;
 

@@ -15,20 +15,12 @@ namespace BlindChase.Ai
         //HashSet<string> m_npcFactions = new HashSet<string>();
         NpcTaskPlanner m_planner = new NpcTaskPlanner();
 
-        CharacterContext m_characterRef;
-        WorldContext m_worldRef;
-
-        public void Init(CharacterContextFactory c , WorldStateContextFactory w, RangeMapDatabase rangeDatabase) 
+        public void Init(RangeMapDatabase rangeDatabase) 
         {
             m_npcDatabase = ScriptableObject.CreateInstance<NpcDatabase>();
 
-            c.OnContextChanged += UpdateCharacter;
-            w.OnContextChanged += UpdateWorld;
             m_planner.OnNPCTaskPlanned += OnNpcAction;
             m_planner.Init(rangeDatabase);
-
-            UpdateCharacter(c.Context);
-            UpdateWorld(w.Context);
         }
 
         public void Shutdown() 
@@ -37,7 +29,7 @@ namespace BlindChase.Ai
             m_planner.Shutdown();
         }
 
-        public void OnNPCActive(ObjectId id) 
+        public void OnNPCActive(ObjectId id, GameContextRecord context) 
         {
             string faction = id.FactionId;
             DecisionParameter factionNature = m_npcDatabase.GetNpcNature(faction);
@@ -48,21 +40,11 @@ namespace BlindChase.Ai
                 return;
             }
 
-            m_planner.OnActive(id, factionNature, m_characterRef, m_worldRef);
+            m_planner.OnActive(id, factionNature, context);
         }
         void OnNpcAction(CommandRequestInfo info)
         {
             OnNPCCommand?.Invoke(info);
-        }
-
-        void UpdateCharacter(CharacterContext character) 
-        {
-            m_characterRef = character;
-        }
-
-        void UpdateWorld(WorldContext world)
-        {
-            m_worldRef = world;
         }
     }
 

@@ -39,9 +39,9 @@ namespace BlindChase.GameManagement
             OnTurnStart?.Invoke(id);
         }
 
-        void SetupCharacterList(CharacterContext newContext) 
+        void SetupCharacterList(in CharacterContext newContext) 
         {
-            foreach (ObjectId id in newContext?.MemberDataContainer.Keys)
+            foreach (ObjectId id in newContext.MemberDataContainer.Keys)
             {
                 CharacterTurnRacer racer = new CharacterTurnRacer
                 {
@@ -75,7 +75,7 @@ namespace BlindChase.GameManagement
             }
         }
 
-        void OnCharacterIdUpdate(CharacterContext newContext) 
+        void OnCharacterIdUpdate(in CharacterContext newContext) 
         {
             List<ObjectId> toRemove = new List<ObjectId>();
             List<ObjectId> toAdd = new List<ObjectId>();

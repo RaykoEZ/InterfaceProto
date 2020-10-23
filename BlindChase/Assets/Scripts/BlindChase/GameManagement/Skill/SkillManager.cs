@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace BlindChase.GameManagement
 {
+
     public class SkillManager
     {
         static SkillDatabase m_skillDatabase = default;
@@ -28,19 +29,18 @@ namespace BlindChase.GameManagement
         }
 
         // For multiple-target skills
-        public static SimulationResult ActivateSkill(int skillId, int skillLevel, GameContextRecord context, List<Vector3Int> targets, ObjectId userId) 
+        public static SimulationResult ActivateSkill(in SkillActivationInput input, List<Vector3Int> targets) 
         {
-            SkillDataCollection skillDataColllection = m_skillDatabase.GetSkill(skillId);
-            int validSkillLevel = GetValidSkillLevel(skillDataColllection.ValueCollection.SkillValues.Count, skillLevel);
-            CharacterState userState = context.CharacterRecord.MemberDataContainer[userId].PlayerState;
-            OnSPConsumption(skillDataColllection, skillId, validSkillLevel, userState);
+            SkillDataCollection skillDataColllection = m_skillDatabase.GetSkill(input.SkillId);
+            int validSkillLevel = GetValidSkillLevel(skillDataColllection.ValueCollection.SkillValues.Count, input.SkillLevel);
+            OnSPConsumption(skillDataColllection, input.SkillId, validSkillLevel, input);
 
             SkillParameters skillData = skillDataColllection.ValueCollection.SkillValues[validSkillLevel];
             List<CharacterState> affectedCharacters = new List<CharacterState>();
             SimulationResult skillResult = new SimulationResult();
             foreach (Vector3Int targetCoord in targets) 
             {
-                SkillEffectArgs args = new SkillEffectArgs(context, targetCoord, userId, skillData);
+                SkillEffectArgs args = new SkillEffectArgs(input.Context, targetCoord, input.UserId, skillData);
                 SimulationResult newResult = ActivateSkill_Internal(skillDataColllection.ValueCollection.AttributeId, args);
                 // Add all affected characters
                 affectedCharacters.AddRange(newResult.AffectedCharacters);
@@ -52,27 +52,26 @@ namespace BlindChase.GameManagement
         }
 
         // Single target skill
-        public static SimulationResult ActivateSkill(int skillId, int skillLevel, GameContextRecord context, Vector3Int target, ObjectId userId)
+        public static SimulationResult ActivateSkill(in SkillActivationInput input, Vector3Int target)
         {
-            SkillDataCollection skillDataColllection = m_skillDatabase.GetSkill(skillId);
-            int validSkillLevel = GetValidSkillLevel(skillDataColllection.ValueCollection.SkillValues.Count, skillLevel);
-            CharacterState userState = context.CharacterRecord.MemberDataContainer[userId].PlayerState;
-            OnSPConsumption(skillDataColllection, skillId, validSkillLevel, userState);
+            SkillDataCollection skillDataColllection = m_skillDatabase.GetSkill(input.SkillId);
+            int validSkillLevel = GetValidSkillLevel(skillDataColllection.ValueCollection.SkillValues.Count, input.SkillLevel);
+            OnSPConsumption(skillDataColllection, input.SkillId, validSkillLevel, input);
 
             SkillParameters skillData = skillDataColllection.ValueCollection.SkillValues[validSkillLevel];
-            SkillEffectArgs args = new SkillEffectArgs(context, target, userId, skillData);
+            SkillEffectArgs args = new SkillEffectArgs(input.Context, target, input.UserId, skillData);
             SimulationResult skillResult = ActivateSkill_Internal(skillDataColllection.ValueCollection.AttributeId, args);        
             return skillResult;
         }
 
-        public static SimulationResult BasicMovement(GameContextRecord context, Vector3Int targetCoord, ObjectId userId)
+        public static SimulationResult BasicMovement(in GameContextRecord context, Vector3Int targetCoord, ObjectId userId)
         {
             SkillEffectArgs args = new SkillEffectArgs(context, targetCoord, userId, null);
             SimulationResult result = ActivateSkill_Internal(SkillAttributeId.BasicMovement, args);
             return result;
         }
 
-        public static SimulationResult AutoRecovery(GameContextRecord context, ObjectId userId)
+        public static SimulationResult AutoRecovery(in GameContextRecord context, ObjectId userId)
         {
             Vector3Int coord = context.CharacterRecord.MemberDataContainer[userId].PlayerState.Position;
             SkillEffectArgs args = new SkillEffectArgs(context, coord, userId, null);
@@ -86,7 +85,6 @@ namespace BlindChase.GameManagement
             if (!userState.CurrentSkillCooldowns.ContainsKey(skillId))
             {
                 message = "Invalid skill";
-                Debug.Log(message);
                 return false;
             }
 
@@ -95,28 +93,24 @@ namespace BlindChase.GameManagement
             {
                 message = "Skill still on cooldown.";
                 //Prompt message : Skill on cooldown
-                Debug.Log(message);
                 return false;
             }
 
             if (userState.CurrentSP < cost)
             {
                 message = "Insufficient SP.";
-                Debug.Log(message);
                 return false;
             }
             return true;
         }
 
-        static void OnSPConsumption(in SkillDataCollection skillDataColllection, int skillId, int skillLevel, CharacterState userState)
+        static void OnSPConsumption(in SkillDataCollection skillDataColllection, int skillId, int skillLevel, in SkillActivationInput input)
         {
             // Set skill cooldown.
             int cooldown = skillDataColllection.ValueCollection.SkillValues[skillLevel].Cooldown;
             // Deduct SP
             int skillCost = skillDataColllection.ValueCollection.SkillValues[skillLevel].SkillCost;
-
-            userState.CurrentSkillCooldowns[skillId] = cooldown;
-            userState.CurrentSP -= skillCost;
+            input.OnSkillConsumption(skillId, cooldown, skillCost);
         }
 
         static SimulationResult ActivateSkill_Internal(SkillAttributeId effectId, SkillEffectArgs arg)

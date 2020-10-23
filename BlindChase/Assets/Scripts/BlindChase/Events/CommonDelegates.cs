@@ -5,8 +5,8 @@ using BlindChase.GameManagement;
 
 namespace BlindChase.Events
 {
-    public delegate void OnWorldStateUpdate(WorldContext context);
-    public delegate void OnCharacterUpdate(CharacterContext newContext);
+    public delegate void OnWorldStateUpdate(in WorldContext context);
+    public delegate void OnCharacterUpdate(in CharacterContext newContext);
 
     public delegate void OnSkillActivate(EventInfo id);
     public delegate void OnCharacterAttack(EventInfo id);

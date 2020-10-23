@@ -33,11 +33,11 @@ namespace BlindChase.UI
             turnOrder.OnTurnStart += SelectCharacter;
         }
 
-        void OnWorldUpdate(WorldContext world) 
+        void OnWorldUpdate(in WorldContext world) 
         {
             m_worldContext = world;
         }
-        void OnCharacterUpdate(CharacterContext character)
+        void OnCharacterUpdate(in CharacterContext character)
         {
             m_characterContext = character;
         }

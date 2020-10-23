@@ -63,7 +63,7 @@ namespace BlindChase.GameManagement
                 return;
             }
 
-            Vector3 dest = (Vector3)arg["Destination"];
+            Vector3Int dest = (Vector3Int)arg["Destination"];
 
             if (dest == null) 
             {
@@ -106,10 +106,10 @@ namespace BlindChase.GameManagement
         {
             base.ExecuteCommand(args, onFinishCallback);
 
-            HashSet<Vector3> targetPos = (HashSet<Vector3>)args.Arguments["Target"];
-            Vector3 userPos = (Vector3)args.Arguments["Origin"];
+            HashSet<Vector3Int> targetPos = (HashSet<Vector3Int>)args.Arguments["Target"];
+            Vector3Int userPos = (Vector3Int)args.Arguments["Origin"];
 
-            if(args.Arguments.ContainsKey("SkillId") && args.Arguments.ContainsKey("SkillId")) 
+            if(args.Arguments.ContainsKey("SkillId") && args.Arguments.ContainsKey("SkillLevel")) 
             {
                 ExpectData(args);
             }

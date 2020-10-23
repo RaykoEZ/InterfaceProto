@@ -51,13 +51,18 @@ namespace BlindChase.GameManagement
             Character = state.Character;
             Position = state.Position;
 
-            CurrentHP = state.Character.MaxHP;
-            CurrentSP = state.Character.MaxSP;
-            CurrentDefense = state.Character.BaseDefense;
-            CurrentSpeed = state.Character.BaseSpeed;
+            CurrentHP = state.CurrentHP;
+            CurrentSP = state.CurrentSP;
+            CurrentDefense = state.CurrentDefense;
+            CurrentSpeed = state.CurrentSpeed;
+            Character = state.Character;
             IsActive = state.IsActive;
 
-            CurrentSkillCooldowns = state.CurrentSkillCooldowns;
+            CurrentSkillCooldowns = new Dictionary<int, int>(state.CurrentSkillCooldowns.Count);
+            foreach (KeyValuePair<int, int> skillCooldown in state.CurrentSkillCooldowns)
+            {
+                CurrentSkillCooldowns[skillCooldown.Key] = skillCooldown.Value;
+            }
         }
 
         public CharacterState(
@@ -79,7 +84,7 @@ namespace BlindChase.GameManagement
             CurrentSpeed = Character.BaseSpeed;
             IsActive = isActive;
 
-            CurrentSkillCooldowns = new Dictionary<int, int>();
+            CurrentSkillCooldowns = new Dictionary<int, int>(Character.SkillLevels.Count);
 
             foreach (IdLevelPair SkillLevel in Character.SkillLevels) 
             {

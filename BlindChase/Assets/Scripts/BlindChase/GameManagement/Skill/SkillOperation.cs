@@ -12,12 +12,12 @@ namespace BlindChase.GameManagement
             {
                 // always recover self
                 ObjectId target = args.TargetId;
-                GameContextRecord newContext = ActionSimulation.RestoreSP(target, 1, args.Context);
+                GameContextRecord newContext = ActionSimulation.RestoreSP(args.Context, target, 1);
                 List<int> skillIds = new List<int>(args.TargetState.CurrentSkillCooldowns.Keys);
-                newContext = ActionSimulation.SkillCDReduction(target, 1, skillIds, newContext);
+                newContext = ActionSimulation.SkillCDReduction(newContext, target, 1, skillIds);
 
-                CharacterState newState = newContext.CharacterRecord.MemberDataContainer[target].PlayerState;
-                List<CharacterState> changeList = new List<CharacterState>{ { newState } };
+                CharacterState newTarget = newContext.CharacterRecord.MemberDataContainer[target].PlayerState;
+                List<CharacterState> changeList = new List<CharacterState>{ { newTarget } };
                 SimulationResult result = new SimulationResult("Recover SP and cooldown.", newContext, changeList);
 
                 return result;
@@ -27,10 +27,12 @@ namespace BlindChase.GameManagement
             {
                 ObjectId target = args.TargetId;
                 int baseValue = args.SkillData.BaseValue;
-                GameContextRecord newContext = ActionSimulation.DealDamage(target, baseValue, args.Context);
+                GameContextRecord newContext = ActionSimulation.DealDamage(args.Context, target, baseValue);
 
-                CharacterState newState = newContext.CharacterRecord.MemberDataContainer[target].PlayerState;
-                List<CharacterState> changeList = new List<CharacterState> { { args.UserState }, { newState } };
+                CharacterState newTarget = newContext.CharacterRecord.MemberDataContainer[target].PlayerState;
+                CharacterState newUserState = newContext.CharacterRecord.MemberDataContainer[args.UserId].PlayerState;
+
+                List<CharacterState> changeList = new List<CharacterState> { { newUserState }, { newTarget } };
                 SimulationResult result = new SimulationResult("Strike Activated", newContext, changeList);       
                 return result;
             }
@@ -39,12 +41,17 @@ namespace BlindChase.GameManagement
             {
                 ObjectId target = args.TargetId;
                 int baseValue = args.SkillData.BaseValue;
-                GameContextRecord newContext = ActionSimulation.RestoreHP(target, baseValue, args.Context);
+                GameContextRecord newContext = ActionSimulation.RestoreHP(args.Context, target, baseValue);
                 CharacterState newState = newContext.CharacterRecord.MemberDataContainer[target].PlayerState;
 
-                List<CharacterState> changeList = new List<CharacterState> { { args.UserState }, { newState } };
+
+                CharacterState newTarget = newContext.CharacterRecord.MemberDataContainer[target].PlayerState;
+                CharacterState newUserState = newContext.CharacterRecord.MemberDataContainer[args.UserId].PlayerState;
+                List<CharacterState> changeList = new List<CharacterState> { 
+                    { newUserState }, { newTarget } };
+
                 CharacterState oldTarget = args.TargetState;
-                string message = oldTarget.CurrentHP >= oldTarget.Character.MaxHP ? "Target is at full HP." : "First Aid activated";
+                string message = oldTarget.CurrentHP >= oldTarget.Character.MaxHP ? $"{oldTarget.ObjectId.FactionId} {oldTarget.ObjectId.NPCId} is at full HP." : "First Aid activated";
                 SimulationResult result = new SimulationResult(message, newContext, changeList);
                 return result;
             }
@@ -68,7 +75,7 @@ namespace BlindChase.GameManagement
                         args.UserId,
                         dest,
                         userState.Position);
-                    message = $"Moving character to {dest}";
+                    message = $"Moving character {args.UserId.NPCId} to {dest}";
                     changeList.Add(gameContext.CharacterRecord.MemberDataContainer[args.UserId].PlayerState);
                 }
                 else

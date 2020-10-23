@@ -29,14 +29,14 @@ namespace BlindChase.Ai
             m_rangeMapDatabaseRef = rangeDatatbaseRef;
         }
 
-        public virtual void OnActive(ObjectId activateId, DecisionParameter nature, CharacterContext c, WorldContext w) 
+        public virtual void OnActive(ObjectId activateId, DecisionParameter nature, GameContextRecord context) 
         {
             m_defaultDetailRef = nature;
             m_activeNpcId = activateId;
-            m_characterRef = c;
-            m_worldRef = w;
+            m_characterRef = context.CharacterRecord;
+            m_worldRef = context.WorldRecord;
 
-            CharacterState self = m_characterRef.MemberDataContainer[m_activeNpcId].PlayerState;
+            CharacterState self = new CharacterState(m_characterRef.MemberDataContainer[m_activeNpcId].PlayerState);
             Dictionary<int, RangeMap> skillRanges = new Dictionary<int, RangeMap>();
             foreach (IdLevelPair skillLevel in self.Character.SkillLevels) 
             {
@@ -48,18 +48,18 @@ namespace BlindChase.Ai
             m_visionRangeRef = m_rangeMapDatabaseRef.GetSquareRadiusMap(2);
 
             m_moveRangeRef = m_rangeMapDatabaseRef.GetClassRangeMap(self.Character.ClassType);
+            m_decsionHelper.Setup(self, m_moveRangeRef, m_visionRangeRef, skillRanges);
             GameContextRecord record = new GameContextRecord(m_worldRef, m_characterRef);
-            m_decsionHelper.Setup(m_moveRangeRef, m_visionRangeRef, skillRanges, self, record);
-            CommandRequestInfo result = Plan(self, record);
+            CommandRequestInfo result = Plan(record, self);
 
             OnTaskPlanned(result);
         }
 
-        protected virtual CommandRequestInfo Plan(CharacterState self, GameContextRecord record)
+        protected virtual CommandRequestInfo Plan(GameContextRecord record, CharacterState self)
         {
             // Get current goal priority wieghts
             DecisionParameter currentPriorities = DecisionParameter.CalculateNewParameter(m_defaultDetailRef, m_visionRangeRef,m_moveRangeRef, record, self);
-            CommandRequest decision = CommandDecision(currentPriorities);
+            CommandRequest decision = CommandDecision(currentPriorities, record);
 
             CommandRequestInfo result = new CommandRequestInfo(m_activeNpcId, decision);
 
@@ -68,9 +68,10 @@ namespace BlindChase.Ai
 
         // IMPL
         CommandRequest CommandDecision(
-            DecisionParameter priorityDetail) 
+            DecisionParameter priorityDetail,
+            GameContextRecord record) 
         {
-            CommandRequest desicion = m_decsionHelper.MakeDecision(priorityDetail);
+            CommandRequest desicion = m_decsionHelper.MakeDecision(priorityDetail, record);
             return desicion;
         }
 

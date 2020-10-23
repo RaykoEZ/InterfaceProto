@@ -34,7 +34,7 @@ namespace BlindChase.UI
 
         }
 
-        void OnCharacterContextUpdate(CharacterContext context) 
+        void OnCharacterContextUpdate(in CharacterContext context) 
         {
             m_characterContext = context;
             UpdateCharacterStateDisplay(m_activeCharacterId);

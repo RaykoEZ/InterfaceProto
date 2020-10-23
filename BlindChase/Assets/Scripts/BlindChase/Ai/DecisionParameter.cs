@@ -25,8 +25,6 @@ namespace BlindChase.Ai
         [NonSerialized]
         float m_biasSum = 0.0f;
 
-
-
         public NpcMainObjective MainObjective 
         {
             get 
@@ -45,7 +43,6 @@ namespace BlindChase.Ai
             }
         
         }
-
 
         // This modifies the derived priority values to show the nature of a faction's NPC.
         public Dictionary<NpcMainObjective, ObjectiveBias> ObjectiveUrgencies {

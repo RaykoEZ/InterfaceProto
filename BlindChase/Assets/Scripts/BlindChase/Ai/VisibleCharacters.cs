@@ -17,7 +17,7 @@ namespace BlindChase.Ai
             VisibleEnemies = enemies;
         }
 
-        public static VisibleCharacters GetVisibleCharacters(GameContextRecord contextRecord, CharacterState npc, RangeMap range)
+        public static VisibleCharacters GetVisibleCharacters(in GameContextRecord contextRecord, CharacterState npc, RangeMap range)
         {
             CharacterContext c = contextRecord.CharacterRecord;
             WorldContext w = contextRecord.WorldRecord;

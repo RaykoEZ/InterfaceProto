@@ -30,7 +30,7 @@ namespace BlindChase.UI
 
         int m_currentSkillId = -1;
         int m_targetLimit = 0;
-        HashSet<Vector3> m_targets = new HashSet<Vector3>();
+        HashSet<Vector3Int> m_targets = new HashSet<Vector3Int>();
 
         CommandTypes m_currentPrompt = CommandTypes.NONE;
 
@@ -61,15 +61,15 @@ namespace BlindChase.UI
             m_currentActiveTileId = id;
         }
 
-        void OnCharacterContextUpdate(CharacterContext context)
+        void OnCharacterContextUpdate(in CharacterContext context)
         {
             m_characterContext = context;
         }
-        void OnWorldContextUpdate(WorldContext context)
+        void OnWorldContextUpdate(in WorldContext context)
         {
             m_worldContext = context;
         }
-        void OnTargetSelected(Vector3 target)
+        void OnTargetSelected(Vector3Int target)
         {
 
             if (m_targets.Contains(target))
@@ -97,7 +97,7 @@ namespace BlindChase.UI
             }
         }
         // Used to trigger skill activation when player clicks CONFIRM button and targets are sufficient & valid.
-        void OnSkillTargetsConfirmed(HashSet<Vector3> targets)
+        void OnSkillTargetsConfirmed(HashSet<Vector3Int> targets)
         {
             m_latestTileEventInfo.Payload["Target"] = targets;
             OnSkillConfirmed?.TriggerEvent(m_latestTileEventInfo);
@@ -220,6 +220,11 @@ namespace BlindChase.UI
 
             Vector3Int origin = m_characterContext.MemberDataContainer[m_currentActiveTileId].PlayerState.Position;
             Vector3Int destCoord = m_worldContext.WorldMap.WorldToCell(dest);
+
+            // Change world positions to map coordinates.
+            tileEventInfo.Payload["Origin"] = origin;
+            tileEventInfo.Payload["Destination"] = destCoord;
+
             bool isSelectionValid = m_currentPromptRange.IsInRange(origin, destCoord);            
             if (!isSelectionValid) 
             {
@@ -227,13 +232,12 @@ namespace BlindChase.UI
                 return;
             }
 
-            Vector3 worldPos = m_characterContext.MemberDataContainer[m_currentActiveTileId].PlayerTransform.position;
-            tileEventInfo.Payload["Origin"] = worldPos;
 
-            HandleInput(tileEventInfo, dest);
+
+            HandleInput(tileEventInfo, destCoord);
         }
 
-        void HandleInput(EventInfo info, Vector3 targetPos) 
+        void HandleInput(EventInfo info, Vector3Int targetPos) 
         {
             switch (m_currentPrompt)
             {
@@ -269,8 +273,9 @@ namespace BlindChase.UI
                         // Check if the selected destination is valid for the skill.
                         //IMPL
                         ObjectId selectedId = info.SourceId;
-                        AllowedTarget selectionType = TargetingValidation.GetSelectionType(selectedId, m_currentActiveTileId);
-                        bool isSelectionValid = TargetingValidation.IsSkillTargetSelectionValid(m_currentSkillId, selectionType);
+                        bool isSelectionValid = 
+                            TargetingValidation.IsSkillTargetSelectionValid(selectedId, m_currentActiveTileId, m_currentSkillId);
+
                         if (!isSelectionValid) 
                         {
                             Debug.LogWarning($"Target selection not valid for Skill [{m_currentSkillId}], detected in PromptHandler.");

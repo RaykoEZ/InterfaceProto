@@ -16,11 +16,6 @@ namespace BlindChase.GameManagement
 
         public void UpdateCharacterData(ObjectId id, CharacterStateContainer playerData)
         {
-            if (Context == null) 
-            {
-                Context = new CharacterContext(new Dictionary<ObjectId, CharacterStateContainer>());
-            }
-
             Context.MemberDataContainer[id] = playerData;
             OnContextUpdated();
         }

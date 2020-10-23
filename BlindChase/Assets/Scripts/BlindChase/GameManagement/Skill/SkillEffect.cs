@@ -18,7 +18,7 @@ namespace BlindChase.GameManagement
                 methodInfo?.CreateDelegate(typeof(Func<SkillEffectArgs, SimulationResult>));    
         }
 
-        public virtual SimulationResult Activate(SkillEffectArgs skillValues) 
+        public virtual SimulationResult Activate(in SkillEffectArgs skillValues) 
         {
             SimulationResult result = m_effectMethod(skillValues);
 

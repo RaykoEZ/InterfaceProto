@@ -6,28 +6,7 @@ namespace BlindChase.GameManagement
 {
     public static class TargetingValidation
     {
-        public static AllowedTarget GetSelectionType(ObjectId selectedId, ObjectId currentActiveId) 
-        {
-            AllowedTarget selectionType = AllowedTarget.None;
-
-            if (selectedId != null && selectedId.FactionId == currentActiveId.FactionId)
-            {
-                selectionType = AllowedTarget.Ally;
-            }
-            else if (selectedId != null && selectedId.FactionId != currentActiveId.FactionId)
-            {
-                selectionType = AllowedTarget.Enemy;
-            }
-            // If it is an unoccupied position, it will have no object (ObjectId) living in there.
-            else if( selectedId == null) 
-            {
-                selectionType = AllowedTarget.Position;
-            }
-
-            return selectionType;
-        }
-
-        public static bool IsDestinationValid(ObjectId attacker, Vector3Int targetCoord, GameContextRecord context) 
+        public static bool IsDestinationValid(in ObjectId attacker, in Vector3Int targetCoord, in GameContextRecord context) 
         {
             CharacterContext c = context.CharacterRecord;
             WorldContext w = context.WorldRecord;
@@ -65,12 +44,37 @@ namespace BlindChase.GameManagement
             return isNotStationary && isDestinationPossible;
         }
 
-        public static bool IsSkillTargetSelectionValid(int skillId, AllowedTarget target)
+        public static bool IsSkillTargetSelectionValid(
+            in ObjectId selectedId, 
+            in ObjectId currentActiveId, 
+            in int skillId)
         {
+            AllowedTarget currentTargetType = GetSelectionType(selectedId, currentActiveId);
             AllowedTarget validTargets = SkillManager.GetSkillData(skillId).AllowedTargets;
             // Check if target has nothing in common with the skill's target requirement
-            bool isValid = (target & validTargets) != AllowedTarget.None;
+            bool isValid = (currentTargetType & validTargets) != AllowedTarget.None;
             return isValid;
+        }
+
+        static AllowedTarget GetSelectionType(in ObjectId selectedId, in ObjectId currentActiveId)
+        {
+            AllowedTarget selectionType = AllowedTarget.None;
+
+            if (selectedId != null && selectedId.FactionId == currentActiveId.FactionId)
+            {
+                selectionType = AllowedTarget.Ally;
+            }
+            else if (selectedId != null && selectedId.FactionId != currentActiveId.FactionId)
+            {
+                selectionType = AllowedTarget.Enemy;
+            }
+            // If it is an unoccupied position, it will have no object (ObjectId) living in there.
+            else if (selectedId == null)
+            {
+                selectionType = AllowedTarget.Position;
+            }
+
+            return selectionType;
         }
     }
 

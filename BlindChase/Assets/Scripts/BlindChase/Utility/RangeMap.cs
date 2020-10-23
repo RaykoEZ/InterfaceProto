@@ -22,7 +22,7 @@ namespace BlindChase.Utility
 
         public List<Vector3Int> ApplyRangeOffsets(Vector3Int origin) 
         {
-            List<Vector3Int> ret = new List<Vector3Int>(m_offsetList.Count);
+            List<Vector3Int> ret = new List<Vector3Int>();
             foreach (Vector3Int offset in m_offsetList) 
             {
                 ret.Add(origin + offset);
