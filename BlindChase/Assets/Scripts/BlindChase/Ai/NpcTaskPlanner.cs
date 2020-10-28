@@ -10,7 +10,7 @@ namespace BlindChase.Ai
     public class NpcTaskPlanner
     {
         public event OnPlayerCommand<CommandRequestInfo> OnNPCTaskPlanned = default;
-        DecisionHelper m_decsionHelper = new DecisionHelper();
+        CommandSimulator m_decsionHelper = new CommandSimulator();
         RangeMapDatabase m_rangeMapDatabaseRef = default;
         RangeMap m_moveRangeRef;
         RangeMap m_visionRangeRef;
@@ -38,7 +38,7 @@ namespace BlindChase.Ai
 
             CharacterState self = new CharacterState(m_characterRef.MemberDataContainer[m_activeNpcId].PlayerState);
             Dictionary<int, RangeMap> skillRanges = new Dictionary<int, RangeMap>();
-            foreach (IdLevelPair skillLevel in self.Character.SkillLevels) 
+            foreach (SkillDataPair skillLevel in self.Character.SkillLevels) 
             {
                 SkillParameters skillParam = SkillManager.GetSkillParameters(skillLevel.Id, skillLevel.Level);
                 string rangeId = skillParam.EffectRange;

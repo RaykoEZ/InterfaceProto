@@ -111,7 +111,7 @@ namespace BlindChase.GameManagement
             // If the retreating destination has another ally unit to pincer attack(not the attacker):
             if (occupier != null && occupier != attackerId)
             {
-                DefeatTarget(target, world);
+                gameContext = DefeatTarget(gameContext, targetId);
                 return MoveTo(gameContext, attacker.ObjectId, target.Position, attacker.Position);
             }
             
@@ -127,11 +127,15 @@ namespace BlindChase.GameManagement
             return gameContext;
         }
 
-        public static void DefeatTarget(CharacterState characterState, WorldContext world) 
+        public static GameContextRecord DefeatTarget(GameContextRecord context, ObjectId defeatedId) 
         {
-            Debug.Log($"Character: {characterState.Character.Name} Defeated!");
-            characterState.IsActive = false;
-            world.RemoveBoardPiece(characterState.Position, characterState.ObjectId);
+            WorldContext world = context.WorldRecord;
+            CharacterContext character = context.CharacterRecord;
+            CharacterState defeated = character.MemberDataContainer[defeatedId].PlayerState;
+            Debug.Log($"Character: {defeated.Character.Name} {defeated.ObjectId.NPCId} Defeated!");
+            defeated.IsActive = false;
+            world.RemoveBoardPiece(defeated.Position, defeatedId);
+            return new GameContextRecord(world, character);
         }
 
         public static Vector3Int GetClassKnockbackPattern(CharacterClassType attackerClass, Vector3Int attackerPos, Vector3Int targetPos)

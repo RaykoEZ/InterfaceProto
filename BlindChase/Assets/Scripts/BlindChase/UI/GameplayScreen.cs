@@ -44,9 +44,9 @@ namespace BlindChase.UI
         {
             m_focusedCharacterId = id;
             CharacterState state = m_characterContext.MemberDataContainer[id].PlayerState;
-            List<IdLevelPair> skillLevels = state.Character.SkillLevels;
+            List<SkillDataPair> skillLevels = state.Character.SkillLevels;
             List<SkillSlotData> skillslotData = new List<SkillSlotData>();
-            foreach (IdLevelPair skillLevel in skillLevels)
+            foreach (SkillDataPair skillLevel in skillLevels)
             {
                 SkillDataCollection skill = SkillManager.GetSkillData(skillLevel.Id);
                 int cooldown = state.CurrentSkillCooldowns[skillLevel.Id];

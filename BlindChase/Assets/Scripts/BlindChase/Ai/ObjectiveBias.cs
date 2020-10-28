@@ -5,7 +5,8 @@ namespace BlindChase.Ai
     [Serializable]
     public class ObjectiveBias 
     {
-        public float Weight { get; set; }
+        float m_weight;
+        public float Weight { get { return m_weight; } set { m_weight = Math.Min(1.0f, Math.Abs(value)); }}
         [NonSerialized]
         float m_tolerance;
         // This value is used to determine if we should chose an alternative option to the optimal option for the main objective.

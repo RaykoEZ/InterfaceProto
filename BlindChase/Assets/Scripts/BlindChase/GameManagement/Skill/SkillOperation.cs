@@ -98,5 +98,3 @@ namespace BlindChase.GameManagement
         }
     }
 }
-
-

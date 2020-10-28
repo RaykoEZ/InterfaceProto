@@ -232,8 +232,6 @@ namespace BlindChase.UI
                 return;
             }
 
-
-
             HandleInput(tileEventInfo, destCoord);
         }
 
@@ -246,7 +244,13 @@ namespace BlindChase.UI
                         CancelAllPrompt();
                         Vector3Int targetCoord = m_worldContext.WorldMap.WorldToCell(targetPos);
                         GameContextRecord context = new GameContextRecord(m_worldContext, m_characterContext);
-                        bool isSelectionValid = TargetingValidation.IsDestinationValid(m_currentActiveTileId, targetCoord, context);
+                        bool isSelectionValid = TargetValidator.IsAttackTargetValid(
+                            m_currentActiveTileId, 
+                            targetCoord, 
+                            context,
+                            out bool isTargetAttackable,
+                            out bool isTargetDefeatable);
+
                         // If player selects self, cancel the move prompt.
                         if (isSelectionValid)
                         {
@@ -274,7 +278,7 @@ namespace BlindChase.UI
                         //IMPL
                         ObjectId selectedId = info.SourceId;
                         bool isSelectionValid = 
-                            TargetingValidation.IsSkillTargetSelectionValid(selectedId, m_currentActiveTileId, m_currentSkillId);
+                            TargetValidator.IsSkillTargetSelectionValid(selectedId, m_currentActiveTileId, m_currentSkillId);
 
                         if (!isSelectionValid) 
                         {

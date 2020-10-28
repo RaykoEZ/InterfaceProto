@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace BlindChase.GameManagement
 {
-
     public class SkillManager
     {
         static SkillDatabase m_skillDatabase = default;

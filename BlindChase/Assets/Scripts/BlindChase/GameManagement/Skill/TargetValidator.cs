@@ -1,12 +1,69 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using BlindChase.Utility;
 
 namespace BlindChase.GameManagement
 {
-    public static class TargetingValidation
+    public static class TargetValidator
     {
-        public static bool IsDestinationValid(in ObjectId attacker, in Vector3Int targetCoord, in GameContextRecord context) 
+        // Get all valid targets for a command.
+        public static List<Vector3Int> GetSkillTargetOptions(int skillId, ObjectId userId, Vector3Int userCoord, RangeMap range, WorldContext world)
+        {
+            List<Vector3Int> allTargets = range.ApplyRangeOffsets(userCoord);
+            List<Vector3Int> toRemove = new List<Vector3Int>();
+            // Check and remove any invalid targets.
+            foreach (Vector3Int targetPos in allTargets)
+            {
+                ObjectId target = world.GetOccupyingTileAt(targetPos);
+                bool isValid = IsSkillTargetSelectionValid(target, userId, skillId);
+                if (!isValid)
+                {
+                    toRemove.Add(targetPos);
+                }
+            }
+
+            foreach (Vector3Int removeThis in toRemove)
+            {
+                allTargets.Remove(removeThis);
+            }
+            return allTargets;
+        }
+
+        public static List<Vector3Int> GetMovementOptions(ObjectId userId, Vector3Int userCoord, RangeMap moveRange, GameContextRecord context)
+        {
+            List<Vector3Int> targets = moveRange.ApplyRangeOffsets(userCoord);
+            List<Vector3Int> toRemove = new List<Vector3Int>();
+
+            foreach (Vector3Int targetPos in targets)
+            {
+                bool isValid = IsAttackTargetValid(
+                    userId,
+                    targetPos,
+                    context,
+                    out bool isTargetAttackable,
+                    out bool isTargetDefeatable);
+                if (!isValid)
+                {
+                    toRemove.Add(targetPos);
+                }
+            }
+
+            foreach (Vector3Int removeThis in toRemove)
+            {
+                targets.Remove(removeThis);
+            }
+
+            return targets;
+        }
+
+
+        public static bool IsAttackTargetValid(
+            in ObjectId attacker, 
+            in Vector3Int targetCoord, 
+            GameContextRecord context,
+            out bool isOccupierVulnerable,
+            out bool isOccupierDefeatable) 
         {
             CharacterContext c = context.CharacterRecord;
             WorldContext w = context.WorldRecord;
@@ -35,11 +92,11 @@ namespace BlindChase.GameManagement
             // You cannot stay in the same position.
             bool isNotStationary = offset != Vector3Int.zero;
             // No defender for the occupier, valid target to attack
-            bool isOccupierVulnerable = occupierIsEnemy && defender == null;
+            isOccupierVulnerable = occupierIsEnemy && defender == null;
             // If there is a character not allied with the occupier in the way of occupier's retreat, this is a valid target.
-            bool isOccupierDeafeatable = occupierIsEnemy && defender != null && defender.FactionId != occupier.FactionId;
+            isOccupierDefeatable = occupierIsEnemy && defender != null && defender.FactionId != occupier.FactionId;
             // Sum all allowed checks
-            bool isDestinationPossible = isOpenSpace || isOccupierVulnerable || isOccupierDeafeatable;
+            bool isDestinationPossible = isOpenSpace || isOccupierVulnerable || isOccupierDefeatable;
 
             return isNotStationary && isDestinationPossible;
         }

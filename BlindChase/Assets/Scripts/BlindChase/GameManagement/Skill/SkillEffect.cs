@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using UnityEngine;
 
 namespace BlindChase.GameManagement
 {
@@ -10,12 +9,17 @@ namespace BlindChase.GameManagement
 
         public SkillEffect(SkillAttributeId id)
         {
-            Type utility = typeof(SkillOperation);
+            Type operationUtil = typeof(SkillOperation);
             // Using reflection to store a delegate of the defined utility method.
-            MethodInfo methodInfo = utility.GetMethod(id.EffectName);
+            MethodInfo methodInfo = operationUtil.GetMethod(id.EffectName);
             m_effectMethod = 
                 (Func<SkillEffectArgs, SimulationResult>) 
-                methodInfo?.CreateDelegate(typeof(Func<SkillEffectArgs, SimulationResult>));    
+                methodInfo?.CreateDelegate(typeof(Func<SkillEffectArgs, SimulationResult>));
+        }
+
+        public virtual bool IsTargetValid(in SkillEffectArgs skillValues) 
+        {
+            return false;
         }
 
         public virtual SimulationResult Activate(in SkillEffectArgs skillValues) 

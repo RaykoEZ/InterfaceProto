@@ -98,7 +98,7 @@ namespace BlindChase.GameManagement
         {
             foreach (CharacterState character in m_currentParticipants.Affected)
             {
-                if (character.IsActive || character.IsHPZero)
+                if (!character.IsActive || character.IsHPZero)
                 {
                     // Player defeated anim here
 

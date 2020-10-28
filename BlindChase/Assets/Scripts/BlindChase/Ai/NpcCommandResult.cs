@@ -5,22 +5,20 @@ using BlindChase.Utility;
 
 namespace BlindChase.Ai
 {
-    public partial class DecisionHelper 
+    public partial class CommandSimulator 
     {
-        protected class NpcSimulationResult 
+        protected class NpcCommandResult 
         {
             public CommandTypes CommandType = CommandTypes.NONE;
             public SimulationResult SimResult;
             public readonly DecisionParameter Parameters;
-            public readonly DecisionParameter Diff;
             public IReadOnlyList<Vector3Int> Targets;
             public SkillActivationInput SkillInput;
 
-            protected NpcSimulationResult(
+            protected NpcCommandResult(
                 CommandTypes commandType,
                 in SimulationResult result, 
                 in DecisionParameter param, 
-                in DecisionParameter diff,
                 in List<Vector3Int> targets,
                 in SkillActivationInput input = default) 
             {
@@ -28,16 +26,14 @@ namespace BlindChase.Ai
                 SimResult = result;
                 SkillInput = input;
                 Parameters = param;
-                Diff = diff;
                 Targets = targets;
             }
 
             // Overload for singular target locations.
-            protected NpcSimulationResult(
+            protected NpcCommandResult(
                 CommandTypes commandType,
                 in SimulationResult result,
                 in DecisionParameter param,
-                in DecisionParameter diff,
                 in Vector3Int target,
                 in SkillActivationInput input = default)
             {
@@ -45,11 +41,10 @@ namespace BlindChase.Ai
                 SimResult = result;
                 SkillInput = input;
                 Parameters = param;
-                Diff = diff;
                 Targets = new List<Vector3Int> { target };
             }
 
-            public static NpcSimulationResult Create(
+            public static NpcCommandResult Create(
                 CommandTypes commandType,
                 in ObjectId userId,
                 in DecisionParameter defaultDecisionParam,
@@ -61,14 +56,12 @@ namespace BlindChase.Ai
             {
                 CharacterState userState = simResult.ResulContext.CharacterRecord.MemberDataContainer[userId].PlayerState;
                 DecisionParameter newUrgency = DecisionParameter.CalculateNewParameter(defaultDecisionParam, visionRange, movementRange, simResult.ResulContext, userState);
-                DecisionParameter diff = newUrgency.DiffWith(defaultDecisionParam);
-
-                NpcSimulationResult ret = new NpcSimulationResult(commandType, simResult, newUrgency, diff, targetLocations, input);
+                NpcCommandResult ret = new NpcCommandResult(commandType, simResult, newUrgency, targetLocations, input);
                 return ret;
             }
 
             // Overload for singular target locations.
-            public static NpcSimulationResult Create(
+            public static NpcCommandResult Create(
                 CommandTypes commandType,
                 in ObjectId userId,
                 in DecisionParameter defaultDecisionParam,
@@ -79,10 +72,8 @@ namespace BlindChase.Ai
                 in SkillActivationInput input = default)
             {
                 CharacterState userState = simResult.ResulContext.CharacterRecord.MemberDataContainer[userId].PlayerState;
-                DecisionParameter newUrgency = DecisionParameter.CalculateNewParameter(defaultDecisionParam, visionRange, movementRange, simResult.ResulContext, userState);
-                DecisionParameter diff = newUrgency.DiffWith(defaultDecisionParam);
-                
-                NpcSimulationResult ret = new NpcSimulationResult(commandType, simResult, newUrgency, diff, targetLocation, input);
+                DecisionParameter newUrgency = DecisionParameter.CalculateNewParameter(defaultDecisionParam, visionRange, movementRange, simResult.ResulContext, userState);             
+                NpcCommandResult ret = new NpcCommandResult(commandType, simResult, newUrgency, targetLocation, input);
                 return ret;
             }
         }

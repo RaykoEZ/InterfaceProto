@@ -40,8 +40,7 @@ namespace BlindChase.Ai
                     }
                 }
                 return ret;
-            }
-        
+            }     
         }
 
         // This modifies the derived priority values to show the nature of a faction's NPC.
@@ -86,24 +85,13 @@ namespace BlindChase.Ai
             m_isDirty = true;
         }
 
-        public DecisionParameter DiffWith(DecisionParameter diffTarget) 
+        // Get difference of two weights. 
+        public float DiffWith(NpcMainObjective objType, float sourceWeight) 
         {
-            if(diffTarget == null) 
-            {
-                return null;
-            }
+            float subtractBy = m_objectiveUrgencies.ContainsKey(objType)?
+                m_objectiveUrgencies[objType].Weight : 0.0f;
 
-            DecisionParameter ret = new DecisionParameter();
-            foreach (KeyValuePair<NpcMainObjective, ObjectiveBias> objective in m_objectiveUrgencies)
-            {
-                float targetWeight = diffTarget.ObjectiveUrgencies.ContainsKey(objective.Key)? 
-                    diffTarget.ObjectiveUrgencies[objective.Key].Weight : 0.0f;
-
-                float weightDiff = targetWeight - m_objectiveUrgencies[objective.Key].Weight;
-
-                ret.ObjectiveUrgencies[objective.Key] = new ObjectiveBias(weightDiff, objective.Value.Tolerance);
-            }
-            return ret;
+            return sourceWeight - subtractBy;
         }
 
 
@@ -141,25 +129,34 @@ namespace BlindChase.Ai
                 case NpcMainObjective.HOSTILITY:
                     {
                         List<CharacterState> enemiesInRange = charactersInMoveRange.VisibleEnemies;
-                        int numWeakEnemies = 0;
+
+                        float offenseScore = 0;
                         //Judge if any enemy looks weak.
                         foreach (CharacterState enemy in enemiesInRange)
                         {
-                            bool isEnemyWeak = EvaluationHelper.
-                                IsTargetWeak(enemy.CurrentHP, enemy.Character.MaxHP, objective.Value.Tolerance);
-                            numWeakEnemies += isEnemyWeak ? 1 : 0;
+                            TargetValidator.IsAttackTargetValid(
+                                npcState.ObjectId, 
+                                enemy.Position, 
+                                context, 
+                                out bool isAttackable, 
+                                out bool isDefeatable);
+
+                            offenseScore += isAttackable ? 0.5f : 0;
+                            offenseScore += isDefeatable ? 0.5f : 0;
                         }
+
                         int maxHp = npcState.Character.MaxHP;
                         int currentHp = npcState.CurrentHP;
-
-                        result = EvaluationHelper.AgressionPriority(defaultMod, numWeakEnemies, maxHp, currentHp);
+                        // Get average offense score per target option.
+                        float offenseFactor = enemiesInRange.Count == 0 ? 1.0f : offenseScore / enemiesInRange.Count;
+                        result = EvaluationUtil.AgressionPriority(defaultMod, offenseFactor, maxHp, currentHp);
                         break;
                     }
                 case NpcMainObjective.SURVIVAL:
                     {
                         int maxHp = npcState.Character.MaxHP;
                         int currentHp = npcState.CurrentHP;
-                        result = EvaluationHelper.SelfSurvivalPriority(defaultMod, maxHp, currentHp, charactersInSight.VisibleEnemies.Count, charactersInSight.VisibleAllies.Count);
+                        result = EvaluationUtil.SelfSurvivalPriority(defaultMod, maxHp, currentHp, charactersInSight.VisibleEnemies.Count, charactersInSight.VisibleAllies.Count);
                         break;
                     }
                 case NpcMainObjective.PROTECTION:

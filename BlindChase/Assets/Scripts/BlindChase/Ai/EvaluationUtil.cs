@@ -1,6 +1,8 @@
-﻿namespace BlindChase.Ai
+﻿using System;
+
+namespace BlindChase.Ai
 {
-    public static class EvaluationHelper 
+    public static class EvaluationUtil 
     {
         // Methods used to assess game state values and derrive decision weights/scores for the AI planner.
 
@@ -9,15 +11,16 @@
         public static float SelfSurvivalPriority(float defaultMod, int maxHp, int currentHp, int numEnemies, int numAllies)
         {
             float enemyPresence = EnemyPresenceMod(numEnemies, numAllies);
-            // If there is no enemy, we still have 1/(2*numAllies) as a minimum multiplier for this result.
             // numAllies will always include self.
+
             float lossFactor = enemyPresence * HpLossFactor(maxHp, currentHp);
+           
             float result = defaultMod * lossFactor;
             return result;
         }
 
         // HpLoss : fraction of Hp loss for the protectee
-        public static float AgressionPriority(float defaultMod, int numWeakEnemies, int maxHp, int currentHp)
+        public static float AgressionPriority(float defaultMod, float offenseFactor, int maxHp, int currentHp)
         {
             float hpFactor = 1 - HpLossFactor(maxHp, currentHp);
 
@@ -27,7 +30,7 @@
             // 0.5f = EnemyPresenceMod(0, 1), which means:
             // - NPC has no other allies in sight.
             // - There is no enemy in sight.
-            float result = hpFactor * (numWeakEnemies + 0.5f) * defaultMod;
+            float result = hpFactor * offenseFactor* defaultMod;
             return result;
         }
 
@@ -52,14 +55,14 @@
         // Returns the Hp lost in proportion to maxHp.
         static float HpLossFactor(int maxHp, int currentHp)
         {
-            return (maxHp - currentHp) / maxHp;
+            return maxHp <= 0? 1.0f : (maxHp - currentHp) / maxHp;
         }
 
-        // Above 1 when outnumbered.
-        // When evenly matched, we add a little to boost aggression by 1/(2*numAllies).
+        // Tends to 1 when outnumbered.
+        // When evenly matched or no enemies, factor == 1/2.
         static float EnemyPresenceMod(int numEnemies, int numAllies)
         {
-            return (0.5f + numEnemies) / numAllies;
+            return numEnemies <= 0 ? 0.5f :  numEnemies / (numAllies + numEnemies);
         }
 
         // Determine whether a target is weak enough to defeat by judging its hp loss

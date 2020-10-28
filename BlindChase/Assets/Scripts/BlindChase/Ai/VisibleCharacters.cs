@@ -25,10 +25,11 @@ namespace BlindChase.Ai
             // Get all visible characters in range.
             List<CharacterState> alliesInRange = new List<CharacterState>();
             List<CharacterState> enemiesInRange = new List<CharacterState>();
+            Vector3Int origin = npc.Position;
             // Search for characters in the range map.
-            foreach (Vector3Int position in range.OffsetsFromOrigin) 
+            foreach (Vector3Int offset in range.OffsetsFromOrigin) 
             {
-                ObjectId occupierId = w.GetOccupyingTileAt(position);
+                ObjectId occupierId = w.GetOccupyingTileAt(origin + offset);
                 bool isInRange = occupierId != null;
                 bool isAlliy = occupierId?.FactionId == npc.ObjectId.FactionId;
                 if (isInRange && isAlliy)

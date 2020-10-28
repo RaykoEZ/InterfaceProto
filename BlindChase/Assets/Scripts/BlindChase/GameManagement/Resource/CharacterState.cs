@@ -5,7 +5,7 @@ using UnityEngine;
 namespace BlindChase.GameManagement
 {
     [Serializable]
-    public struct IdLevelPair 
+    public struct SkillDataPair 
     {
         public int Id;
         public int Level;
@@ -17,7 +17,7 @@ namespace BlindChase.GameManagement
         public string CharacterId;
         public string Name;
         // Key: Skill Id, Value: Skill Level
-        public List<IdLevelPair> SkillLevels;
+        public List<SkillDataPair> SkillLevels;
         public int MaxHP;
         public int MaxSP;
         public int BaseDefense;
@@ -86,7 +86,7 @@ namespace BlindChase.GameManagement
 
             CurrentSkillCooldowns = new Dictionary<int, int>(Character.SkillLevels.Count);
 
-            foreach (IdLevelPair SkillLevel in Character.SkillLevels) 
+            foreach (SkillDataPair SkillLevel in Character.SkillLevels) 
             {
                 CurrentSkillCooldowns[SkillLevel.Id] = 0;
             }

@@ -7,7 +7,7 @@ using BlindChase.Utility;
 
 namespace BlindChase.Ai
 {
-    public partial class DecisionHelper 
+    public partial class CommandSimulator 
     {
         CharacterState m_controllingStateRef;
         RangeMap m_movementRangeRef;
@@ -29,28 +29,36 @@ namespace BlindChase.Ai
 
         public virtual CommandRequest MakeDecision(in DecisionParameter urgencyDetail, GameContextRecord context) 
         {
-            List<NpcSimulationResult> possibleSkills = GetBestSkillOptions(urgencyDetail, context);
-            NpcSimulationResult bestAdvancingOption = GetBestMovementOption(urgencyDetail, context);
+            List<NpcCommandResult> possibleSkills = GetBestSkillOptions(urgencyDetail, context);
+            NpcCommandResult bestAdvancingOption = GetBestMovementOption(urgencyDetail, context);
             possibleSkills.Add(bestAdvancingOption);
 
             CommandRequest bestCommand = AssessCommandOptions(urgencyDetail, possibleSkills);
             return bestCommand;
         }
 
-        List<NpcSimulationResult> GetBestSkillOptions(in DecisionParameter urgencyDetail, GameContextRecord context) 
+        List<NpcCommandResult> GetBestSkillOptions(in DecisionParameter urgencyDetail, GameContextRecord context) 
         {
-            List<NpcSimulationResult> possibleResults = new List<NpcSimulationResult>();
-            foreach (IdLevelPair skillLevel in m_controllingStateRef.Character.SkillLevels)
+            List<NpcCommandResult> possibleResults = new List<NpcCommandResult>();
+            foreach (SkillDataPair skillLevel in m_controllingStateRef.Character.SkillLevels)
             {
                 SkillParameters skillParam = SkillManager.GetSkillParameters(skillLevel.Id, skillLevel.Level);
                 bool preConditionsMet = SkillManager.CheckSkillPreconditions(m_controllingStateRef, skillLevel.Id, skillParam.SkillCost, out string message);
-                List<Vector3Int> possibleTargets = GetSkillTargets(skillLevel.Id, m_skillRangesRef[skillLevel.Id], context.WorldRecord);
-                // Onl;y choose when you can afford the skill cost, skill is off Cooldown, and have valid targets.
+
+                List<Vector3Int> possibleTargets = TargetValidator.
+                    GetSkillTargetOptions(
+                    skillLevel.Id,
+                    m_controllingStateRef.ObjectId, 
+                    m_controllingStateRef.Position,
+                    m_skillRangesRef[skillLevel.Id], 
+                    context.WorldRecord);
+
+                // Only choose when you can afford the skill cost, skill is off Cooldown, and have valid targets.
                 if (preConditionsMet && possibleTargets.Count > 0)
                 {
                     int targetLimit = skillParam.TargetLimit;
 
-                    NpcSimulationResult result = TrySkill(
+                    NpcCommandResult result = TrySkill(
                         urgencyDetail,
                         context,
                         skillLevel,
@@ -64,62 +72,27 @@ namespace BlindChase.Ai
             return possibleResults;
         }
 
-        NpcSimulationResult GetBestMovementOption(in DecisionParameter urgencyDetail, GameContextRecord record) 
+        NpcCommandResult GetBestMovementOption(in DecisionParameter urgencyDetail, GameContextRecord record) 
         {
-            List<Vector3Int> targets = m_movementRangeRef.ApplyRangeOffsets(m_controllingStateRef.Position);
-            List<Vector3Int> toRemove = new List<Vector3Int>();
-
-            foreach (Vector3Int targetPos in targets)
-            {
-                bool isValid = TargetingValidation.IsDestinationValid(m_controllingStateRef.ObjectId, targetPos, record);
-                if (!isValid)
-                {
-                    toRemove.Add(targetPos);
-                }
-            }
-
-            foreach (Vector3Int removeThis in toRemove)
-            {
-                targets.Remove(removeThis);
-            }
+            List<Vector3Int> targets = TargetValidator.GetMovementOptions(
+                m_controllingStateRef.ObjectId,
+                m_controllingStateRef.Position,
+                m_movementRangeRef,
+                record
+                );
 
             return TryAdvancing(urgencyDetail, record, targets);
         }
 
-
-        // Get all valid targets for a command.
-        List<Vector3Int> GetSkillTargets(int skillId, RangeMap range, WorldContext world) 
-        {
-            List<Vector3Int> allTargets = range.ApplyRangeOffsets(m_controllingStateRef.Position);
-            List<Vector3Int> toRemove = new List<Vector3Int>();
-            // Check and remove any invalid targets.
-            foreach (Vector3Int targetPos in allTargets) 
-            {
-                ObjectId target = world.GetOccupyingTileAt(targetPos);
-                bool isValid = TargetingValidation.IsSkillTargetSelectionValid(target, m_controllingStateRef.ObjectId, skillId);
-                if (!isValid) 
-                {
-                    toRemove.Add(targetPos);
-                }
-            }
-
-            foreach(Vector3Int removeThis in toRemove) 
-            {
-                allTargets.Remove(removeThis);
-            }
-            
-            return allTargets;
-        }
-
         // Get all possible results of using a command and return the best one.
-        NpcSimulationResult TrySkill(
+        NpcCommandResult TrySkill(
             in DecisionParameter urgencyDetail, 
             in GameContextRecord context, 
-            IdLevelPair kvp, 
+            SkillDataPair kvp, 
             int targetLimit, 
             List<Vector3Int> allTargets) 
         {
-            NpcSimulationResult result;
+            NpcCommandResult result;
             ObjectId userId = m_controllingStateRef.ObjectId;
             GameContextRecord inputContext = new GameContextRecord(context);
             SkillActivationInput inputRef = new SkillActivationInput(kvp.Id, kvp.Level, userId, inputContext);
@@ -127,7 +100,7 @@ namespace BlindChase.Ai
             if (targetLimit > 1) 
             {
                 SimulationResult triedResult = SkillManager.ActivateSkill(inputRef, allTargets);
-                NpcSimulationResult simResult = NpcSimulationResult.Create(
+                NpcCommandResult simResult = NpcCommandResult.Create(
                     CommandTypes.SKILL_ACTIVATE,
                     userId, 
                     urgencyDetail, 
@@ -142,13 +115,13 @@ namespace BlindChase.Ai
             // If npc needs to choose a target, get all possible results for each choice and choos the best one.
             else 
             {
-                List<NpcSimulationResult> triedResults = new List<NpcSimulationResult>(allTargets.Count);
+                List<NpcCommandResult> triedResults = new List<NpcCommandResult>(allTargets.Count);
 
                 foreach(Vector3Int target in allTargets) 
                 {
                     SkillActivationInput inputCopy = new SkillActivationInput(inputRef);
-                    SimulationResult triedResult = SkillManager.ActivateSkill(inputRef, target);
-                    NpcSimulationResult simResult = NpcSimulationResult.Create(
+                    GameManagement.SimulationResult triedResult = SkillManager.ActivateSkill(inputRef, target);
+                    NpcCommandResult simResult = NpcCommandResult.Create(
                     CommandTypes.SKILL_ACTIVATE,
                     userId,
                     urgencyDetail,
@@ -167,15 +140,15 @@ namespace BlindChase.Ai
             return result;
         }
 
-        NpcSimulationResult TryAdvancing(in DecisionParameter urgencyDetail, in GameContextRecord context, List<Vector3Int> allTargets) 
+        NpcCommandResult TryAdvancing(in DecisionParameter urgencyDetail, in GameContextRecord context, List<Vector3Int> allTargets) 
         {
-            List<NpcSimulationResult> triedResults = new List<NpcSimulationResult>(allTargets.Count);
+            List<NpcCommandResult> triedResults = new List<NpcCommandResult>(allTargets.Count);
 
             foreach (Vector3Int pos in allTargets)
             {
                 GameContextRecord simContext = new GameContextRecord(context);
-                SimulationResult triedResult = SkillManager.BasicMovement(simContext, pos, m_controllingStateRef.ObjectId);
-                NpcSimulationResult result = NpcSimulationResult.Create(
+                GameManagement.SimulationResult triedResult = SkillManager.BasicMovement(simContext, pos, m_controllingStateRef.ObjectId);
+                NpcCommandResult result = NpcCommandResult.Create(
                     CommandTypes.ADVANCE,
                     m_controllingStateRef.ObjectId,
                     urgencyDetail,
@@ -188,14 +161,14 @@ namespace BlindChase.Ai
             }
 
             // Assess all results to pick the best one.
-            NpcSimulationResult bestResult = AssessResults(urgencyDetail, triedResults);
+            NpcCommandResult bestResult = AssessResults(urgencyDetail, triedResults);
 
             return bestResult;
         }
 
 
         // Assess each possible results in a command's options, and pick the best one.
-        NpcSimulationResult AssessResults(in DecisionParameter urgencyDetail, List<NpcSimulationResult> results)
+        NpcCommandResult AssessResults(in DecisionParameter urgencyDetail, List<NpcCommandResult> results)
         {
             // Return
             if(results.Count == 0) 
@@ -208,55 +181,64 @@ namespace BlindChase.Ai
                 return results[0];
             }
 
-            // We consider two options for best results:
-            // - Best action to reduce Main Objective Urgency
-            // - Best action to reduce Overal Urgency
             NpcMainObjective mainObjective = urgencyDetail.MainObjective;
-            float bestMainObjDiff = 0f;
-            float bestBiasSum = 0f;
+            float bestMainObjDiff = urgencyDetail.ObjectiveUrgencies[mainObjective].Weight;
+            float bestBiasSum = urgencyDetail.BiasSum;
             int bestMainObjIdx = 0;
-            int bestOveralIdx = 0;
-            // Get the best performing results' indices
+            int bestOverallIdx = 0;
+            // Get the best performing results' indices, the smaller the urgency weight, the better the option.
             for (int i = 0; i < results.Count; ++i)
             {
-                DecisionParameter diff = results[i].Diff;
-                float mainObjDiff = diff.ObjectiveUrgencies[mainObjective].Weight;
-                // If a task decreases priority of a goal, it suggests this action accomplished the goal (to an extent).
+                float mainObjWeight = results[i].Parameters.ObjectiveUrgencies[mainObjective].Weight;
+
+                // If a task decreases urgency of a goal, it suggests this action accomplished the goal (to an extent).
                 // So the more negative the diff is, the higher the scoring.
-                if (bestMainObjDiff > mainObjDiff) 
+                if (bestMainObjDiff > mainObjWeight) 
                 {
-                    bestMainObjDiff = mainObjDiff;
+                    bestMainObjDiff = mainObjWeight;
                     bestMainObjIdx = i;
                 }
 
-                float objSum = diff.BiasSum;
+                // Checking for overall urgency.
+                float objSum = results[i].Parameters.BiasSum;
                 if (bestBiasSum > objSum)
                 {
                     bestBiasSum = objSum;
-                    bestOveralIdx = i;
+                    bestOverallIdx = i;
                 }
             }
 
+            // If best overall is best for main objective, return the result now.
+            if (bestMainObjIdx == bestOverallIdx) 
+            {
+                return results[bestMainObjIdx];
+            }
+
+            // We consider two options for best results:
+            // - Best action to reduce Main Objective Urgency
+            // - Best action to reduce Overal Urgency
             DecisionParameter mainObj = results[bestMainObjIdx].Parameters;
-            float mainObjTolerance = urgencyDetail.ObjectiveUrgencies[mainObjective].Tolerance;
             // If urgency sum factor goes above tolerance, we are better choosing the best-overall instead.
             float performanceFactor = mainObj.BiasSum / (bestBiasSum + mainObj.BiasSum);
-            // Higher tolerance => lower performance requirement for mainObj to be chosen.
-            //** Tolerance converges to 1, performanceFactor converges towards 1.
-            // If MainObj Sum == BestOverall Sum, factor == 1/2, 
-            // if factor > 0.5, MainObj is less effective overall than BestOverall, need tolerance to judge if we choose MainObj anyway.
-            bool isMainObjEffective = performanceFactor < mainObjTolerance;
 
-            NpcSimulationResult bestResult = isMainObjEffective ? results[bestMainObjIdx] : results[bestOveralIdx];
+            // Higher tolerance => lower performance requirement for mainObj can be chosen.
+            // If MainObj Sum == BestOverall Sum, factor == 1/2, 
+            // if factor > 0.5, "MainObj" is less effective overall than "Best Overall", need tolerance to judge if we choose MainObj anyway.
+            // Since tolerance ranges 0 to 1 and we want:  0.5 < tolerance < 1
+            float mainObjTolerance = urgencyDetail.ObjectiveUrgencies[mainObjective].Tolerance;
+            float tolerance = 0.5f + (0.5f * mainObjTolerance);
+            bool isMainObjEffective = performanceFactor < tolerance;
+
+            NpcCommandResult bestResult = isMainObjEffective ? results[bestMainObjIdx] : results[bestOverallIdx];
    
             return bestResult;
         }
 
 
         // Assess each command's best result, and pick the best.
-        CommandRequest AssessCommandOptions(DecisionParameter urgencyDetail, List<NpcSimulationResult> results)
+        CommandRequest AssessCommandOptions(DecisionParameter urgencyDetail, List<NpcCommandResult> results)
         {
-            NpcSimulationResult bestOption = AssessResults(urgencyDetail, results);
+            NpcCommandResult bestOption = AssessResults(urgencyDetail, results);
             Dictionary<string, object> payload = new Dictionary<string, object>();
 
             switch (bestOption.CommandType)
