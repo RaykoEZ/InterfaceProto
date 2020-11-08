@@ -10,11 +10,11 @@ namespace BlindChase.Utility
         /// </summary>
         /// <param name="range"></param> The max number of squares allowed to move from origin.
         /// <returns></returns> A set of offsets to define valid positions to in a range 
-        public static RangeMap GetNeighbourRangeMap(int range)
+        public static RangeOffsetMap GetNeighbourRangeMap(int range)
         {
             if (range < 1) 
             {
-                return new RangeMap
+                return new RangeOffsetMap
                 (new List<Vector3Int> { Vector3Int.zero });
             }
 
@@ -65,11 +65,11 @@ namespace BlindChase.Utility
                 }
             }
 
-            RangeMap map = new RangeMap(neighbours);
+            RangeOffsetMap map = new RangeOffsetMap(neighbours);
             return map;
         }
 
-        static RangeMap GetImmediateNeighbourhood() 
+        static RangeOffsetMap GetImmediateNeighbourhood() 
         {
             List<Vector3Int> neighbours = new List<Vector3Int>();
             neighbours.Add(new Vector3Int(0, 1, 0));
@@ -77,7 +77,7 @@ namespace BlindChase.Utility
             neighbours.Add(new Vector3Int(1, 0, 0));
             neighbours.Add(new Vector3Int(-1, 0, 0));
 
-            RangeMap map = new RangeMap(neighbours); 
+            RangeOffsetMap map = new RangeOffsetMap(neighbours); 
             return map;
         }
 

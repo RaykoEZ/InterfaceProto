@@ -41,17 +41,16 @@ namespace BlindChase.GameManagement
             {
                 ObjectId target = args.TargetId;
                 int baseValue = args.SkillData.BaseValue;
+                int hpBefore = args.TargetState.CurrentHP;
                 GameContextRecord newContext = ActionSimulation.RestoreHP(args.Context, target, baseValue);
-                CharacterState newState = newContext.CharacterRecord.MemberDataContainer[target].PlayerState;
 
-
-                CharacterState newTarget = newContext.CharacterRecord.MemberDataContainer[target].PlayerState;
-                CharacterState newUserState = newContext.CharacterRecord.MemberDataContainer[args.UserId].PlayerState;
+                CharacterState targetState = newContext.CharacterRecord.MemberDataContainer[target].PlayerState;
+                
+                CharacterState userState = newContext.CharacterRecord.MemberDataContainer[args.UserId].PlayerState;
                 List<CharacterState> changeList = new List<CharacterState> { 
-                    { newUserState }, { newTarget } };
+                    { userState }, { targetState } };
 
-                CharacterState oldTarget = args.TargetState;
-                string message = oldTarget.CurrentHP >= oldTarget.Character.MaxHP ? $"{oldTarget.ObjectId.FactionId} {oldTarget.ObjectId.NPCId} is at full HP." : "First Aid activated";
+                string message =  $"First Aid: {targetState.ObjectId.FactionId} {targetState.ObjectId.NPCId} gained {targetState.CurrentHP - hpBefore} HP.";
                 SimulationResult result = new SimulationResult(message, newContext, changeList);
                 return result;
             }

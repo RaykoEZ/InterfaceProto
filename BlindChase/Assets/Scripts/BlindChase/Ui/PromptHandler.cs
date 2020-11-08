@@ -26,7 +26,7 @@ namespace BlindChase.UI
 
         EventInfo m_latestTileEventInfo;
         ObjectId m_currentActiveTileId = default;
-        RangeMap m_currentPromptRange;
+        RangeOffsetMap m_currentPromptRange;
 
         int m_currentSkillId = -1;
         int m_targetLimit = 0;
@@ -108,7 +108,7 @@ namespace BlindChase.UI
             return m_targets.Count <= m_targetLimit && m_targets.Count > 0;
         }
 
-        void ShowPrompt(ObjectId id, GameObject tileToSpawn, RangeMap range, Vector3 worldPos, Transform parent, bool toggle = false)
+        void ShowPrompt(ObjectId id, GameObject tileToSpawn, RangeOffsetMap range, Vector3 worldPos, Transform parent, bool toggle = false)
         {
             m_currentPromptRange = range;
             m_display.ShowRangeMap(id, tileToSpawn, m_currentPromptRange, worldPos, parent, toggle);
@@ -143,7 +143,7 @@ namespace BlindChase.UI
             m_targetLimit = targetLimit;
             Transform parent = m_characterContext.MemberDataContainer[id].PlayerTransform;
             Vector3 origin = parent.position;
-            RangeMap rangeMap = m_rangeDsplayMasks.GetSkillRangeMap(skillRangeId);
+            RangeOffsetMap rangeMap = m_rangeDsplayMasks.GetSkillRangeMap(skillRangeId);
             ObjectId skillRangeTileId = new ObjectId(id.FactionId, id.UnitId, CommandTypes.SKILL_ACTIVATE);
 
             ShowPrompt(skillRangeTileId, m_skillRangeTile, rangeMap, origin, parent);
@@ -159,7 +159,7 @@ namespace BlindChase.UI
                 Transform parent = m_characterContext.MemberDataContainer[info.SourceId].PlayerTransform;
 
                 ObjectId previewTileId = new ObjectId(info.SourceId.FactionId, info.SourceId.UnitId, m_currentPrompt);
-                RangeMap rangeMap = m_rangeDsplayMasks.GetClassRangeMap(state.Character.ClassType);
+                RangeOffsetMap rangeMap = m_rangeDsplayMasks.GetAttackRangeMap(state.Character.ClassType);
 
                 ShowPrompt(previewTileId, m_previewRangeTile, rangeMap, parent.position, parent, true);
             }
@@ -189,7 +189,7 @@ namespace BlindChase.UI
                     m_currentActiveTileId.UnitId,
                     m_currentPrompt);
 
-                RangeMap rangeMap = m_rangeDsplayMasks.GetClassRangeMap(state.Character.ClassType);
+                RangeOffsetMap rangeMap = m_rangeDsplayMasks.GetAttackRangeMap(state.Character.ClassType);
                 ShowPrompt(movementRangeTileId, m_moveRangeTile, rangeMap, parent.position, parent, true);
             }
             else 
@@ -228,7 +228,6 @@ namespace BlindChase.UI
             bool isSelectionValid = m_currentPromptRange.IsInRange(origin, destCoord);            
             if (!isSelectionValid) 
             {
-                Debug.Log("Selected target not valid.");
                 return;
             }
 
@@ -244,12 +243,10 @@ namespace BlindChase.UI
                         CancelAllPrompt();
                         Vector3Int targetCoord = m_worldContext.WorldMap.WorldToCell(targetPos);
                         GameContextRecord context = new GameContextRecord(m_worldContext, m_characterContext);
-                        bool isSelectionValid = TargetValidator.IsAttackTargetValid(
+                        bool isSelectionValid = TargetEvaluation.IsAttackTargetValid(
                             m_currentActiveTileId, 
                             targetCoord, 
-                            context,
-                            out bool isTargetAttackable,
-                            out bool isTargetDefeatable);
+                            context);
 
                         // If player selects self, cancel the move prompt.
                         if (isSelectionValid)
@@ -259,7 +256,6 @@ namespace BlindChase.UI
                         }
                         else
                         {
-                            Debug.LogWarning("Cannot advance to this location, detected in PromptHandler.");
                             CommandRequest command = new CommandRequest(m_currentPrompt);
                             CommandRequestInfo commandCancelled = new CommandRequestInfo(m_currentActiveTileId, command);
                             OnPromptCancel?.TriggerEvent(commandCancelled);
@@ -270,7 +266,6 @@ namespace BlindChase.UI
                     {
                         if(m_currentSkillId < 0) 
                         {
-                            Debug.LogError("SkillId not valid, detected in PromptHandler.");
                             return;
                         }
 
@@ -278,11 +273,10 @@ namespace BlindChase.UI
                         //IMPL
                         ObjectId selectedId = info.SourceId;
                         bool isSelectionValid = 
-                            TargetValidator.IsSkillTargetSelectionValid(selectedId, m_currentActiveTileId, m_currentSkillId);
+                            TargetEvaluation.IsSkillTargetSelectionValid(selectedId, m_currentActiveTileId, m_currentSkillId);
 
                         if (!isSelectionValid) 
                         {
-                            Debug.LogWarning($"Target selection not valid for Skill [{m_currentSkillId}], detected in PromptHandler.");
                             return;
                         }
 

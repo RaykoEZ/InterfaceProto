@@ -28,7 +28,7 @@ namespace BlindChase.GameManagement
         }
 
         // For multiple-target skills
-        public static SimulationResult ActivateSkill(in SkillActivationInput input, List<Vector3Int> targets) 
+        public static SimulationResult ActivateSkill(in SkillActivationInput input, IEnumerable<Vector3Int> targets) 
         {
             SkillDataCollection skillDataColllection = m_skillDatabase.GetSkill(input.SkillId);
             int validSkillLevel = GetValidSkillLevel(skillDataColllection.ValueCollection.SkillValues.Count, input.SkillLevel);

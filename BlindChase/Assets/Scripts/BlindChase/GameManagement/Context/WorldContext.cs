@@ -31,6 +31,12 @@ namespace BlindChase.GameManagement
             return m_boardState.BoardOccupiers[pos];
         }
 
+        public bool IsPositionInBound(Vector3Int position) 
+        {
+            bool ret = WorldMap.cellBounds.Contains(position);
+            return ret;
+        }
+
         public WorldContext(Tilemap map)
         {
             WorldMap = map;

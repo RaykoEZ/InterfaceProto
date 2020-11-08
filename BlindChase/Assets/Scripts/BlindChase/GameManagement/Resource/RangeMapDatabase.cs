@@ -12,31 +12,31 @@ namespace BlindChase.GameManagement
     {
         // Internal data structure to deserialize json string into, need to convert to external type for general use.
         [Serializable]
-        private class RangeMap_Internal
+        private class RangeOffsetMap_Internal
         {
             public List<Vector3Int> OffsetsFromOrigin = default;
 
             [JsonConstructor]
-            public RangeMap_Internal(List<Vector3Int> offsets)
+            public RangeOffsetMap_Internal(List<Vector3Int> offsets)
             {
                 OffsetsFromOrigin = offsets;
             }
 
-            public RangeMap_Internal(RangeMap map) 
+            public RangeOffsetMap_Internal(RangeOffsetMap map) 
             {
                 OffsetsFromOrigin = new List<Vector3Int>(map.OffsetsFromOrigin);
             }
 
-            public RangeMap ToExternal() 
+            public RangeOffsetMap ToExternal() 
             {
-                return new RangeMap(OffsetsFromOrigin);
+                return new RangeOffsetMap(OffsetsFromOrigin);
             } 
         }
 
-        [SerializeField] List<RangeMap_Internal> m_squareRadiusRangeMaps = new List<RangeMap_Internal>();
+        [SerializeField] List<RangeOffsetMap_Internal> m_squareRadiusRangeMaps = new List<RangeOffsetMap_Internal>();
         
-        Dictionary<string, RangeMap> m_skillRangeMaps;
-        Dictionary<CharacterClassType, RangeMap> m_characterClassesRangeMaps;
+        Dictionary<string, RangeOffsetMap> m_skillRangeMaps;
+        Dictionary<CharacterClassType, RangeOffsetMap> m_characterClassesRangeMaps;
         
         const string c_classRangeDataRoot = "RangeMaps/ClassRanges";
         const string c_skillRangeDataRoot = "RangeMaps/SkillRanges";
@@ -49,25 +49,25 @@ namespace BlindChase.GameManagement
             m_enumConverter.AllowIntegerValues = true;
             TextAsset file = Resources.Load<TextAsset>(c_classRangeDataRoot);
 
-            Dictionary<CharacterClassType, RangeMap_Internal> internalMoveRange = JsonConvert.DeserializeObject<Dictionary<CharacterClassType, RangeMap_Internal>>(file.text, m_enumConverter);
+            Dictionary<CharacterClassType, RangeOffsetMap_Internal> internalMoveRange = JsonConvert.DeserializeObject<Dictionary<CharacterClassType, RangeOffsetMap_Internal>>(file.text, m_enumConverter);
             m_characterClassesRangeMaps = ToExternal(internalMoveRange);
 
             file = Resources.Load<TextAsset>(c_skillRangeDataRoot);
-            Dictionary<string, RangeMap_Internal> internalSkillRange = JsonConvert.DeserializeObject<Dictionary<string, RangeMap_Internal>>(file.text, m_enumConverter);
+            Dictionary<string, RangeOffsetMap_Internal> internalSkillRange = JsonConvert.DeserializeObject<Dictionary<string, RangeOffsetMap_Internal>>(file.text, m_enumConverter);
             m_skillRangeMaps = ToExternal(internalSkillRange);
         }
 
-        Dictionary<T, RangeMap> ToExternal<T>(Dictionary<T, RangeMap_Internal> internalCollection) 
+        Dictionary<T, RangeOffsetMap> ToExternal<T>(Dictionary<T, RangeOffsetMap_Internal> internalCollection) 
         {
-            Dictionary<T, RangeMap> ret = new Dictionary<T, RangeMap>();
-            foreach (KeyValuePair<T, RangeMap_Internal> kvp in internalCollection)
+            Dictionary<T, RangeOffsetMap> ret = new Dictionary<T, RangeOffsetMap>();
+            foreach (KeyValuePair<T, RangeOffsetMap_Internal> kvp in internalCollection)
             {
                 ret[kvp.Key] = kvp.Value.ToExternal();
             }
             return ret;
         }
 
-        public RangeMap GetClassRangeMap(CharacterClassType type)
+        public RangeOffsetMap GetAttackRangeMap(CharacterClassType type)
         {
             if (type == CharacterClassType.UnKnown || !m_characterClassesRangeMaps.ContainsKey(type)) 
             {
@@ -77,7 +77,7 @@ namespace BlindChase.GameManagement
             return m_characterClassesRangeMaps[type];
         }
 
-        public RangeMap GetSkillRangeMap(string id)
+        public RangeOffsetMap GetSkillRangeMap(string id)
         {
             if (string.IsNullOrWhiteSpace(id) || !m_skillRangeMaps.ContainsKey(id))
             {
@@ -87,7 +87,7 @@ namespace BlindChase.GameManagement
             return m_skillRangeMaps[id];
         }
 
-        public RangeMap GetSquareRadiusMap(int range) 
+        public RangeOffsetMap GetSquareRadiusMap(int range) 
         {
             if (range < 0 || range > m_squareRadiusRangeMaps.Count) 
             {
@@ -103,7 +103,7 @@ namespace BlindChase.GameManagement
             m_squareRadiusRangeMaps.Clear();
             for (int i = 0; i< maxRange + 1; ++i) 
             {
-                RangeMap_Internal mask = new RangeMap_Internal(NeighbourhoodUtil.GetNeighbourRangeMap(i));
+                RangeOffsetMap_Internal mask = new RangeOffsetMap_Internal(NeighbourhoodUtil.GetNeighbourRangeMap(i));
                 m_squareRadiusRangeMaps.Add(mask);
             }
         }

@@ -76,7 +76,6 @@ namespace BlindChase.GameManagement
         {
             GameContextRecord context = new GameContextRecord(m_worldRef, m_characterRef);
             SimulationResult result = SkillManager.BasicMovement(context, destination, m_currentTargetState.ObjectId);
-            Debug.Log(result.Message);
             HandleResult(m_currentTargetState.ObjectId, result, OnAdvancing, m_actionSequencer.OnCharacterAdvance, endTurn: true);
         }
 
@@ -87,7 +86,6 @@ namespace BlindChase.GameManagement
             //Player cannot use this skill, return.
             if (!SkillManager.CheckSkillPreconditions(m_currentTargetState, skillId, cost, out string message))
             {
-                Debug.Log(message);
                 return;
             }
 
@@ -97,7 +95,6 @@ namespace BlindChase.GameManagement
             List<Vector3Int> targetCoords = new List<Vector3Int>(targetCoord);
 
             SimulationResult result = SkillManager.ActivateSkill(input, targetCoords);
-            Debug.Log(result.Message);
 
             Dictionary<string, object> payload = new Dictionary<string, object>
             {
@@ -116,7 +113,6 @@ namespace BlindChase.GameManagement
             //Player cannot use this skill, return.
             if (!SkillManager.CheckSkillPreconditions(m_currentTargetState, skillId, cost, out string message))
             {
-                Debug.Log(message);
                 return;
             }
 
@@ -137,13 +133,13 @@ namespace BlindChase.GameManagement
             SimulationResult result, 
             Action<EventInfo> onSuccessGameEventTrigger, 
             Action<ActionParticipants, Action, Dictionary<string,object>> actionSequenceResolver,
-            bool endTurn = false, 
+            bool endTurn = false,
             Dictionary<string, object> payload = null) 
         {
                 // This is called when the player phase animations are finished.
             Action onTransitionFinish = () => 
             { 
-                UpdateGame(result.ResulContext);
+                UpdateGame(result.ResultContext);
                 OnCommandFinish?.Invoke();
                 if (endTurn) 
                 {
@@ -164,7 +160,6 @@ namespace BlindChase.GameManagement
         }
 
         #region Event handles
-
         void UpdateGame(in GameContextRecord context) 
         {
             m_characterRef = context.CharacterRecord;
@@ -208,12 +203,12 @@ namespace BlindChase.GameManagement
             m_currentTargetState = m_characterRef.MemberDataContainer[tileId].PlayerState;
             GameContextRecord context = new GameContextRecord(m_worldRef, m_characterRef);
             SimulationResult result = SkillManager.AutoRecovery(context, m_currentTargetState.ObjectId);
-            UpdateGame(result.ResulContext);
+            UpdateGame(result.ResultContext);
             m_delayedEffects.OnTurnStartEffects();
 
             if (!string.IsNullOrEmpty(tileId.NPCId)) 
             {
-                GameContextRecord contextCopy = new GameContextRecord(result.ResulContext);
+                GameContextRecord contextCopy = new GameContextRecord(result.ResultContext);
                 m_npcManagerRef.OnNPCActive(tileId, contextCopy);
             }
         }

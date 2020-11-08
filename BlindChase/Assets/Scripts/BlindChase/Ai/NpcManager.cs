@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using BlindChase.Events;
 using BlindChase.GameManagement;
 
@@ -12,10 +10,9 @@ namespace BlindChase.Ai
 
         NpcDatabase m_npcDatabase = default;
         // One planner for each faction, key: Faction Id
-        //HashSet<string> m_npcFactions = new HashSet<string>();
         NpcTaskPlanner m_planner = new NpcTaskPlanner();
 
-        public void Init(RangeMapDatabase rangeDatabase) 
+        public void Init(RangeMapDatabase rangeDatabase)
         {
             m_npcDatabase = ScriptableObject.CreateInstance<NpcDatabase>();
 
@@ -36,7 +33,6 @@ namespace BlindChase.Ai
 
             if(factionNature == null) 
             {
-                Debug.LogError("NpcMananger - Cannot find correct Npc detail.");
                 return;
             }
 

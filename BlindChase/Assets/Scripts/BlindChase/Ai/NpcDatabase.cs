@@ -27,7 +27,6 @@ namespace BlindChase.Ai
         {
             if (string.IsNullOrWhiteSpace(factionId) || !m_NpcData.ContainsKey(factionId))
             {
-                Debug.LogError("Npc Faction Id is not valid.");
                 return null;
             }
 

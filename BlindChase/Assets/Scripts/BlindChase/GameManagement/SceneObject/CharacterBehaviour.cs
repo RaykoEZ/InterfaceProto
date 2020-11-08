@@ -33,7 +33,6 @@ namespace BlindChase.GameManagement
 
         public void OnAdvance(MotionDetail motion, Action onFinish, List<Action<bool>> onAdvanceTriggers = null)
         {
-            Debug.Log("Attack!!!");
             if(onAdvanceTriggers != null) 
             {
                 m_onAdvanceTriggers.AddRange(onAdvanceTriggers);
@@ -63,7 +62,6 @@ namespace BlindChase.GameManagement
 
         public void OnTakeDamage(MotionDetail motion, Action onFinish, bool isLastHit)
         {
-            Debug.Log("Owwww");
             // If we react to take damage for the last time this turn, trigger onFinish callback
             if (isLastHit) 
             {

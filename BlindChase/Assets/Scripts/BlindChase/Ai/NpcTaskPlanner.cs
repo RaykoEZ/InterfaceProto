@@ -10,10 +10,9 @@ namespace BlindChase.Ai
     public class NpcTaskPlanner
     {
         public event OnPlayerCommand<CommandRequestInfo> OnNPCTaskPlanned = default;
-        CommandSimulator m_decsionHelper = new CommandSimulator();
-        RangeMapDatabase m_rangeMapDatabaseRef = default;
-        RangeMap m_moveRangeRef;
-        RangeMap m_visionRangeRef;
+        CommandSimulator m_simulatior;
+        RangeMapDatabase m_rangeDatabaseRef;
+        RangeOffsetMap m_visionRangeRef;
         DecisionParameter m_defaultDetailRef;
         ObjectId m_activeNpcId;
         WorldContext m_worldRef;
@@ -26,7 +25,8 @@ namespace BlindChase.Ai
 
         public virtual void Init(RangeMapDatabase rangeDatatbaseRef) 
         {
-            m_rangeMapDatabaseRef = rangeDatatbaseRef;
+            m_rangeDatabaseRef = rangeDatatbaseRef;
+            m_simulatior = new CommandSimulator(rangeDatatbaseRef);
         }
 
         public virtual void OnActive(ObjectId activateId, DecisionParameter nature, GameContextRecord context) 
@@ -37,18 +37,8 @@ namespace BlindChase.Ai
             m_worldRef = context.WorldRecord;
 
             CharacterState self = new CharacterState(m_characterRef.MemberDataContainer[m_activeNpcId].PlayerState);
-            Dictionary<int, RangeMap> skillRanges = new Dictionary<int, RangeMap>();
-            foreach (SkillDataPair skillLevel in self.Character.SkillLevels) 
-            {
-                SkillParameters skillParam = SkillManager.GetSkillParameters(skillLevel.Id, skillLevel.Level);
-                string rangeId = skillParam.EffectRange;
-                skillRanges[skillLevel.Id] = m_rangeMapDatabaseRef.GetSkillRangeMap(rangeId);
-            }
-
-            m_visionRangeRef = m_rangeMapDatabaseRef.GetSquareRadiusMap(2);
-
-            m_moveRangeRef = m_rangeMapDatabaseRef.GetClassRangeMap(self.Character.ClassType);
-            m_decsionHelper.Setup(self, m_moveRangeRef, m_visionRangeRef, skillRanges);
+            m_visionRangeRef = m_rangeDatabaseRef.GetSquareRadiusMap(2);
+            m_simulatior.Setup(self, context);
             GameContextRecord record = new GameContextRecord(m_worldRef, m_characterRef);
             CommandRequestInfo result = Plan(record, self);
 
@@ -57,21 +47,20 @@ namespace BlindChase.Ai
 
         protected virtual CommandRequestInfo Plan(GameContextRecord record, CharacterState self)
         {
+            ObservationResult observation = ObservationResult.CharactersInRange(record, m_rangeDatabaseRef, self, m_visionRangeRef);
             // Get current goal priority wieghts
-            DecisionParameter currentPriorities = DecisionParameter.CalculateNewParameter(m_defaultDetailRef, m_visionRangeRef,m_moveRangeRef, record, self);
+            DecisionParameter currentPriorities = DecisionParameter.CalculateNewParameter(record, self, m_defaultDetailRef, observation);
             CommandRequest decision = CommandDecision(currentPriorities, record);
-
             CommandRequestInfo result = new CommandRequestInfo(m_activeNpcId, decision);
 
             return result;
         }
 
-        // IMPL
         CommandRequest CommandDecision(
             DecisionParameter priorityDetail,
             GameContextRecord record) 
         {
-            CommandRequest desicion = m_decsionHelper.MakeDecision(priorityDetail, record);
+            CommandRequest desicion = m_simulatior.Simulate(priorityDetail, record);
             return desicion;
         }
 

@@ -1,4 +1,5 @@
-﻿
+﻿using System.Collections.Generic;
+
 namespace BlindChase.GameManagement
 {
     // A container of game context to prevent unwanted context mutation

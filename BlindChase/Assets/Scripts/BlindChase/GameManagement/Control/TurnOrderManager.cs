@@ -83,7 +83,7 @@ namespace BlindChase.GameManagement
             // See which characters are removed from play
             foreach(ObjectId id in m_waitingCharacters) 
             {
-                if (!newContext.MemberDataContainer[id].PlayerState.IsActive) 
+                if (newContext.MemberDataContainer[id].PlayerState.IsDefeated) 
                 {
                     toRemove.Add(id);
                 }
@@ -93,7 +93,7 @@ namespace BlindChase.GameManagement
             foreach(ObjectId id in newContext.MemberDataContainer.Keys) 
             {
                 if (!m_waitingCharacters.Contains(id) && 
-                    newContext.MemberDataContainer[id].PlayerState.IsActive) 
+                    !newContext.MemberDataContainer[id].PlayerState.IsDefeated) 
                 {
                     toAdd.Add(id);
                 }

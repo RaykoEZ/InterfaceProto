@@ -29,7 +29,6 @@ namespace BlindChase.GameManagement
         { 
             if(string.IsNullOrWhiteSpace(id) || !m_characterDataCollection.ContainsKey(id)) 
             {
-                Debug.LogError("Character Id is not valid.");
                 return new CharacterData();
             }
             return m_characterDataCollection[id];

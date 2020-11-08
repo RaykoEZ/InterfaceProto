@@ -6,6 +6,7 @@
         "SkillLevels" : [{"Id" :0, "Level": 1}, {"Id" : 1,  "Level" : 1}],
         "MaxHP" : 10,
         "MaxSP" : 3,
+        "BaseAttack" : 3,
         "BaseDefense" : 1,
         "BaseSpeed" : 1.0,
         "ClassType" : "Swordsman"
@@ -17,6 +18,7 @@
         "SkillLevels" : [{"Id" :1, "Level": 2}],
         "MaxHP" : 7,
         "MaxSP" : 5,
+        "BaseAttack" : 2,
         "BaseDefense" : 0,
         "BaseSpeed" : 1.0,
         "ClassType" : "Archer"
@@ -28,6 +30,7 @@
         "SkillLevels" :[{"Id" : 0, "Level": 2}],
         "MaxHP" : 10,
         "MaxSP" : 3,
+        "BaseAttack" : 2,
         "BaseDefense" : 0,
         "BaseSpeed" : 1.8,
         "ClassType" : "Lancer"

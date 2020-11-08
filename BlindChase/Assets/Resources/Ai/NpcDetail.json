@@ -3,18 +3,16 @@
     {
         "ObjectiveBiases":
         {
-            "HOSTILITY" : { "Weight": 1.0, "Tolerance" : 0.7},
-            "SURVIVAL" : { "Weight": 0.7, "Tolerance" : 0.7},
-            "PROTECTION" : { "Weight": 0.3, "Tolerance" : 0.2}
+            "HOSTILITY" : { "Weight": 1.0},
+            "SURVIVAL" : { "Weight": 0.5}
         }
     },
     "Ai_Survive" :
     {
         "ObjectiveBiases":
         {
-            "HOSTILITY" : { "Weight": 0.7, "Tolerance" : 0.2},
-            "SURVIVAL" : { "Weight": 1.0, "Tolerance" : 0.2},
-            "PROTECTION" : { "Weight": 0.5, "Tolerance" : 0.2}
+            "HOSTILITY" : { "Weight": 0.5},
+            "SURVIVAL" : { "Weight": 1.0}
         }
     }
 }

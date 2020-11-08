@@ -5,17 +5,17 @@ using Newtonsoft.Json;
 
 namespace BlindChase.Utility
 {
-    public class RangeMap
+    public class RangeOffsetMap
     {
         //List for common operations
         List<Vector3Int> m_offsetList;
         public IReadOnlyList<Vector3Int> OffsetsFromOrigin { get { return m_offsetList; }}
-        public RangeMap(IEnumerable<Vector3Int> rangeTiles) 
+        public RangeOffsetMap(IEnumerable<Vector3Int> rangeTiles) 
         {
             m_offsetList = new List<Vector3Int>(rangeTiles);
         }
 
-        public RangeMap(List<Vector3Int> rangeTiles)
+        public RangeOffsetMap(List<Vector3Int> rangeTiles)
         {
             m_offsetList = rangeTiles;
         }

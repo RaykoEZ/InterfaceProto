@@ -12,8 +12,6 @@ namespace BlindChase.GameManagement
             WorldContext world = context.WorldRecord;
 
             CharacterState state = characters.MemberDataContainer[targetd].PlayerState;
-
-            Debug.Log("Damage");
             int netDamage = Mathf.Max(baseValue - state.CurrentDefense, 0);
             state.CurrentHP -= netDamage;
 
@@ -25,7 +23,6 @@ namespace BlindChase.GameManagement
         {
             CharacterContext characters = context.CharacterRecord;
             WorldContext world = context.WorldRecord;
-            Debug.Log($"Healing for {baseValue} HP for {targetd.FactionId} {targetd.UnitId} {targetd.NPCId}.");
             CharacterState state = characters.MemberDataContainer[targetd].PlayerState;
 
             state.CurrentHP = Mathf.Min(state.CurrentHP + baseValue, state.Character.MaxHP);
@@ -38,7 +35,6 @@ namespace BlindChase.GameManagement
         {
             CharacterContext characters = context.CharacterRecord;
             WorldContext world = context.WorldRecord;
-            Debug.Log($"Recover {baseValue} SP for {targetd.FactionId} {targetd.UnitId} {targetd.NPCId}.");
             CharacterState state = characters.MemberDataContainer[targetd].PlayerState;
 
             state.CurrentSP = Mathf.Min(state.CurrentSP + baseValue, state.Character.MaxSP);
@@ -51,7 +47,6 @@ namespace BlindChase.GameManagement
         {
             CharacterContext characters = context.CharacterRecord;
             WorldContext world = context.WorldRecord;
-            Debug.Log($"Reduce {baseValue} CD for {targetd.FactionId} {targetd.UnitId} {targetd.NPCId}.");
             CharacterState state = characters.MemberDataContainer[targetd].PlayerState;
 
 
@@ -104,12 +99,13 @@ namespace BlindChase.GameManagement
             CharacterState attacker = characters.MemberDataContainer[attackerId].PlayerState;
             CharacterState target = characters.MemberDataContainer[targetId].PlayerState;
 
+            // Deal damage to the target.
+            GameContextRecord gameContext = DealDamage(context, targetId, attacker.CurrentAttack);
             Vector3Int retreatDestination = GetClassKnockbackPattern(attacker.Character.ClassType, attacker.Position, target.Position);
-            ObjectId occupier = world.GetOccupyingTileAt(retreatDestination);
-            GameContextRecord gameContext = new GameContextRecord(world, characters);
-
+            ObjectId defender = world.GetOccupyingTileAt(retreatDestination);
+            bool isRetreatImpossible = TargetEvaluation.IsRetreatDenied(targetId, defender, retreatDestination, world);
             // If the retreating destination has another ally unit to pincer attack(not the attacker):
-            if (occupier != null && occupier != attackerId)
+            if (defender != attackerId && isRetreatImpossible)
             {
                 gameContext = DefeatTarget(gameContext, targetId);
                 return MoveTo(gameContext, attacker.ObjectId, target.Position, attacker.Position);
@@ -132,7 +128,6 @@ namespace BlindChase.GameManagement
             WorldContext world = context.WorldRecord;
             CharacterContext character = context.CharacterRecord;
             CharacterState defeated = character.MemberDataContainer[defeatedId].PlayerState;
-            Debug.Log($"Character: {defeated.Character.Name} {defeated.ObjectId.NPCId} Defeated!");
             defeated.IsActive = false;
             world.RemoveBoardPiece(defeated.Position, defeatedId);
             return new GameContextRecord(world, character);

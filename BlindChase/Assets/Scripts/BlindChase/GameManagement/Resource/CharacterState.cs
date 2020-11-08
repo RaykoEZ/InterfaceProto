@@ -20,6 +20,7 @@ namespace BlindChase.GameManagement
         public List<SkillDataPair> SkillLevels;
         public int MaxHP;
         public int MaxSP;
+        public int BaseAttack;
         public int BaseDefense;
         public float BaseSpeed;
         public CharacterClassType ClassType;
@@ -34,15 +35,34 @@ namespace BlindChase.GameManagement
         public Vector3Int Position { get; set; }
         public int CurrentHP { get; set; }
         public int CurrentSP { get; set; }
+        public int CurrentAttack { get; set; }
         public int CurrentDefense { get; set; }
         public float CurrentSpeed { get; set; }
 
-        public bool IsHPZero { get { return CurrentHP < 0; } }
+        public bool IsDefeated { get { return IsHPZero || !IsActive; } }
+        public bool IsHPZero { get { return CurrentHP <= 0; } }
+        public bool IsActive { get; set; }
 
         public Dictionary<int, int> CurrentSkillCooldowns { get; private set; }
 
-        public bool IsActive { get; set; }
 
+        // A coefficient representing the character's vital state.
+        // 0 - character is defeated
+        // 1 - Character in perfect vital state.
+        public float Vitality { 
+            get 
+            {
+                if (IsHPZero || !IsActive) 
+                {
+                    return 0f;
+                }
+
+                float maxVitals = Character.MaxHP + 0.2f * Character.MaxSP;
+                float currentVitals = CurrentHP + 0.2f * CurrentSP;
+                return currentVitals / maxVitals; 
+            } 
+        }
+        
         // Deep copy
         public CharacterState(CharacterState state) 
         {
@@ -53,6 +73,7 @@ namespace BlindChase.GameManagement
 
             CurrentHP = state.CurrentHP;
             CurrentSP = state.CurrentSP;
+            CurrentAttack = state.CurrentAttack;
             CurrentDefense = state.CurrentDefense;
             CurrentSpeed = state.CurrentSpeed;
             Character = state.Character;
@@ -80,6 +101,7 @@ namespace BlindChase.GameManagement
 
             CurrentHP = Character.MaxHP;
             CurrentSP = Character.MaxSP;
+            CurrentAttack = Character.BaseAttack;
             CurrentDefense = Character.BaseDefense;
             CurrentSpeed = Character.BaseSpeed;
             IsActive = isActive;
@@ -90,6 +112,14 @@ namespace BlindChase.GameManagement
             {
                 CurrentSkillCooldowns[SkillLevel.Id] = 0;
             }
+        }
+
+        public float EstimateThreat(CharacterState attacker)
+        {
+            float speedRatio = attacker.CurrentSpeed / CurrentSpeed;
+            float damageEstimate = speedRatio * (attacker.CurrentAttack - CurrentDefense);
+
+            return damageEstimate;
         }
     }
 

@@ -35,7 +35,7 @@ namespace BlindChase.UI
         #endregion
 
         #region Show method used for spawning range tiles
-        void Show(ObjectId id, RangeMap tileOffsets, Vector3 origin, GameObject tileRef, Transform parent, bool forceOverwrite = false)
+        void Show(ObjectId id, RangeOffsetMap tileOffsets, Vector3 origin, GameObject tileRef, Transform parent, bool forceOverwrite = false)
         {
             bool tilesExist = m_rangeTileManager.DoTilesExist(id);
 
@@ -66,7 +66,7 @@ namespace BlindChase.UI
         public void ShowRangeMap(
             ObjectId id,
             GameObject tileToSpawn,
-            RangeMap range,
+            RangeOffsetMap range,
             Vector3 origin,
             Transform parent,
             bool toggle = false)
@@ -95,7 +95,7 @@ namespace BlindChase.UI
         void ShowDisplay(
             ObjectId id,
             Vector3 origin,
-            RangeMap rangeMap,
+            RangeOffsetMap rangeMap,
             GameObject tileRef,
             Transform parent,
             bool forceNew = false)
@@ -115,7 +115,7 @@ namespace BlindChase.UI
         bool ToggleDisplay(
             ObjectId id,
             Vector3 origin,
-            RangeMap rangeMap,
+            RangeOffsetMap rangeMap,
             GameObject tileRef,
             Transform parent)
         {
