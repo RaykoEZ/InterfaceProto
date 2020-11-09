@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: General
+  m_EditorClassIdentifier: 
+  m_GroupName: General
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 32c49e079240d4a4588613e44217cb36
+  m_SerializeEntries:
+  - m_GUID: cc54be43c93a8ee4b8144d67c6e4e21a
+    m_Address: C0_TakeDamage
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Anim_TakeDamage
+    m_MainAsset: {fileID: 7400000, guid: cc54be43c93a8ee4b8144d67c6e4e21a, type: 2}
+    m_TargetAsset: {fileID: 7400000, guid: cc54be43c93a8ee4b8144d67c6e4e21a, type: 2}
+  - m_GUID: ff5f85da24bc943d1abdc5760a22bc81
+    m_Address: C0_Audio_TakeDamage
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: c8a5e894bf47d8e41b94a4debb257f2c, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 8729afc3864e211439c93d366460087a, type: 2}
+    - {fileID: 11400000, guid: 060cbdd4b6e4357438049fb55bf227e2, type: 2}

@@ -38,6 +38,7 @@ namespace BlindChase.Ai
 
             m_planner.OnActive(id, factionNature, context);
         }
+
         void OnNpcAction(CommandRequestInfo info)
         {
             OnNPCCommand?.Invoke(info);

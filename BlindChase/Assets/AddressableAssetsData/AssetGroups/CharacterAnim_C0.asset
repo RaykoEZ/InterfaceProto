@@ -36,13 +36,6 @@ MonoBehaviour:
     m_SerializedLabels: []
     m_MainAsset: {fileID: 0}
     m_TargetAsset: {fileID: 0}
-  - m_GUID: cc54be43c93a8ee4b8144d67c6e4e21a
-    m_Address: C0_TakeDamage
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Anim_TakeDamage
-    m_MainAsset: {fileID: 0}
-    m_TargetAsset: {fileID: 0}
   - m_GUID: dd5e6e20cc2c99b40b6158e9794226de
     m_Address: C0_Advance_Sprite
     m_ReadOnly: 0

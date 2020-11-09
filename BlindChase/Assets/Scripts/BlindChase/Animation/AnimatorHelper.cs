@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using BlindChase.GameManagement;
 
 namespace BlindChase.Animation
 {
@@ -12,6 +13,7 @@ namespace BlindChase.Animation
         [SerializeField] Animator m_animator = default;
         [SerializeField] SpriteRenderer m_spriteRenderer = default;
         [SerializeField] MotionHandler m_motionHandler = default;
+        [SerializeField] CharacterAudioManager m_audioManager = default;
 
         protected static readonly string AnimatorName = "AnimOverride";
         protected static readonly Dictionary<CommandTypes, string> m_animationStateNames = new Dictionary<CommandTypes, string>
@@ -22,6 +24,7 @@ namespace BlindChase.Animation
 
         public void Init(string characterId)
         {
+            m_audioManager.Init(characterId);
             m_spriteRenderer.enabled = false;
             Addressables.LoadAssetAsync<AnimatorOverrideController>($"{characterId}_{AnimatorName}").Completed += OnAnimAssetLoaded;
         }
@@ -82,7 +85,6 @@ namespace BlindChase.Animation
 
         IEnumerator SetAnimationState(string stateName, string triggerName, Action onFinish = null, MotionDetail motion = null)
         {
-
             if (motion != null)
             {
                 m_motionHandler.StartMotion(m_animator, stateName, motion.Destination);

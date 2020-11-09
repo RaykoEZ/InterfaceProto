@@ -54,7 +54,7 @@
     {
         "Name": "Skill1",
         "Text": "Heal small amount of HP to an self.",
-        "Image": "Test0",
+        "Image": "FirstAid0",
         "MaxSkillLevel": 3,
         "AllowedTargets" : "Ally",
         "ValueCollection" :       

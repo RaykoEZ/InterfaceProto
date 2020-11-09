@@ -5,7 +5,8 @@
         {
             "HOSTILITY" : { "Weight": 1.0},
             "SURVIVAL" : { "Weight": 0.5}
-        }
+        },
+        "RiskScalar" : 0.5
     },
     "Ai_Survive" :
     {
@@ -13,6 +14,7 @@
         {
             "HOSTILITY" : { "Weight": 0.5},
             "SURVIVAL" : { "Weight": 1.0}
-        }
+        },
+        "RiskScalar" : 1.0
     }
 }

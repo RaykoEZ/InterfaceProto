@@ -8,7 +8,7 @@
         "MaxSP" : 3,
         "BaseAttack" : 3,
         "BaseDefense" : 1,
-        "BaseSpeed" : 1.0,
+        "BaseSpeed" : 1.3,
         "ClassType" : "Swordsman"
     },
     "C1" :
@@ -20,7 +20,7 @@
         "MaxSP" : 5,
         "BaseAttack" : 2,
         "BaseDefense" : 0,
-        "BaseSpeed" : 1.0,
+        "BaseSpeed" : 1.1,
         "ClassType" : "Archer"
     },               
     "C2" : 
@@ -32,7 +32,7 @@
         "MaxSP" : 3,
         "BaseAttack" : 2,
         "BaseDefense" : 0,
-        "BaseSpeed" : 1.8,
+        "BaseSpeed" : 1.5,
         "ClassType" : "Lancer"
     }
 }

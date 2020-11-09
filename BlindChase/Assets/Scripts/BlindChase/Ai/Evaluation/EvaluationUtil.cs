@@ -74,27 +74,11 @@ namespace BlindChase.Ai
             out float riskRating,
             out float advantageScaler) 
         {
-            // Check for immediate threats.
-            riskRating = 1.0f;
+
             // TEMP FACTOR
-            float selfValue = userState.Character.ClassType == CharacterClassType.Master ? 1.5f : 1.0f;
-            foreach (ObjectId enemyId in afterSim.EnemyIds) 
-            {
-                TargetEvaluation.IsAttackTargetValid(enemyId, userState.Position, contextAfter,
-                   out bool isFreeSpace, out bool canBeAttacked, out bool canBeDefeated);
-
-                if (canBeAttacked) 
-                {
-                    riskRating += 0.25f;
-                }
-
-                if (canBeDefeated) 
-                {
-                    riskRating +=  0.5f;
-                }
-
-                riskRating *= selfValue;
-            }
+            float bountyVal = userState.Character.ClassType == CharacterClassType.Master ? 1.5f : 1.0f;
+            // Check for immediate threats.
+            riskRating = PostionRisk(contextAfter, afterSim, bountyVal, 1.0f, userState.Position);
 
             // Check for future threats & variety of moves.
             HashSet<AdvancementOption> futureMoves = TargetEvaluation.InspectMovementOption(
@@ -109,8 +93,37 @@ namespace BlindChase.Ai
             advantageScaler = PositionAdvantage(contextAfter, futureMoves);
         }
 
+        static float PostionRisk(
+            in GameContextRecord contextAfter,
+            ObservationResult afterSim,
+            float characterBountyMod, 
+            float riskIncrease, 
+            Vector3Int userPos) 
+        {
+            float riskRating = 1.0f;
+
+            foreach (ObjectId enemyId in afterSim.EnemyIds)
+            {
+                TargetEvaluation.IsAttackTargetValid(enemyId, userPos, contextAfter,
+                   out bool isFreeSpace, out bool canBeAttacked, out bool canBeDefeated);
+
+                if (canBeAttacked)
+                {
+                    riskRating += riskIncrease;
+                }
+
+                if (canBeDefeated)
+                {
+                    riskRating += 2 * riskIncrease;
+                }
+
+                riskRating *= characterBountyMod;
+            }
+            return riskRating;
+        }
+
         static float PositionAdvantage(
-            GameContextRecord contextAfter,
+            in GameContextRecord contextAfter,
             HashSet<AdvancementOption> moveOptions)       
         {
             float ret = 1.0f;
@@ -121,11 +134,11 @@ namespace BlindChase.Ai
                 {
                     CharacterState target = c.MemberDataContainer[option.TargetId].PlayerState;
                     CharacterClassType targetClass = target.Character.ClassType;
-                    float bonusMod = targetClass == CharacterClassType.Master ? 1.5f : 1.0f;
+                    float bounty = targetClass == CharacterClassType.Master ? 1.5f : 1.0f;
 
                     ret += option.IsDefenderVulnerable ? 0.25f : 0f;
                     ret += option.IsDefenderDefeatable ? 0.5f : 0f;
-                    ret *= bonusMod;
+                    ret *= bounty;
                 }
             }
      

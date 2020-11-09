@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 using BlindChase.GameManagement;
 using BlindChase.Utility;
 using Newtonsoft.Json;
@@ -22,6 +23,8 @@ namespace BlindChase.Ai
         bool m_isDirty = false;
         [NonSerialized]
         float m_biasSum = 0.0f;
+        [NonSerialized]
+        float m_riskScalar = 1.0f;
 
         public NpcObjective MainObjective 
         {
@@ -54,6 +57,8 @@ namespace BlindChase.Ai
             } 
         }
 
+        public float RiskScalar { get { return m_riskScalar; } set { m_riskScalar = Math.Max(0f, value); } }
+
         public float BiasSum 
         { 
             get 
@@ -77,9 +82,10 @@ namespace BlindChase.Ai
         }
 
         [JsonConstructor]
-        public DecisionParameter(Dictionary<NpcObjective, ObjectiveBias> objectiveBiases)
+        public DecisionParameter(Dictionary<NpcObjective, ObjectiveBias> objectiveBiases, float riskTolerance)
         {
             m_objectiveUrgencies = objectiveBiases;
+            m_riskScalar = riskTolerance;
             m_isDirty = true;
         }
 
@@ -122,20 +128,8 @@ namespace BlindChase.Ai
                 case NpcObjective.HOSTILITY:
                     {
                         CharacterContext character = context.CharacterRecord;
-                        HashSet<string> factionIds = character.FactionIds;
-                        // Remove the allied faction Id.
-                        factionIds.Remove(npcState.ObjectId.FactionId);
-                        float totslPower = 0f;
-                        foreach(string factionId in factionIds) 
-                        {
-                            float enemyFactionPower = character.FactionPowerValue[factionId];
-                            totslPower += enemyFactionPower;
-                        }
-
-                        float allyPower = character.FactionPowerValue[npcState.ObjectId.FactionId];
-
                         // Get enemy faction power factor.
-                        float offenseFactor = (totslPower - allyPower) / totslPower;
+                        float offenseFactor = character.HostilePowerFactor(npcState.ObjectId.FactionId);
 
                         int maxHp = npcState.Character.MaxHP;
                         int currentHp = npcState.CurrentHP;

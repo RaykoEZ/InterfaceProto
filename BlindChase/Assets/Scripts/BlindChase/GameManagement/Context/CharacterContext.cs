@@ -38,7 +38,6 @@ namespace BlindChase.GameManagement
         public IReadOnlyDictionary<string, float> FactionPowerValue { get { return m_factionPowerCollection; } }
         public IReadOnlyDictionary<string, HashSet<ObjectId>> FactionMemberIds { get { return m_factionMemeberIdCollection; } }
 
-
         public CharacterContext(Dictionary<ObjectId, CharacterStateContainer> factionData) 
         {
             MemberDataContainer = new Dictionary<ObjectId, CharacterStateContainer>(factionData);
@@ -73,7 +72,23 @@ namespace BlindChase.GameManagement
                 }
             }
         }
-        
+
+        public float HostilePowerFactor(string userFactionId)
+        {
+            HashSet<string> factionIds = FactionIds;
+            factionIds.Remove(userFactionId);
+            float totslPower = 0f;
+            foreach (string factionId in factionIds)
+            {
+                float enemyFactionPower = FactionPowerValue[factionId];
+                totslPower += enemyFactionPower;
+            }
+
+            float allyPower = FactionPowerValue[userFactionId];
+            float powerFactor = (totslPower - allyPower) / totslPower;
+            return powerFactor;
+        }
+
         void AddToFactionPower(string factionId, float incrementBy) 
         {
             if (string.IsNullOrWhiteSpace(factionId)) 

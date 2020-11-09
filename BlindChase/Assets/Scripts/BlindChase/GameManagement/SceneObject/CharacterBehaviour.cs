@@ -15,7 +15,8 @@ namespace BlindChase.GameManagement
         public override void Init(ObjectId tileId, CharacterData characterData)
         {
             base.Init(tileId, characterData);
-            m_animatorHelper.Init(characterData.CharacterId);
+            string charId = characterData.CharacterId;
+            m_animatorHelper.Init(charId);
         }
 
         public override void Shutdown()
