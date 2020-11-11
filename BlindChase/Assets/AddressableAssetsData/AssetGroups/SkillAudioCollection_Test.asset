@@ -21,14 +21,20 @@ MonoBehaviour:
     m_Address: SkillAudio_Strike
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 8300000, guid: 0c008ee3ee72a4362a35be25fa5de043, type: 3}
-    m_TargetAsset: {fileID: 8300000, guid: 0c008ee3ee72a4362a35be25fa5de043, type: 3}
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  - m_GUID: 2667a0a008b044e218b63df62e2be749
+    m_Address: SkillAudio_OnActivate
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
   - m_GUID: d46323e22e74e46baa241cbf48c85671
     m_Address: SkillAudio_Heal
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 8300000, guid: d46323e22e74e46baa241cbf48c85671, type: 3}
-    m_TargetAsset: {fileID: 8300000, guid: d46323e22e74e46baa241cbf48c85671, type: 3}
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: c8a5e894bf47d8e41b94a4debb257f2c, type: 2}
   m_SchemaSet:

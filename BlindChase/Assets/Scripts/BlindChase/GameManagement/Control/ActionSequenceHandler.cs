@@ -59,6 +59,8 @@ namespace BlindChase.GameManagement
         {
             SetupSequence(participants, onFinish);
 
+            m_characterManagerRef.OnCharacterSkillActivate(participants.InitiateId);
+
             string skillId = payload["SkillId"].ToString();
             if(skillId == null) 
             {

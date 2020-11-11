@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace BlindChase.GameManagement
 {
@@ -8,9 +10,16 @@ namespace BlindChase.GameManagement
     {
         static SkillDatabase m_skillDatabase = default;
         static Dictionary<SkillAttributeId, SkillEffect> m_skillEffectCollection = new Dictionary<SkillAttributeId, SkillEffect>();
+        static AudioSource m_skillAudioSource;
 
-        public void Init(HashSet<int> skillIds) 
+        static AudioClip m_skillActivateAudio;
+
+        public void Init(HashSet<int> skillIds, AudioSource systemAudio) 
         {
+            m_skillAudioSource = systemAudio;
+
+            Addressables.LoadAssetAsync<AudioClip>("SkillAudio_OnActivate").Completed += OnSkillActivateAudioLoaded;
+
             m_skillDatabase = ScriptableObject.CreateInstance<SkillDatabase>();
 
             SkillAttributeId basicMovement = SkillAttributeId.BasicMovement;
@@ -27,9 +36,23 @@ namespace BlindChase.GameManagement
             }
         }
 
+        void OnSkillActivateAudioLoaded(AsyncOperationHandle<AudioClip> obj)
+        {
+            if (obj.Status == AsyncOperationStatus.Succeeded && obj.Result != null)
+            {
+                m_skillActivateAudio = obj.Result;
+            }
+            else
+            {
+                Debug.LogError("Failed loading Skill Activation Audio Asset");
+            }
+        }
+
         // For multiple-target skills
         public static SimulationResult ActivateSkill(in SkillActivationInput input, IEnumerable<Vector3Int> targets) 
         {
+            m_skillAudioSource.PlayOneShot(m_skillActivateAudio);
+
             SkillDataCollection skillDataColllection = m_skillDatabase.GetSkill(input.SkillId);
             int validSkillLevel = GetValidSkillLevel(skillDataColllection.ValueCollection.SkillValues.Count, input.SkillLevel);
             OnSPConsumption(skillDataColllection, input.SkillId, validSkillLevel, input);
@@ -53,6 +76,8 @@ namespace BlindChase.GameManagement
         // Single target skill
         public static SimulationResult ActivateSkill(in SkillActivationInput input, Vector3Int target)
         {
+            m_skillAudioSource.PlayOneShot(m_skillActivateAudio);
+
             SkillDataCollection skillDataColllection = m_skillDatabase.GetSkill(input.SkillId);
             int validSkillLevel = GetValidSkillLevel(skillDataColllection.ValueCollection.SkillValues.Count, input.SkillLevel);
             OnSPConsumption(skillDataColllection, input.SkillId, validSkillLevel, input);

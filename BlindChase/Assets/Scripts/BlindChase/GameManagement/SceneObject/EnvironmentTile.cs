@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+#if UNITY_EDITOR
 using UnityEditor.Tilemaps;
+#endif
 using BlindChase;
 
 namespace BlindChase
@@ -43,6 +45,7 @@ namespace BlindChase
             base.GetTileData(position, tilemap, ref tileData);
         }
 
+#if UNITY_EDIYOR
         [CreateTileFromPalette]
         public static EnvironmentTile CreateEnvironmentTile(Sprite sprite)
         {
@@ -51,6 +54,7 @@ namespace BlindChase
             tile.name = sprite.name;
             return tile;
         }
+#endif
     }
 }
 

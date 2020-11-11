@@ -9,6 +9,7 @@ namespace BlindChase.GameManagement
     public class CharacterBehaviour : TileBehaviour
     {
         [SerializeField] AnimatorHelper m_animatorHelper = default;
+        [SerializeField] CharacterAudioManager m_audioManager = default;
 
         List<Action<bool>> m_onAdvanceTriggers = new List<Action<bool>>();
 
@@ -16,6 +17,7 @@ namespace BlindChase.GameManagement
         {
             base.Init(tileId, characterData);
             string charId = characterData.CharacterId;
+            m_audioManager.Init(charId);
             m_animatorHelper.Init(charId);
         }
 
@@ -38,7 +40,7 @@ namespace BlindChase.GameManagement
             {
                 m_onAdvanceTriggers.AddRange(onAdvanceTriggers);
             }
-
+            m_audioManager.PlayAudio(CharacterAudioType.Advance);
             m_animatorHelper.TriggerAnimation(CommandTypes.ADVANCE, "OnCharacterAdvance", onFinish, motion);
         }
 
@@ -63,6 +65,7 @@ namespace BlindChase.GameManagement
 
         public void OnTakeDamage(MotionDetail motion, Action onFinish, bool isLastHit)
         {
+            m_audioManager.PlayAudio(CharacterAudioType.TakeDamage);
             // If we react to take damage for the last time this turn, trigger onFinish callback
             if (isLastHit) 
             {
@@ -77,7 +80,7 @@ namespace BlindChase.GameManagement
 
         }
 
-        public void OnSkillActivate(EventInfo info)
+        public void OnSkillActivate()
         {
             Debug.Log("Skill Activated");
         }

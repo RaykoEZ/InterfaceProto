@@ -93,7 +93,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -254,6 +254,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_animatorHelper: {fileID: 2050001226371101651}
+  m_audioManager: {fileID: 6833992485071533954}
 --- !u!114 &2050001226371101651
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269,7 +270,6 @@ MonoBehaviour:
   m_animator: {fileID: 5714009279074228462}
   m_spriteRenderer: {fileID: 2319650462661397655}
   m_motionHandler: {fileID: 2886847837537740008}
-  m_audioManager: {fileID: 6833992485071533954}
 --- !u!95 &5714009279074228462
 Animator:
   serializedVersion: 3

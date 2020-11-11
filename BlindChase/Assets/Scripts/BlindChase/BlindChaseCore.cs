@@ -23,6 +23,7 @@ namespace BlindChase
         [SerializeField] CommandEventHandler m_commandEventHandler = default;
         [SerializeField] TurnOrderManager m_turnOrderManager = default;
         [SerializeField] RangeMapDatabase m_rangeDatabase = default;
+        [SerializeField] AudioSource m_systemAudioSource = default;
 
         WorldStateContextFactory m_worldStateContextFactory = new WorldStateContextFactory();
         CharacterContextFactory m_characterContextFactory = new CharacterContextFactory();
@@ -62,7 +63,7 @@ namespace BlindChase
                 skillIds.UnionWith(characterState.CurrentSkillCooldowns.Keys);
             }
             // Load all possible skills the deployed characters have into the skill manager.
-            m_skillManager.Init(skillIds);
+            m_skillManager.Init(skillIds, m_systemAudioSource);
 
             m_npcManager.Init(m_rangeDatabase);
 

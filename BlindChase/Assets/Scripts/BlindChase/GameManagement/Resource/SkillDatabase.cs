@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+
 using Newtonsoft.Json;
 
 namespace BlindChase.GameManagement
@@ -51,6 +52,9 @@ namespace BlindChase.GameManagement
 
             return m_skillIcons[skillId];
         }
+
+
+
     }
 
 }

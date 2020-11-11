@@ -111,6 +111,8 @@ namespace BlindChase.GameManagement
             m_players[id].Player.Behaviour?.OnTakeDamage(detail, onFinish, isLastHit);
         }
 
+        // Impl
+
         public void OnCharacterDefeated(EventInfo info)
         {
             ObjectId id = info.SourceId;
@@ -119,21 +121,20 @@ namespace BlindChase.GameManagement
                 return;
             }
             m_players[id].Player.Behaviour?.OnSelfDefeated(info);
-
         }
 
-
-        public void OnCharacterSkillActivate(EventInfo info)
+        // Impl
+        public void OnCharacterSkillActivate(ObjectId id)
         {
-            ObjectId id = info.SourceId;
             if (id == null || !m_players.ContainsKey(id))
             {
                 return;
             }
-            m_players[id].Player.Behaviour?.OnSkillActivate(info);
 
+            m_players[id].Player.Behaviour?.OnSkillActivate();
         }
 
+        // Impl
         public void OnLeaderDefeated(EventInfo info)
         {
             ObjectId id = info.SourceId;
@@ -144,6 +145,7 @@ namespace BlindChase.GameManagement
             m_players[id].Player.Behaviour?.OnLeaderDefeated(info);
         }
 
+        // Impl
         // Some animation when a character is selected.
         public void OnCharacterSelected(EventInfo info)
         {
@@ -156,6 +158,7 @@ namespace BlindChase.GameManagement
             m_players[id].Player.Behaviour?.OnSelect();
         }
 
+        // Impl
         public void OnCharacterUnselected(EventInfo info)
         {
             ObjectId id = info.SourceId;

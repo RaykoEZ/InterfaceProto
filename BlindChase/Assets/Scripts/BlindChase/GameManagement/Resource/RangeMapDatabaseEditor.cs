@@ -1,8 +1,11 @@
 ﻿using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
-namespace BlindChase.GameManagement 
+namespace BlindChase.GameManagement
 {
+#if UNITY_EDITOR
     // Inspector setup for RangeDisplayMasks to auto-generate some range tiles
     [CustomEditor(typeof(RangeMapDatabase))]
     public class RangeMapDatabaseEditor : Editor
@@ -29,6 +32,9 @@ namespace BlindChase.GameManagement
                 EditorUtility.SetDirty(script);
             }
         }
+
     }
+#endif
+
 }
 

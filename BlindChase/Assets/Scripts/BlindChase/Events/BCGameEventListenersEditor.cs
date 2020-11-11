@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEditorInternal;
-using BlindChase.Events;
+#endif
 
 namespace BlindChase.Events 
 {
@@ -56,4 +57,3 @@ namespace BlindChase.Events
         }
     }
 }
-

@@ -6,7 +6,8 @@ namespace BlindChase.GameManagement
     {
         [SerializeField] protected AudioSource m_audioSource = default;
 
-        public void PlayerAudio(AudioClip audio)
+
+        public void PlayAudio(AudioClip audio)
         {
             m_audioSource?.PlayOneShot(audio);
         }
